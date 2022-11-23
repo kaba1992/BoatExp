@@ -19,11 +19,12 @@ export default class Boat {
         this.keyboard = new THREEx.KeyboardState()
         this.distance = null
         this.rotation = null
-        this.boost = 60
-        this.boostFinished = true
-        this.boostInterv = null
-
-
+        this.boost = 20
+        this.isRunning = false
+        this.fillBoostInterv = null
+        this.unfillBoostInterv = null
+        this.canBoost = true
+        this.canFill = true
 
         //Camera
 
@@ -41,7 +42,7 @@ export default class Boat {
         this.resource = this.resources.items.boatModel
 
         this.setModel()
-        this.fillBoost()
+        this.setKeyUp()
 
     }
 
@@ -67,30 +68,46 @@ export default class Boat {
                 target: this.model,
             }
         )
+
+    }
+    setKeyUp() {
         window.addEventListener('keyup', (event) => {
             this.stop()
+            this.canBoost = true
+            if (this.canFill) {
+                this.fillBoost()
+                console.log("can fill");
+            }
 
         })
     }
 
     fillBoost() {
 
-        if (this.boostFinished) {
+        if (!this.isRunning) {
             // add 1 to boost every 1 seconds
-            this.boostInterv = setInterval(() => {
-                console.log(this.boost);
-                if (this.boost >= 60) return
+            this.fillBoostInterv = setInterval(() => {
+                if (this.boost >= 20) return
                 this.boost += 1
-            }, 500)
+                console.log(this.boost);
+                console.log("can fill");
+
+            }, 1000)
 
         }
+    }
 
-        if (this.keyboard.pressed('shift')) {
-            this.boostManager(this.boost, this.velocity)
-            console.log("shift pressed");
-        } else {
-            this.velocity = 30
+    unfillBoost() {
+        if (this.isRunning) {
+            this.unfillBoostInterv = setInterval(() => {
+                if (this.boost > 0) {
+                    this.boost -= 1
+                    console.log(this.boost);
+                    console.log("can't fill");
 
+                }
+
+            }, 1000);
         }
     }
 
@@ -123,20 +140,31 @@ export default class Boat {
         if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
             this.distance = (this.velocity / 4) * this.delta
         }
+        if (this.keyboard.pressed('shift')) {
+            if (this.canBoost) {
+
+                this.boostManager()
+                this.unfillBoost()
+                this.canBoost = false
+
+                clearInterval(this.fillBoostInterv)
+            }
+            this.canFill = false
+        } else {
+            this.velocity = 30
+            clearInterval(this.unfillBoostInterv)
+            
+            this.canFill = true
+            this.isRunning = false  
+
+        }
+
+
 
     }
 
 
-    boostManager(boost, velocity) {
-        this.boost = boost
-        this.velocity = velocity
-        this.boost = 60
-
-        if (this.boost > 0) {
-            this.boost -= 0.5
-            console.log(this.boost);
-        }
-
+    boostManager() {
 
         if (this.boost <= 0) {
             this.velocity = 30
@@ -144,6 +172,8 @@ export default class Boat {
         }
         else {
             this.velocity = 60
+            this.isRunning = true
+
             console.log('boost');
         }
 

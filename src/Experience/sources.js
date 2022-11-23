@@ -31,5 +31,15 @@ export default [
         name: 'boatModel',
         type: 'gltfModel',
         path: 'models/Boat/Boat.glb'
+    },
+    {
+        name: 'rockModel1',
+        type: 'gltfModel',
+        path: 'models/Rock/Rock1.glb'
+    },
+    {
+        name: 'rockModel2',
+        type: 'gltfModel',
+        path: 'models/Rock/Rock2.glb'
     }
 ]

@@ -4,7 +4,7 @@ import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
 import { Vector3 } from 'three'
 import * as dat from 'lil-gui'
-
+import Rock from './Rock.js'
 export default class SkyWater {
     constructor() {
         this.experience = new Experience()
@@ -19,7 +19,6 @@ export default class SkyWater {
             elevation: 0.49,
             azimuth: -405
         }
-
 
         this.setWater()
         this.setSky()
@@ -48,6 +47,7 @@ export default class SkyWater {
         );
         this.water.rotation.x = - Math.PI / 2;
         this.scene.add(this.water);
+        this.rock = new Rock({ water: this.water })
 
     }
     setSky() {
@@ -70,7 +70,7 @@ export default class SkyWater {
 
     }
     updateSun() {
-    
+
         const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
         const theta = Math.PI * (this.parameters.elevation - 0.5);
         const phi = 2 * Math.PI * (this.parameters.azimuth - 0.5);
@@ -84,11 +84,12 @@ export default class SkyWater {
 
         this.scene.environment = pmremGenerator.fromScene(this.sky).texture;
 
-      
+
 
     }
 
     update() {
         this.water.material.uniforms['time'].value += 1.0 / 60.0;
+        this.rock.update()
     }
 }
