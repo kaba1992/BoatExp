@@ -8,20 +8,22 @@ export default class World {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
-        this.skyWater = new SkyWater()
-       
+
         this.resources.on('ready', () => {
             // Setup
             this.boat = new Boat()
+            this.skyWater = new SkyWater()
+
             this.environment = new Environment()
         })
     }
 
     update() {
-        if (this.boat) {
+        if (this.boat && this.skyWater) {
             this.boat.update()
+            this.skyWater.update()
+
         }
 
-        this.skyWater.update()
     }
 }

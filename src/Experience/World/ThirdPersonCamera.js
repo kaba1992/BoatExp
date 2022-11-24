@@ -23,8 +23,8 @@ export default class ThirdPersonCamera {
     }
     calculateIdealOffset() {
         const params = {
-            x: 30,
-            y: 120,
+            x: 0,
+            y: 140,
             z: 40,
         }
 
@@ -64,8 +64,8 @@ export default class ThirdPersonCamera {
         // fill these in
         this.currentPosition.lerp(idealOffset, lerpPow);
         this.currentLookAt.lerp(idealLookAt, lerpPow);
-        this.camera.position.copy(this.currentPosition);
-        this.camera.lookAt(this.currentLookAt);
+        // this.camera.position.copy(this.currentPosition);
+        // this.camera.lookAt(this.currentLookAt);
 
 
 
