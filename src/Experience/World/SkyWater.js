@@ -17,7 +17,7 @@ export default class SkyWater {
         this.gui = new dat.GUI()
         this.parameters = {
             elevation: 0.49,
-            azimuth: -405
+            azimuth: 49
         }
 
         this.setWater()
@@ -26,7 +26,7 @@ export default class SkyWater {
     }
 
     setWater() {
-        const waterGeometry = new THREE.PlaneGeometry(10000, 10000);
+        const waterGeometry = new THREE.PlaneGeometry(5000, 5000);
         this.water = new Water(
             waterGeometry,
             {
@@ -52,7 +52,7 @@ export default class SkyWater {
     }
     setSky() {
         this.sky = new Sky();
-        this.sky.scale.setScalar(10000);
+        this.sky.scale.setScalar(5000);
         this.scene.add(this.sky);
 
         const skyUniforms = this.sky.material.uniforms;
