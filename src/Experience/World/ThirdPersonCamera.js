@@ -16,26 +16,26 @@ export default class ThirdPersonCamera {
         this.currentPosition = new THREE.Vector3();
         this.currentLookAt = new THREE.Vector3();
         this.cameraUi = this.gui.addFolder('camera')
-        this.targetContainer = new THREE.Object3D();
         this.clock = new THREE.Clock();
-        this.target.add(this.targetContainer);
+
 
 
     }
     calculateIdealOffset() {
         const params = {
-            x: 0,
-            y: 140,
-            z: 40,
+            x: 150,
+            y: 50,
+            z: 0,
         }
         // convert target rotation from euler to quaternion
         const targetRotation = new THREE.Quaternion();
-        targetRotation.setFromEuler(this.target.rotation);
+        const camRot = new THREE.Euler(0, this.target.rotation.z, 0);
+        targetRotation.setFromEuler(camRot);
 
         const idealOffset = new THREE.Vector3(params.x, params.y, params.z);
         idealOffset.applyQuaternion(targetRotation);
 
-        idealOffset.add(this.targetContainer.position);
+        idealOffset.add(this.target.position);
         // this.cameraUi.add(params, 'x', -100, 100, 0.1).onChange(() => { idealOffset.x = params.x })
         // this.cameraUi.add(params, 'y', -100, 100, 0.1).onChange(() => { idealOffset.y = params.y })
         // this.cameraUi.add(params, 'z', -100, 100, 0.1).onChange(() => { idealOffset.z = params.z })
@@ -46,10 +46,11 @@ export default class ThirdPersonCamera {
     calculateIdealLookAt() {
         // convert target rotation from euler to quaternion
         const targetRotation = new THREE.Quaternion();
-        targetRotation.setFromEuler(this.target.rotation);
-        const idealLookAt = new THREE.Vector3(0, 0, 50);
+        const camRot = new THREE.Euler(0, this.target.rotation.z, 0);
+        targetRotation.setFromEuler(camRot);
+        const idealLookAt = new THREE.Vector3(0, 50, 0);
         idealLookAt.applyQuaternion(targetRotation);
-        idealLookAt.add(this.targetContainer.position);
+        idealLookAt.add(this.target.position);
         return idealLookAt;
     }
 
