@@ -16,8 +16,9 @@ export default class ThirdPersonCamera {
         this.currentPosition = new THREE.Vector3();
         this.currentLookAt = new THREE.Vector3();
         this.cameraUi = this.gui.addFolder('camera')
-
+        this.targetContainer = new THREE.Object3D();
         this.clock = new THREE.Clock();
+        this.target.add(this.targetContainer);
 
 
     }
@@ -27,15 +28,14 @@ export default class ThirdPersonCamera {
             y: 140,
             z: 40,
         }
-
         // convert target rotation from euler to quaternion
         const targetRotation = new THREE.Quaternion();
         targetRotation.setFromEuler(this.target.rotation);
-        
+
         const idealOffset = new THREE.Vector3(params.x, params.y, params.z);
         idealOffset.applyQuaternion(targetRotation);
 
-        idealOffset.add(this.target.position);
+        idealOffset.add(this.targetContainer.position);
         // this.cameraUi.add(params, 'x', -100, 100, 0.1).onChange(() => { idealOffset.x = params.x })
         // this.cameraUi.add(params, 'y', -100, 100, 0.1).onChange(() => { idealOffset.y = params.y })
         // this.cameraUi.add(params, 'z', -100, 100, 0.1).onChange(() => { idealOffset.z = params.z })
@@ -49,7 +49,7 @@ export default class ThirdPersonCamera {
         targetRotation.setFromEuler(this.target.rotation);
         const idealLookAt = new THREE.Vector3(0, 0, 50);
         idealLookAt.applyQuaternion(targetRotation);
-        idealLookAt.add(this.target.position);
+        idealLookAt.add(this.targetContainer.position);
         return idealLookAt;
     }
 

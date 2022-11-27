@@ -43,6 +43,8 @@ export default class Boat {
 
         this.setModel()
         this.setKeyUp()
+        this.axesHelper = new THREE.AxesHelper(5);
+        this.scene.add(this.axesHelper);
 
     }
 
@@ -53,8 +55,11 @@ export default class Boat {
         this.model = this.resource.scene.children[0]
 
         this.model.scale.set(8, 8, 8)
-        this.model.position.set(0, 2, 0)
-        this.model.rotation.z = Math.PI * 1.5;
+        this.model.position.x = 0
+        this.model.position.y = Math.random() * Math.PI * 2;
+        this.model.position.z = 0
+        this.model.userData.initFloating = Math.random() * Math.PI * 2;
+        this.model.rotation.z = 2 * Math.PI / 1.9;
         this.scene.add(this.model)
 
         this.model.traverse((child) => {
@@ -116,6 +121,7 @@ export default class Boat {
         if (this.model) {
             this.model.rotation.z += this.rotation
             this.model.translateY(this.distance)
+
         }
     }
 
@@ -153,9 +159,9 @@ export default class Boat {
         } else {
             this.velocity = 30
             clearInterval(this.unfillBoostInterv)
-            
+
             this.canFill = true
-            this.isRunning = false  
+            this.isRunning = false
 
         }
 
@@ -182,12 +188,18 @@ export default class Boat {
 
 
     update() {
+
         this.updateSpeed()
         this.boatControls()
+        const elapsedTime = this.clock.getElapsedTime()
         if (this.model) {
             this.ThirdPersonCamera.update(this.time.delta)
-        }
+            this.model.position.y = 1.5 + Math.sin(this.model.userData.initFloating + elapsedTime) * 0.8;
+            
 
+
+            this.axesHelper.position.copy(this.model.position)
+        }
         // console.log(this.elapsedTime);
 
     }
