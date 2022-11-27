@@ -53,8 +53,9 @@ export default class Boat {
 
     setModel() {
         this.model = this.resource.scene.children[0]
-
-        this.model.scale.set(8, 8, 8)
+    
+        console.log(this.model);
+        this.model.scale.set(0.1, 0.1, 0.1)
         this.model.position.x = 0
         this.model.position.y = Math.random() * Math.PI * 2;
         this.model.position.z = 0
@@ -194,7 +195,7 @@ export default class Boat {
         const elapsedTime = this.clock.getElapsedTime()
         if (this.model) {
             this.ThirdPersonCamera.update(this.time.delta)
-            this.model.position.y = 1.5 + Math.sin(this.model.userData.initFloating + elapsedTime) * 0.8;
+            this.model.position.y = 1.2 + Math.sin(this.model.userData.initFloating + elapsedTime) * 0.8;
             
 
 
