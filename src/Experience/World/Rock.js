@@ -19,7 +19,7 @@ export default class Rock {
         this.crateModel = this.resources.items.crateModel
         this.setRock();
         this.setCrate();
-     
+
 
     }
 
@@ -31,13 +31,14 @@ export default class Rock {
             for (let j = 0; j < rockNumber; j++) {
                 this.rock = this.rocks[i].clone();
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 200 + Math.random() * 1500;
+                const distanceBetweenEachRockAngle = 10 * Math.PI * 2;
+                const radius = 200 + Math.random() * 1500 + j * distanceBetweenEachRockAngle;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
                 const y = 0
                 const rock = this.rock;
                 rock.position.set(x, y, z);
-                rock.scale.set(5, 5, 5);
+                rock.scale.set(10, 10, 10);
                 this.scene.add(rock);
                 // rock.visible = false;
             }

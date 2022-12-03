@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Experience from '../Experience.js'
 import THREEx from '../Utils/Keyboard.js'
 import ThirdPersonCamera from './ThirdPersonCamera.js'
+import { gsap } from "gsap";
 
 export default class Boat {
     constructor() {
@@ -19,12 +20,8 @@ export default class Boat {
         this.keyboard = new THREEx.KeyboardState()
         this.distance = null
         this.rotation = null
-        this.boost = 20
-        this.isRunning = false
-        this.fillBoostInterv = null
-        this.unfillBoostInterv = null
-        this.canBoost = true
-        this.canFill = true
+        this.boost = 400
+
 
         //Camera
 
@@ -54,10 +51,14 @@ export default class Boat {
     setModel() {
         this.model = this.resource.scene.children[0]
         const boatPlane = this.model.getObjectByName('WaterPlane_Mat_Water_0')
-        const boatFlag = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
-        console.log(boatFlag);
+        this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
+        this.boatFlag2 = this.model.getObjectByName('StylShip_SailFront_Mat_StylShip_SailsRope_0')
+        this.boatFlag3 = this.model.getObjectByName('StylShip_SailMid2_Mat_StylShip_SailsRope_0')
+        // boatFlag.scale(1, 0.1, 1)
+        gsap.set(this.boatFlag1.scale, { x: 1, y: 0.1, z: 1 })
+        gsap.set(this.boatFlag2.scale, { x: 1, y: 0.1, z: 1 })
+        gsap.set(this.boatFlag3.scale, { x: 1, y: 0.1, z: 1 })
         boatPlane.visible = false
-        console.log(this.model);
         this.model.scale.set(0.1, 0.1, 0.1)
         this.model.position.x = 0
         this.model.position.y = Math.random() * Math.PI * 2;
@@ -82,42 +83,38 @@ export default class Boat {
     setKeyUp() {
         window.addEventListener('keyup', (event) => {
             this.stop()
-            this.canBoost = true
-            if (this.canFill) {
-                this.fillBoost()
-                console.log("can fill");
+            if (event.key === 'Shift') {
+                gsap.to(this.boatFlag1.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
+                gsap.to(this.boatFlag2.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
+                gsap.to(this.boatFlag3.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
             }
-
         })
+
     }
 
     fillBoost() {
-
-        if (!this.isRunning) {
-            // add 1 to boost every 1 seconds
-            this.fillBoostInterv = setInterval(() => {
-                if (this.boost >= 20) return
-                this.boost += 1
-                console.log(this.boost);
-                console.log("can fill");
-
-            }, 1000)
-
-        }
+        if (this.boost >= 400) return
+        this.boost += 0.3
+        // console.log(this.boost + "can fill");
     }
 
     unfillBoost() {
-        if (this.isRunning) {
-            this.unfillBoostInterv = setInterval(() => {
-                if (this.boost > 0) {
-                    this.boost -= 1
-                    console.log(this.boost);
-                    console.log("can't fill");
-
-                }
-
-            }, 1000);
+        if (this.boost > 0) {
+            this.boost -= 0.6
+            // console.log(this.boost);
+            // console.log("can't fill");
         }
+    }
+    boostManager() {
+
+        if (this.boost <= 0) {
+            this.velocity = 30
+            console.log('boost ended');
+        }
+        else {
+            this.velocity = 60
+        }
+
     }
 
 
@@ -151,21 +148,16 @@ export default class Boat {
             this.distance = (this.velocity / 4) * this.delta
         }
         if (this.keyboard.pressed('shift')) {
-            if (this.canBoost) {
+            this.boostManager()
+            this.unfillBoost()
+            gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
+            gsap.to(this.boatFlag2.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
+            gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
+            console.log("shift pressed");
 
-                this.boostManager()
-                this.unfillBoost()
-                this.canBoost = false
-
-                clearInterval(this.fillBoostInterv)
-            }
-            this.canFill = false
         } else {
             this.velocity = 30
-            clearInterval(this.unfillBoostInterv)
-
-            this.canFill = true
-            this.isRunning = false
+            this.fillBoost()
 
         }
 
@@ -174,27 +166,14 @@ export default class Boat {
     }
 
 
-    boostManager() {
 
-        if (this.boost <= 0) {
-            this.velocity = 30
-            console.log('boost ended');
-        }
-        else {
-            this.velocity = 60
-            this.isRunning = true
-
-            console.log('boost');
-        }
-
-    }
 
 
 
     update() {
 
-        this.updateSpeed()
         this.boatControls()
+        this.updateSpeed()
         const elapsedTime = this.clock.getElapsedTime()
         if (this.model) {
             this.ThirdPersonCamera.update(this.time.delta)
