@@ -3,6 +3,8 @@ import Experience from '../Experience.js'
 import THREEx from '../Utils/Keyboard.js'
 import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
+import AddBody from '../Utils/addBody.js';
+import bodyTypes from "../Utils/BodyTypes.js";
 
 export default class Boat {
     constructor() {
@@ -21,6 +23,7 @@ export default class Boat {
         this.distance = null
         this.rotation = null
         this.boost = 400
+        this.physic = this.experience.physic
 
 
         //Camera
@@ -78,15 +81,25 @@ export default class Boat {
                 target: this.model,
             }
         )
-
+        this.modelBody = AddBody.setCustomBody(
+            40, {
+            material: 'default',
+            bodyType: bodyTypes.BOAT,
+            fixedRotation: true,
+        },
+            this.physic.world,
+            {
+                width: 45, height: 12, depth: 12
+            })
+        console.log(this.modelBody);
     }
     setKeyUp() {
         window.addEventListener('keyup', (event) => {
             this.stop()
             if (event.key === 'Shift') {
-                gsap.to(this.boatFlag1.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
-                gsap.to(this.boatFlag2.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
-                gsap.to(this.boatFlag3.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing:"easeOut" })
+                gsap.to(this.boatFlag1.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing: "easeOut" })
+                gsap.to(this.boatFlag2.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing: "easeOut" })
+                gsap.to(this.boatFlag3.scale, { x: 1, y: 0.1, z: 1, duration: 1, easing: "easeOut" })
             }
         })
 
@@ -150,19 +163,15 @@ export default class Boat {
         if (this.keyboard.pressed('shift')) {
             this.boostManager()
             this.unfillBoost()
-            gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
-            gsap.to(this.boatFlag2.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
-            gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease:"easeOut" })
+            gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
+            gsap.to(this.boatFlag2.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
+            gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
             console.log("shift pressed");
 
         } else {
             this.velocity = 30
             this.fillBoost()
-
         }
-
-
-
     }
 
 
@@ -180,6 +189,8 @@ export default class Boat {
             this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 1;
             this.model.rotation.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
             this.axesHelper.position.copy(this.model.position)
+            this.modelBody.position.copy(this.model.position)
+            this.modelBody.quaternion.copy(this.model.quaternion)
         }
         // console.log(this.elapsedTime);
 

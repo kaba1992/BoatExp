@@ -3,17 +3,18 @@ import Environment from './Environment.js'
 import SkyWater from './SkyWater.js'
 import Boat from './Boat.js'
 
+
 export default class World {
     constructor() {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
 
+
         this.resources.on('ready', () => {
             // Setup
             this.boat = new Boat()
             this.skyWater = new SkyWater()
-
             this.environment = new Environment()
         })
     }
