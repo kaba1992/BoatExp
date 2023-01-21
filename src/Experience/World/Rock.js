@@ -3,8 +3,10 @@ import * as THREE from "three";
 import * as dat from 'lil-gui'
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
+import Boat from "./Boat";
 
 export default class Rock {
+
     constructor(params) {
         this.experience = new Experience();
         this.scene = this.experience.scene;
@@ -18,23 +20,21 @@ export default class Rock {
         this.crate = null
         this.goodCrateArr = [];
         this.badCrateArr = [];
-        this.goodCrate = null;
-        this.badCrate = null;
+        this.score = 0;
         this.model = this.resources.items.rockModel2
         this.crateModel = this.resources.items.crateModel
         this.physic = this.experience.physic;
+        this.boatBody = Boat.modelBody;
+        this.counter = 0;
         this.setRock();
         this.setCrate();
-
-
     }
 
     setRock() {
-
         this.rocks = this.model.scene.children[0].children[0].children[0].children;
         this.rocksToRemove = ["Rock_9", "Rock_10", "Rock_11", "Rock_12", "Rock_13"]
         this.rocks = this.rocks.filter(rock => !this.rocksToRemove.includes(rock.name))
-        console.log(this.rocks.length);
+
         const rockNumber = 22;
         for (let i = 0; i < this.rocks.length; i++) {
             for (let j = 0; j < rockNumber; j++) {
@@ -56,6 +56,7 @@ export default class Rock {
                     {
                         fixedRotation: true,
                         collisionFilterGroup: bodyTypes.ROCK,
+                        collisionFilterMask: bodyTypes.BOAT,
                     },
                     this.physic.world,
                 )
@@ -75,10 +76,10 @@ export default class Rock {
 
     setCrate() {
         this.crates = this.crateModel.scene.children[0].children[0].children[0].children;
-        const crateNumb = 8;
+        const crateNumb = 16;
         const goodCrates = this.crates.filter(crate => crate.name === "barrel" || crate.name === "crate")
         const badCrates = this.crates.filter(crate => crate.name === "barrelbroken" || crate.name === "cratebroken")
-        function addCrate({ crates, crate, crateArr, scene }) {
+        const addCrate = ({ crates, crate, crateArr, scene }) => {
             for (let i = 0; i < crates.length; i++) {
                 for (let j = 0; j < crateNumb; j++) {
                     crate = crates[i].clone();
@@ -95,22 +96,57 @@ export default class Rock {
                     crate.userData.initFloating = Math.random() * Math.PI * 2;
                     crateArr.push(crate);
                     scene.add(crate);
-
                 }
             }
         }
+
         addCrate({
             crates: goodCrates,
-            crate: this.goodCrate,
+            // crate: this.goodCrate,
             crateArr: this.goodCrateArr,
             scene: this.scene
         })
         addCrate({
             crates: badCrates,
-            crate: this.badCrate,
-            createArr: this.badCrateArr,
+            // crate: this.badCrate,
+            crateArr: this.badCrateArr,
             scene: this.scene
         })
+
+
+        // this.goodCrateArr.forEach((crate, index) => {
+        //     this.goodCrateArr[index].body = AddBody.setBody(
+        //         this.badCrateArr[index],
+        //         0,
+        //         {
+        //             fixedRotation: true,
+        //             collisionFilterGroup: bodyTypes.GOODCRATES,
+        //             collisionFilterMask: bodyTypes.BOAT,
+        //         },
+        //         this.physic.world,
+        //     )
+        //     this.goodCrateArr[index].body.position.copy(crate.position);
+        //     this.goodCrateArr[index].body.quaternion.copy(crate.quaternion);
+
+
+        // })
+        // this.badCrateArr.forEach((crate, index) => {
+        //     this.badCrateArr[index].body = AddBody.setBody(
+        //         this.badCrateArr[index],
+        //         0,
+        //         {
+        //             fixedRotation: true,
+        //             collisionFilterGroup: bodyTypes.BADCRATES,
+        //             collisionFilterMask: bodyTypes.BOAT,
+
+        //         },
+        //         this.physic.world,
+        //     )
+        //     this.badCrateArr[index].body.position.copy(crate.position);
+        //     this.badCrateArr[index].body.quaternion.copy(crate.quaternion);
+
+        // })
+
 
     }
 
@@ -123,11 +159,42 @@ export default class Rock {
         });
 
     }
+    scoreManager() {
+        this.counter++
+
+        this.goodCrateArr.forEach((crate,index) => {
+            if ( this.boatBody.position.distanceTo(crate.position) <= 25) {
+             
+                if (this.counter >= 120) {
+                    this.score += 1;
+                    this.scene.remove(crate);
+                    // this.physic.world.removeBody( this.goodCrateArr[index].body);
+                    this.counter = 0;
+
+                }
+            }
+        })
+
+        this.badCrateArr.forEach((crate,index) => {
+            if ( this.boatBody.position.distanceTo(crate.position) <= 25) {
+               
+                if (this.counter >= 120) {
+                    this.score -= 1;
+                    this.scene.remove(crate);
+                    // this.physic.world.removeBody( this.badCrateArr[index].body);
+                    this.counter = 0;
+
+                }
+            }
+        })
+    }
 
     update() {
         const elapsedTime = this.clock.getElapsedTime();
         this.initFloating(this.goodCrateArr, elapsedTime);
         this.initFloating(this.badCrateArr, elapsedTime);
+        this.scoreManager();
 
+        console.log(this.score);
     }
 }

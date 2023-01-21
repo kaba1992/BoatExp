@@ -8,6 +8,8 @@ export default class Physique {
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.world = new CANNON.World()
+        this.time = this.experience.time
+        // console.log(this.time);
         this.setPhysique()
     }
 
@@ -15,7 +17,7 @@ export default class Physique {
 
     setPhysique() {
         this.world.gravity.set(0, 0, 0)
-        this.world.broadphase = new CANNON.NaiveBroadphase()
+        this.world.broadphase = new CANNON.SAPBroadphase(this.world)
         this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
             // options...
         })
@@ -24,6 +26,6 @@ export default class Physique {
     update() {
         this.world.step(1 / 60)
         this.cannonDebugger.update()
-       
+      
     }
 }

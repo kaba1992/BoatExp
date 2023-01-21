@@ -7,6 +7,7 @@ import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
 
 export default class Boat {
+    static modelBody
     constructor() {
         this.experience = new Experience()
         this.scene = this.experience.scene
@@ -81,17 +82,19 @@ export default class Boat {
                 target: this.model,
             }
         )
-        this.modelBody = AddBody.setCustomBody(
+        Boat.modelBody = AddBody.setCustomBody(
             40, {
             material: 'default',
-            bodyType: bodyTypes.BOAT,
+            collisionFilterGroup: bodyTypes.BOAT,
+            collisionFilterMask:bodyTypes.GOODCRATES | bodyTypes.BADCRATES | bodyTypes.ROCK,
             fixedRotation: true,
         },
             this.physic.world,
             {
                 width: 45, height: 12, depth: 12
             })
-        console.log(this.modelBody);
+
+
     }
     setKeyUp() {
         window.addEventListener('keyup', (event) => {
@@ -122,10 +125,10 @@ export default class Boat {
 
         if (this.boost <= 0) {
             this.velocity = 30
-            console.log('boost ended');
+            // console.log('boost ended');
         }
         else {
-            this.velocity = 60
+            this.velocity = 120
         }
 
     }
@@ -166,7 +169,7 @@ export default class Boat {
             gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
             gsap.to(this.boatFlag2.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
             gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
-            console.log("shift pressed");
+            // console.log("shift pressed");
 
         } else {
             this.velocity = 30
@@ -180,7 +183,6 @@ export default class Boat {
 
 
     update() {
-
         this.boatControls()
         this.updateSpeed()
         const elapsedTime = this.clock.getElapsedTime()
@@ -189,8 +191,8 @@ export default class Boat {
             this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 1;
             this.model.rotation.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
             this.axesHelper.position.copy(this.model.position)
-            this.modelBody.position.copy(this.model.position)
-            this.modelBody.quaternion.copy(this.model.quaternion)
+            Boat.modelBody.position.copy(this.model.position)
+            Boat.modelBody.quaternion.copy(this.model.quaternion)
         }
         // console.log(this.elapsedTime);
 

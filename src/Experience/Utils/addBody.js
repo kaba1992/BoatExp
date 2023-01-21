@@ -7,7 +7,7 @@ class AddBody {
     }
 
     setBody(object, mass, options, world) {
-        if (object.isObject3D) {
+        if (object.type === 'Object3D') {
             // use threeToCannon to convert the object to a cannon shape with convexpolyhedron
 
             // const shape = threeToCannon(object);
