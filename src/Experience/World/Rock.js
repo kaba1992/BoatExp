@@ -26,8 +26,10 @@ export default class Rock {
         this.physic = this.experience.physic;
         this.boatBody = Boat.modelBody;
         this.counter = 0;
+        this.rocksArr = []
         this.setRock();
         this.setCrate();
+       
     }
 
     setRock() {
@@ -49,20 +51,18 @@ export default class Rock {
                 this.rock.position.set(x, y, z);
                 this.rock.scale.set(10, 10, 10);
                 this.scene.add(this.rock);
+                this.rocksArr.push(this.rock)
 
-                this.rockBody = AddBody.setBody(
+                this.rock.body = AddBody.setBody(
                     this.rock,
-                    0,
+                    10000,
                     {
                         fixedRotation: true,
-                        collisionFilterGroup: bodyTypes.ROCK,
-                        collisionFilterMask: bodyTypes.BOAT,
+                   
                     },
                     this.physic.world,
                 )
-                this.rockBody.position.copy(this.rock.position);
-                this.rockBody.quaternion.copy(this.rock.quaternion);
-
+        
                 // rock.visible = false;
             }
 
@@ -113,41 +113,6 @@ export default class Rock {
             scene: this.scene
         })
 
-
-        // this.goodCrateArr.forEach((crate, index) => {
-        //     this.goodCrateArr[index].body = AddBody.setBody(
-        //         this.badCrateArr[index],
-        //         0,
-        //         {
-        //             fixedRotation: true,
-        //             collisionFilterGroup: bodyTypes.GOODCRATES,
-        //             collisionFilterMask: bodyTypes.BOAT,
-        //         },
-        //         this.physic.world,
-        //     )
-        //     this.goodCrateArr[index].body.position.copy(crate.position);
-        //     this.goodCrateArr[index].body.quaternion.copy(crate.quaternion);
-
-
-        // })
-        // this.badCrateArr.forEach((crate, index) => {
-        //     this.badCrateArr[index].body = AddBody.setBody(
-        //         this.badCrateArr[index],
-        //         0,
-        //         {
-        //             fixedRotation: true,
-        //             collisionFilterGroup: bodyTypes.BADCRATES,
-        //             collisionFilterMask: bodyTypes.BOAT,
-
-        //         },
-        //         this.physic.world,
-        //     )
-        //     this.badCrateArr[index].body.position.copy(crate.position);
-        //     this.badCrateArr[index].body.quaternion.copy(crate.quaternion);
-
-        // })
-
-
     }
 
     initFloating(objects, time) {
@@ -161,32 +126,26 @@ export default class Rock {
     }
     scoreManager() {
         this.counter++
-
-        this.goodCrateArr.forEach((crate,index) => {
-            if ( this.boatBody.position.distanceTo(crate.position) <= 25) {
-             
-                if (this.counter >= 120) {
+        const scoreDisplay = document.querySelector(".score_display")
+        this.goodCrateArr.forEach((crate, index) => {
+            if (this.boatBody.position.distanceTo(crate.position) <= 25) {
                     this.score += 1;
                     this.scene.remove(crate);
-                    // this.physic.world.removeBody( this.goodCrateArr[index].body);
+                    // remove in array
+                    this.goodCrateArr.splice(index, 1);
                     this.counter = 0;
-
-                }
             }
         })
 
-        this.badCrateArr.forEach((crate,index) => {
-            if ( this.boatBody.position.distanceTo(crate.position) <= 25) {
-               
-                if (this.counter >= 120) {
+        this.badCrateArr.forEach((crate, index) => {
+            if (this.boatBody.position.distanceTo(crate.position) <= 25) {
                     this.score -= 1;
                     this.scene.remove(crate);
-                    // this.physic.world.removeBody( this.badCrateArr[index].body);
-                    this.counter = 0;
-
-                }
+                    // remove in array
+                    this.badCrateArr.splice(index, 1);
             }
         })
+        scoreDisplay.innerHTML = this.score;
     }
 
     update() {
@@ -194,7 +153,11 @@ export default class Rock {
         this.initFloating(this.goodCrateArr, elapsedTime);
         this.initFloating(this.badCrateArr, elapsedTime);
         this.scoreManager();
-
+        this.rocksArr.forEach(rock => {
+            rock.body.position.copy(rock.position)
+            rock.body.quaternion.copy(rock.quaternion)
+        })
         console.log(this.score);
+
     }
 }

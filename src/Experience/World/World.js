@@ -11,7 +11,8 @@ export default class World {
         this.resources = this.experience.resources
 
 
-        this.resources.on('ready', () => {
+        this.resources.on('ready', (e) => {
+            console.log(e)
             // Setup
             this.boat = new Boat()
             this.skyWater = new SkyWater()

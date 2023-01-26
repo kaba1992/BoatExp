@@ -16,7 +16,7 @@ export default class Physique {
 
 
     setPhysique() {
-        this.world.gravity.set(0, 0, 0)
+        this.world.gravity.set(0, -9.82, 0)
         this.world.broadphase = new CANNON.SAPBroadphase(this.world)
         this.cannonDebugger = new CannonDebugger(this.scene, this.world, {
             // options...

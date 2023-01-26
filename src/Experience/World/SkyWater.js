@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import Experience from '../Experience.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
-import { Vector3 } from 'three'
 import * as dat from 'lil-gui'
 import Rock from './Rock.js'
 export default class SkyWater {

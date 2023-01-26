@@ -5,6 +5,7 @@ import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
+import { Body } from "cannon-es"
 
 export default class Boat {
     static modelBody
@@ -17,7 +18,7 @@ export default class Boat {
         this.camera = this.experience.camera.instance
         this.orbitControls = this.experience.camera.controls
         this.model = null
-        this.velocity = 30
+        this.velocity = 300
         this.rotVelocity = 2
         this.clock = new THREE.Clock()
         this.keyboard = new THREEx.KeyboardState()
@@ -54,6 +55,125 @@ export default class Boat {
 
     setModel() {
         this.model = this.resource.scene.children[0]
+        const fragment = `
+uniform sampler2D uTexture;
+uniform float uTime;
+vec3 lightColor = vec3(1.0, 1.0, 1.0);
+uniform vec3 lightDirection;
+uniform vec3 uColor;
+varying vec2 vUv;
+varying vec3 vNormal;
+
+float Hash(vec2 p) {
+    vec3 p2 = vec3(p.xy, 1.0);
+    return fract(sin(dot(p2, vec3(37.1, 61.7, 12.4))) * 3758.5453123);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    f = f * (3.0 - 2.0 * f);
+
+    return mix(mix(Hash(i + vec2(0., 0.)), Hash(i + vec2(1., 0.)), f.x), mix(Hash(i + vec2(0., 1.)), Hash(i + vec2(1., 1.)), f.x), f.y);
+}
+
+float fbm(vec2 p) {
+    float v = 0.0;
+    v += noise(p * 1.) * .5;
+    v += noise(p * 2.) * .25;
+    v += noise(p * 4.) * .125;
+    return v;
+}
+
+void main() {
+    vec3 norm = normalize(vNormal);
+    vec2 uv = vUv;
+    vec4 src = texture2D(uTexture, uv);
+
+    vec4 col = src;
+
+    float nDotL = clamp(dot(lightDirection, norm), 0.0, 1.0);
+    vec3 diffuseColor = lightColor * nDotL * 6.;
+
+    uv.x -= 1.5;
+
+    float ctime = mod(uTime * 0.25, 2.5);
+   // burn
+    float d = uv.x + uv.y * .5 + .5 * fbm(uv * 15.1) + ctime * 1.3;
+    if(d > .35)
+        col = clamp(col - vec4((d - .35) * 10.), vec4(0.0), vec4(1.0));
+    if(d > .47) {
+        if(d < .5)
+            col += vec4((d - .4) * 33.0 * .5 * (0.0 + noise(100. * uv + vec2(-ctime * 2., 0.))) * vec3(1.5, 0.5, 0.0), 0.0) + vec4(diffuseColor, 1.0);
+
+    }
+
+    gl_FragColor = col * vec4(diffuseColor, 1.0) ;
+}`
+        const vertex = `
+uniform vec2 uFrequency;
+uniform float uTime;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+varying float vElevation;
+
+void main() {
+    // vec4 modelPosition =  vec4(position, 1.0);
+
+    
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    
+    vNormal = normal;
+    vUv = uv;
+    // vElevation = elevation;
+}
+`
+
+        let boatMaterial;
+        const childs = []
+        const textures = []
+   
+
+
+        this.model.traverse((child) => {
+
+            if (child instanceof THREE.Mesh) {
+                childs.push(child)
+                textures.push(child.material.map)
+                child.castShadow = true
+
+
+            }
+        })
+        for (let i = 0; i < childs.length; i++) {
+            childs[i].material = new THREE.ShaderMaterial({
+                fragmentShader: fragment,
+                vertexShader: vertex,
+                transparent: true,
+                uniforms: {
+                    uTime: { value: 5 },
+                    uTexture: { value: textures[i] },
+                    lightDirection: { value: new THREE.Vector3(3.5, 4, - 1.25).normalize() },
+                    uColor: {value: childs[i].material.color}
+                }
+            })
+            window.addEventListener('click', () => {
+                gsap.to(
+                    childs[i].material.uniforms.uTime,
+                    {
+                        value: 0,
+                        duration: 5,
+                        repeat: -1,
+                        yoyo: true,
+                    }
+                )
+            })
+
+
+        }
+
+
         const boatPlane = this.model.getObjectByName('WaterPlane_Mat_Water_0')
         this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
         this.boatFlag2 = this.model.getObjectByName('StylShip_SailFront_Mat_StylShip_SailsRope_0')
@@ -71,11 +191,8 @@ export default class Boat {
         this.model.rotation.z = -Math.PI / 2.5;
         this.scene.add(this.model)
 
-        this.model.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-                child.castShadow = true
-            }
-        })
+
+
         this.ThirdPersonCamera = new ThirdPersonCamera(
             {
                 camera: this.camera,
@@ -83,10 +200,8 @@ export default class Boat {
             }
         )
         Boat.modelBody = AddBody.setCustomBody(
-            40, {
-            material: 'default',
-            collisionFilterGroup: bodyTypes.BOAT,
-            collisionFilterMask:bodyTypes.GOODCRATES | bodyTypes.BADCRATES | bodyTypes.ROCK,
+            1000, {
+            type: Body.DYNAMIC,
             fixedRotation: true,
         },
             this.physic.world,
@@ -124,11 +239,11 @@ export default class Boat {
     boostManager() {
 
         if (this.boost <= 0) {
-            this.velocity = 30
+            this.velocity = 300
             // console.log('boost ended');
         }
         else {
-            this.velocity = 120
+            this.velocity = 600
         }
 
     }
@@ -172,7 +287,7 @@ export default class Boat {
             // console.log("shift pressed");
 
         } else {
-            this.velocity = 30
+            this.velocity = 300
             this.fillBoost()
         }
     }
@@ -193,6 +308,8 @@ export default class Boat {
             this.axesHelper.position.copy(this.model.position)
             Boat.modelBody.position.copy(this.model.position)
             Boat.modelBody.quaternion.copy(this.model.quaternion)
+
+
         }
         // console.log(this.elapsedTime);
 
