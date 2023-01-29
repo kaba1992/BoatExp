@@ -2176,6 +2176,11 @@
   "resolved" "https://registry.npmjs.org/fs.realpath/-/fs.realpath-1.0.0.tgz"
   "version" "1.0.0"
 
+"fs@0.0.2":
+  "integrity" "sha512-YAiVokMCrSIFZiroB1oz51hPiPRVcUtSa4x2U5RYXyhS9VAPdiFigKbPTnOSq7XY8wd3FIVPYmXpo5lMzFmxgg=="
+  "resolved" "https://registry.npmjs.org/fs/-/fs-0.0.2.tgz"
+  "version" "0.0.2"
+
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
   "resolved" "https://registry.npmjs.org/function-bind/-/function-bind-1.1.1.tgz"
@@ -3017,6 +3022,11 @@
   "resolved" "https://registry.npmjs.org/path-type/-/path-type-4.0.0.tgz"
   "version" "4.0.0"
 
+"path@^0.11.14":
+  "integrity" "sha512-CzEXTDgcEfa0yqMe+DJCSbEB5YCv4JZoic5xulBNFF2ifIMjNrTWbNSPNhgKfSo0MjneGIx9RLy4pCFuZPaMSQ=="
+  "resolved" "https://registry.npmjs.org/path/-/path-0.11.14.tgz"
+  "version" "0.11.14"
+
 "picocolors@^1.0.0":
   "integrity" "sha512-1fygroTLlHu66zi26VoTDv8yRgm0Fccecssto+MhsZ0D/DGW2sm8E8AjW7NU5VVTRt5GxbeZ5qBuJr+HyLYkjQ=="
   "resolved" "https://registry.npmjs.org/picocolors/-/picocolors-1.0.0.tgz"
@@ -3607,6 +3617,11 @@
     "select-hose" "^2.0.0"
     "spdy-transport" "^3.0.0"
 
+"stats-js@^1.0.1":
+  "integrity" "sha512-EAwEFghGNv8mlYC4CZzI5kWghsnP8uBKXw6VLRHtXkOk5xySfUKLTqTkjgJFfDluIkf/O7eZwi5MXP50VeTbUg=="
+  "resolved" "https://registry.npmjs.org/stats-js/-/stats-js-1.0.1.tgz"
+  "version" "1.0.1"
+
 "statuses@>= 1.4.0 < 2":
   "integrity" "sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow="
   "resolved" "https://registry.npmjs.org/statuses/-/statuses-1.5.0.tgz"
@@ -3904,6 +3919,14 @@
     "spdy" "^4.0.2"
     "webpack-dev-middleware" "^5.3.1"
     "ws" "^8.4.2"
+
+"webpack-glsl-loader@^1.0.1":
+  "integrity" "sha512-bFtjj+sOGECMKQ+o8V4Y0TdrIxiua6ykVAncj5ccws8ezZBhhz+9wdrQqSgawm2IS3SPjoVaF7yxSAS8naNirg=="
+  "resolved" "https://registry.npmjs.org/webpack-glsl-loader/-/webpack-glsl-loader-1.0.1.tgz"
+  "version" "1.0.1"
+  dependencies:
+    "fs" "0.0.2"
+    "path" "^0.11.14"
 
 "webpack-merge@^5.7.3", "webpack-merge@^5.8.0":
   "integrity" "sha512-/SaI7xY0831XwP6kzuwhKWVKDP9t1QY1h65lAFLbZqMPIuYcD9QAW4u9STIbU9kaJbPBB/geU/gLr1wDjOhQ+Q=="

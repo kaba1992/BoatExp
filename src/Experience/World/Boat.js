@@ -5,10 +5,9 @@ import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
-import * as CANNON from 'cannon-es'
-import System, { Body, Emitter, Life, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color } from "three-nebula"
-import MeshInitializer from '../Utils/MeshInitializer.js';
-import { lerp } from "three/src/math/MathUtils"
+import fragment from '../../../static/shaders/Boat/fragement.glsl'
+import vertex from '../../../static/shaders/Boat/vertex.glsl'
+import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color } from "three-nebula"
 export default class Boat {
     static modelBody
     constructor() {
@@ -20,7 +19,7 @@ export default class Boat {
         this.camera = this.experience.camera.instance
         this.orbitControls = this.experience.camera.controls
         this.model = null
-        this.velocity = 300
+        this.velocity = 50
         this.rotVelocity = 2
         this.clock = new THREE.Clock()
         this.keyboard = new THREEx.KeyboardState()
@@ -38,9 +37,7 @@ export default class Boat {
 
 
         // Debug
-        if (this.debug.active) {
-            this.debugFolder = this.debug.ui.addFolder('boat')
-        }
+
 
         // Resource
         this.resource = this.resources.items.boatModel
@@ -58,87 +55,8 @@ export default class Boat {
 
     setModel() {
         this.model = this.resource.scene.children[0]
-        const fragment = `
-uniform sampler2D uTexture;
-uniform float uTime;
-vec3 lightColor = vec3(1.0, 1.0, 1.0);
-uniform vec3 lightDirection;
-uniform vec3 uColor;
-varying vec2 vUv;
-varying vec3 vNormal;
-
-float Hash(vec2 p) {
-    vec3 p2 = vec3(p.xy, 1.0);
-    return fract(sin(dot(p2, vec3(37.1, 61.7, 12.4))) * 3758.5453123);
-}
-
-float noise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    f = f * (3.0 - 2.0 * f);
-
-    return mix(mix(Hash(i + vec2(0., 0.)), Hash(i + vec2(1., 0.)), f.x), mix(Hash(i + vec2(0., 1.)), Hash(i + vec2(1., 1.)), f.x), f.y);
-}
-
-float fbm(vec2 p) {
-    float v = 0.0;
-    v += noise(p * 1.) * .5;
-    v += noise(p * 2.) * .25;
-    v += noise(p * 4.) * .125;
-    return v;
-}
-
-void main() {
-    vec3 norm = normalize(vNormal);
-    vec2 uv = vUv;
-    vec4 src = texture2D(uTexture, uv);
-
-    vec4 col = src;
-
-    float nDotL = clamp(dot(lightDirection, norm), 0.0, 1.0);
-    vec3 diffuseColor = lightColor * nDotL * 6.;
-
-    uv.x -= 1.5;
-
-    float ctime = mod(uTime * 0.25, 2.5);
-   // burn
-    float d = uv.x + uv.y * .5 + .5 * fbm(uv * 15.1) + ctime * 1.3;
-    if(d > .35)
-        col = clamp(col - vec4((d - .35) * 10.), vec4(0.0), vec4(1.0));
-    if(d > .47) {
-        if(d < .5)
-            col += vec4((d - .4) * 33.0 * .5 * (0.0 + noise(100. * uv + vec2(-ctime * 2., 0.))) * vec3(1.5, 0.5, 0.0), 0.0) + vec4(diffuseColor, 1.0);
-
-    }
-
-    gl_FragColor = col * vec4(diffuseColor, 1.0) ;
-}`
-        const vertex = `
-uniform vec2 uFrequency;
-uniform float uTime;
-
-varying vec2 vUv;
-varying vec3 vNormal;
-varying float vElevation;
-
-void main() {
-    // vec4 modelPosition =  vec4(position, 1.0);
-
-    
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    
-    vNormal = normal;
-    vUv = uv;
-    // vElevation = elevation;
-}
-`
-
-        let boatMaterial;
         const childs = []
         const textures = []
-
-
-
         this.model.traverse((child) => {
 
             if (child instanceof THREE.Mesh) {
@@ -205,15 +123,15 @@ void main() {
                 target: this.model,
             }
         )
-        Boat.modelBody = AddBody.setCustomBody(
-            1000, {
-            type: Body.DYNAMIC,
-            fixedRotation: true,
-        },
-            this.physic.world,
-            {
-                width: 45, height: 12, depth: 12
-            })
+        // Boat.modelBody = AddBody.setCustomBody(
+        //     1000, {
+        //     type: Body.DYNAMIC,
+        //     fixedRotation: true,
+        // },
+        //     this.physic.world,
+        //     {
+        //         width: 45, height: 12, depth: 12
+        //     })
 
 
     }
@@ -245,7 +163,7 @@ void main() {
     boostManager() {
 
         if (this.boost <= 0) {
-            this.velocity = 300
+            this.velocity = 50
             // console.log('boost ended');
         }
         else {
@@ -293,7 +211,7 @@ void main() {
             // console.log("shift pressed");
 
         } else {
-            this.velocity = 300
+            this.velocity = 50
             this.fillBoost()
         }
     }
@@ -302,29 +220,26 @@ void main() {
     setParticle() {
         this.system = new System()
         this.emitter = new Emitter()
-        let boatTail;
-        this.model.traverse(
-            (child) => {
-                if (child instanceof THREE.Mesh) {
-                    if (child.name === 'StylShip_Rudder_Mat_StylShip_Elements_0') {
-                        boatTail = child
-                    }
-                }
-            }
-        )
-        const initializer = new MeshInitializer(boatTail)
-        console.log(initializer);
-        this.renderer = new SpriteRenderer(this.scene, THREE);
-        const life = new Life(0.5)
+
+
+        const group = new THREE.Group()
+
+        this.scene.add(group)
+
+        group.position.set(300, -3, -10)
+        group.scale.set(1.5, 2.5, 5)
+        group.rotateY(Math.PI / 2)
+
+        this.renderer = new SpriteRenderer(group, THREE);
         const texture = new THREE.TextureLoader().load("../textures/foam.png")
 
         const sprite = new THREE.Sprite(
             new THREE.SpriteMaterial({
                 map: texture,
-                color: 0xff0000,
-                  transparent: true,
-                  depthWrite: false,
-                  depthTest: true,
+                color: 0xffffff,
+                transparent: true,
+                depthWrite: false,
+                depthTest: true,
                 blending: THREE.AdditiveBlending,
                 fog: true,
             })
@@ -332,19 +247,34 @@ void main() {
 
         const color = new THREE.Color("white");
         this.emitter
-            .setRate(new Rate(new Span(24, 32), new Span(0.01)))
-            .setPosition(new THREE.Vector3(boatTail.position.x + 0.5, boatTail.position.y, boatTail.position.z))
-            .setRotation(boatTail.rotation)
-            .addInitializers([new Mass(0.5), new Radius(0.8, 1), initializer, life, new Body(sprite)])
-            .addBehaviour(new Alpha(1, 0))
-            .addBehaviour(new Scale(1, 2))
-            .addBehaviour(new Color(color))
-            .emit()
+            .setRate(new Rate(new Span(10, 20), new Span(0.01)))
+            .setInitializers([
+                new Mass(1),
+                new Radius(6, 8),
+                new Life(1),
+                new Body(sprite),
+                new RadialVelocity(40, new Vector3D(0, 0, 1), 180),
+            ])
+            .setBehaviours([
+                new Alpha(1, 0),
+                new Scale(1, 2),
+                new Color(color),
+            ])
+            .emit();
 
         this.system.addEmitter(this.emitter).addRenderer(this.renderer)
-        this.initializer = initializer
-        this.boatTail = boatTail
-
+        this.group = group
+        this.model.add(this.group)
+        if (this.debug.active && this.model) {
+            this.debugFolder = this.debug.ui.addFolder("group")
+            this.debugFolder.add(this.group.position, 'y').min(-100).max(300).step(0.0001).name('positionX')
+            this.debugFolder.add(this.group.position, 'x').min(-100).max(100).step(0.0001).name('positionY')
+            this.debugFolder.add(this.group.position, 'z').min(-100).max(100).step(0.0001).name('positionZ')
+            // rotation
+            // this.debugFolder.add(this.group.rotation, 'x').min(0).max(Math.PI * 2).step(0.0001).name('rotationX')
+            // this.debugFolder.add(this.group.rotation, 'y').min(0).max(Math.PI * 2).step(0.0001).name('rotationY')
+            // this.debugFolder.add(this.group.rotation, 'z').min(0).max(Math.PI * 2).step(0.0001).name('rotationZ')
+        }
 
     }
 
@@ -360,22 +290,12 @@ void main() {
             this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 1;
             this.model.rotation.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
             this.axesHelper.position.copy(this.model.position)
-            Boat.modelBody.position.copy(this.model.position)
-            Boat.modelBody.quaternion.copy(this.model.quaternion)
+            // Boat.modelBody.position.copy(this.model.position)
+            // Boat.modelBody.quaternion.copy(this.model.quaternion)
 
 
         }
         this.system.update(delta)
-        // function easeOutCirc(x) {
-        //     return Math.sqrt(1 - Math.pow(x - 1, 2))
-        //   }
-      
-        //   const coef = easeOutCirc(Math.min(500, 500) / 500)
-      
-        //   this.initializer.speed = lerp(0.2, 5, coef) * -2
-        // console.log(this.elapsedTime);
-        this.emitter.position.copy(this.boatTail.position)
-        console.log(this.boatTail.position);
 
     }
 }
