@@ -5,8 +5,10 @@ import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
-import { Body } from "cannon-es"
-
+import * as CANNON from 'cannon-es'
+import System, { Body, Emitter, Life, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color } from "three-nebula"
+import MeshInitializer from '../Utils/MeshInitializer.js';
+import { lerp } from "three/src/math/MathUtils"
 export default class Boat {
     static modelBody
     constructor() {
@@ -47,6 +49,7 @@ export default class Boat {
         this.setKeyUp()
         this.axesHelper = new THREE.AxesHelper(5);
         this.scene.add(this.axesHelper);
+        this.setParticle()
 
     }
 
@@ -133,7 +136,7 @@ void main() {
         let boatMaterial;
         const childs = []
         const textures = []
-   
+
 
 
         this.model.traverse((child) => {
@@ -155,20 +158,23 @@ void main() {
                     uTime: { value: 5 },
                     uTexture: { value: textures[i] },
                     lightDirection: { value: new THREE.Vector3(3.5, 4, - 1.25).normalize() },
-                    uColor: {value: childs[i].material.color}
+                    uColor: { value: childs[i].material.color }
                 }
             })
-            window.addEventListener('click', () => {
-                gsap.to(
-                    childs[i].material.uniforms.uTime,
-                    {
-                        value: 0,
-                        duration: 5,
-                        repeat: -1,
-                        yoyo: true,
-                    }
-                )
-            })
+
+            window.setTimeout(
+                () => {
+                    gsap.to(
+                        childs[i].material.uniforms.uTime,
+                        {
+                            value: 0,
+                            duration: 5,
+                            // repeat: -1,
+                            // yoyo: true,
+                        }
+                    )
+                }, 1000
+            )
 
 
         }
@@ -293,7 +299,54 @@ void main() {
     }
 
 
+    setParticle() {
+        this.system = new System()
+        this.emitter = new Emitter()
+        let boatTail;
+        this.model.traverse(
+            (child) => {
+                if (child instanceof THREE.Mesh) {
+                    if (child.name === 'StylShip_Rudder_Mat_StylShip_Elements_0') {
+                        boatTail = child
+                    }
+                }
+            }
+        )
+        const initializer = new MeshInitializer(boatTail)
+        console.log(initializer);
+        this.renderer = new SpriteRenderer(this.scene, THREE);
+        const life = new Life(0.5)
+        const texture = new THREE.TextureLoader().load("../textures/foam.png")
 
+        const sprite = new THREE.Sprite(
+            new THREE.SpriteMaterial({
+                map: texture,
+                color: 0xff0000,
+                  transparent: true,
+                  depthWrite: false,
+                  depthTest: true,
+                blending: THREE.AdditiveBlending,
+                fog: true,
+            })
+        )
+
+        const color = new THREE.Color("white");
+        this.emitter
+            .setRate(new Rate(new Span(24, 32), new Span(0.01)))
+            .setPosition(new THREE.Vector3(boatTail.position.x + 0.5, boatTail.position.y, boatTail.position.z))
+            .setRotation(boatTail.rotation)
+            .addInitializers([new Mass(0.5), new Radius(0.8, 1), initializer, life, new Body(sprite)])
+            .addBehaviour(new Alpha(1, 0))
+            .addBehaviour(new Scale(1, 2))
+            .addBehaviour(new Color(color))
+            .emit()
+
+        this.system.addEmitter(this.emitter).addRenderer(this.renderer)
+        this.initializer = initializer
+        this.boatTail = boatTail
+
+
+    }
 
 
 
@@ -301,6 +354,7 @@ void main() {
         this.boatControls()
         this.updateSpeed()
         const elapsedTime = this.clock.getElapsedTime()
+        const delta = this.clock.getDelta()
         if (this.model) {
             this.ThirdPersonCamera.update(this.time.delta)
             this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 1;
@@ -311,7 +365,17 @@ void main() {
 
 
         }
+        this.system.update(delta)
+        // function easeOutCirc(x) {
+        //     return Math.sqrt(1 - Math.pow(x - 1, 2))
+        //   }
+      
+        //   const coef = easeOutCirc(Math.min(500, 500) / 500)
+      
+        //   this.initializer.speed = lerp(0.2, 5, coef) * -2
         // console.log(this.elapsedTime);
+        this.emitter.position.copy(this.boatTail.position)
+        console.log(this.boatTail.position);
 
     }
 }
