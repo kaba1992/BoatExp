@@ -1,10 +1,9 @@
 uniform sampler2D uTexture;
 uniform float uTime;
 vec3 lightColor = vec3(1.0, 1.0, 1.0);
-uniform vec3 lightDirection;
 uniform vec3 uColor;
 varying vec2 vUv;
-varying vec3 vNormal;
+varying float nDotL;
 
 float Hash(vec2 p) {
     vec3 p2 = vec3(p.xy, 1.0);
@@ -28,14 +27,16 @@ float fbm(vec2 p) {
 }
 
 void main() {
-    vec3 norm = normalize(vNormal);
+    
     vec2 uv = vUv;
     vec4 src = texture2D(uTexture, uv);
 
     vec4 col = src;
 
-    float nDotL = clamp(dot(lightDirection, norm), 0.0, 1.0);
-    vec3 diffuseColor = lightColor * nDotL * 6.;
+   
+
+  
+    vec3 diffuseColor = lightColor * nDotL * 4.;
 
     uv.x -= 1.5;
 

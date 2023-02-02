@@ -153,10 +153,10 @@ export default class Rock {
         this.initFloating(this.goodCrateArr, elapsedTime);
         this.initFloating(this.badCrateArr, elapsedTime);
         this.scoreManager();
-        // this.rocksArr.forEach(rock => {
-        //     rock.body.position.copy(rock.position)
-        //     rock.body.quaternion.copy(rock.quaternion)
-        // })
+        this.rocksArr.forEach(rock => {
+            // rock.body.position.copy(rock.position)
+            // rock.body.quaternion.copy(rock.quaternion)
+        })
         console.log(this.score);
 
     }

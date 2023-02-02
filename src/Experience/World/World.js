@@ -9,7 +9,6 @@ export default class World {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
-        this.sizes = this.experience.sizes
 
 
         this.resources.on('ready', (e) => {
@@ -19,8 +18,6 @@ export default class World {
             this.skyWater = new SkyWater()
             this.environment = new Environment()
         })
-
-        
     }
 
     update() {

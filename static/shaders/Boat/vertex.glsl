@@ -1,12 +1,18 @@
 uniform vec2 uFrequency;
 uniform float uTime;
+uniform vec3 lightPosition;
 
 varying vec2 vUv;
-varying vec3 vNormal;
 
+varying float nDotL;
 
 void main() {
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    vNormal = normal;
-    vUv = uv;
+vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+
+vec4 lightModelPosition = modelMatrix * vec4(lightPosition, 1.0);
+vec3 lightDirection = normalize(lightModelPosition.xyz - modelPosition.xyz );
+
+nDotL = dot(lightDirection, normal);
+gl_Position = projectionMatrix * viewMatrix * modelPosition;
+vUv = uv;
 }

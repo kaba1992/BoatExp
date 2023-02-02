@@ -2,20 +2,18 @@ import * as THREE from 'three'
 import Experience from '../Experience.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
-
+import * as dat from 'lil-gui'
 import Rock from './Rock.js'
-
 export default class SkyWater {
     constructor() {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer.instance
-        this.sizes = this.experience.sizes
         this.sun = new THREE.Vector3();
         this.water = null
         this.sky = null
-        this.debug = this.experience.debug
+        this.gui = new dat.GUI()
         this.parameters = {
             elevation: 0.49,
             azimuth: 49
@@ -23,6 +21,7 @@ export default class SkyWater {
 
         this.setWater()
         this.setSky()
+        this.updateSun()
     }
 
     setWater() {
@@ -61,27 +60,11 @@ export default class SkyWater {
         skyUniforms['rayleigh'].value = 2;
         skyUniforms['mieCoefficient'].value = 0.005;
         skyUniforms['mieDirectionalG'].value = 0.8;
-        if (this.debug.active) {
 
-            this.debugFolder = this.debug.ui.addFolder('environment')
-            this.debugFolder
-                .add(this.parameters, 'azimuth')
-                .name('azimuth')
-                .min(-100)
-                .max(100)
-                .step(0.0001)
-            this.debugFolder
-                .add(this.parameters, 'elevation')
-                .name('elevation')
-                .min(0)
-                .max(4)
-                .step(0.001)
-
-
-        }
+        // const folderSky = this.gui.addFolder('Sky');
+        // folderSky.add(this.parameters, 'elevation', 0, 90, 0.001).onChange(this.updateSun);
+        // folderSky.add(this.parameters, 'azimuth', - 180, 180, 0.001).onChange(this.updateSun);
     }
-
-
     updateSun() {
 
         const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
@@ -101,12 +84,8 @@ export default class SkyWater {
 
     }
 
-
-
     update() {
         this.water.material.uniforms['time'].value += 1.0 / 60.0;
         this.rock.update()
-        this.updateSun()
-
     }
 }

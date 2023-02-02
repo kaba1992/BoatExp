@@ -67,33 +67,35 @@ export default class Boat {
 
             }
         })
+
         for (let i = 0; i < childs.length; i++) {
             childs[i].material = new THREE.ShaderMaterial({
                 fragmentShader: fragment,
                 vertexShader: vertex,
                 transparent: true,
                 uniforms: {
-                    uTime: { value: 5 },
+                    uTime: { value: 0 },
                     uTexture: { value: textures[i] },
-                    lightDirection: { value: new THREE.Vector3(3.5, 4, - 1.25).normalize() },
+                    lightPosition: { value: new THREE.Vector3(1000, 1000, - 1.25) },
                     uColor: { value: childs[i].material.color }
                 }
             })
 
-            window.setTimeout(
-                () => {
-                    gsap.to(
-                        childs[i].material.uniforms.uTime,
-                        {
-                            value: 0,
-                            duration: 5,
-                            // repeat: -1,
-                            // yoyo: true,
-                        }
-                    )
-                }, 1000
-            )
+            // window.setTimeout(
+            //     // () => {
+            //     //     gsap.to(
+            //     //         childs[i].material.uniforms.lightPosition.z,
+            //     //         {
+            //     //             value: 20,
+            //     //             duration: 5,
+            //     //             repeat: -1,
+            //     //             yoyo: true,
+            //     //         }
+            //     //     )
+            //     // }, 1000
+            // )
 
+         
 
         }
 
@@ -167,7 +169,7 @@ export default class Boat {
             // console.log('boost ended');
         }
         else {
-            this.velocity = 600
+            this.velocity = 150
         }
 
     }
