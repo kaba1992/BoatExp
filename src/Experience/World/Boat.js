@@ -55,12 +55,12 @@ export default class Boat {
 
     setModel() {
         this.model = this.resource.scene.children[0]
-        const childs = []
+        this.childs = []
         const textures = []
         this.model.traverse((child) => {
 
             if (child instanceof THREE.Mesh) {
-                childs.push(child)
+                this.childs.push(child)
                 textures.push(child.material.map)
                 child.castShadow = true
 
@@ -68,32 +68,32 @@ export default class Boat {
             }
         })
 
-        for (let i = 0; i < childs.length; i++) {
-            childs[i].material = new THREE.ShaderMaterial({
+        for (let i = 0; i < this.childs.length; i++) {
+            this.childs[i].material = new THREE.ShaderMaterial({
                 fragmentShader: fragment,
                 vertexShader: vertex,
                 transparent: true,
                 uniforms: {
-                    uTime: { value: 0 },
+                    uTime: { value: 5 },
                     uTexture: { value: textures[i] },
                     lightPosition: { value: new THREE.Vector3(1000, 1000, - 1.25) },
-                    uColor: { value: childs[i].material.color }
+                    
                 }
             })
 
-            // window.setTimeout(
-            //     // () => {
-            //     //     gsap.to(
-            //     //         childs[i].material.uniforms.lightPosition.z,
-            //     //         {
-            //     //             value: 20,
-            //     //             duration: 5,
-            //     //             repeat: -1,
-            //     //             yoyo: true,
-            //     //         }
-            //     //     )
-            //     // }, 1000
-            // )
+            window.setTimeout(
+                () => {
+                    gsap.to(
+                        this.childs[i].material.uniforms.uTime,
+                        {
+                            value: 0,
+                            duration: 5,
+                            // repeat: -1,
+                            // yoyo: true,
+                        }
+                    )
+                }, 1000
+            )
 
          
 
@@ -294,6 +294,7 @@ export default class Boat {
             this.axesHelper.position.copy(this.model.position)
             // Boat.modelBody.position.copy(this.model.position)
             // Boat.modelBody.quaternion.copy(this.model.quaternion)
+        
 
 
         }

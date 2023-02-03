@@ -47,7 +47,7 @@ void main() {
         col = clamp(col - vec4((d - .35) * 10.), vec4(0.0), vec4(1.0));
     if(d > .47) {
         if(d < .5)
-            col += vec4((d - .4) * 33.0 * .5 * (0.0 + noise(100. * uv + vec2(-ctime * 2., 0.))) * vec3(1.5, 0.5, 0.0), 0.0) + vec4(diffuseColor, 1.0);
+            col += vec4((d - .4) * 33.0 * .5 * (0.0 + noise(100. * uv + vec2(-ctime * 2., 0.))) * vec3(1.5, 0.5, 0.0), 0.0) ;
 
     }
 
