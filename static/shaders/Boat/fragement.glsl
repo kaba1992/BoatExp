@@ -36,7 +36,7 @@ void main() {
    
 
   
-    vec3 diffuseColor = lightColor * nDotL * 4.;
+    vec3 diffuseColor = lightColor * nDotL * 3.5;
 
     uv.x -= 1.5;
 

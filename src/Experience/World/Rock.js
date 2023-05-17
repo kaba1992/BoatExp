@@ -127,24 +127,24 @@ export default class Rock {
     scoreManager() {
         this.counter++
         const scoreDisplay = document.querySelector(".score_display")
-        // this.goodCrateArr.forEach((crate, index) => {
-        //     if (this.boatBody.position.distanceTo(crate.position) <= 25) {
-        //             this.score += 1;
-        //             this.scene.remove(crate);
-        //             // remove in array
-        //             this.goodCrateArr.splice(index, 1);
-        //             this.counter = 0;
-        //     }
-        // })
+        this.goodCrateArr.forEach((crate, index) => {
+            if (this.boatBody.position.distanceTo(crate.position) <= 25) {
+                    this.score += 1;
+                    this.scene.remove(crate);
+                    // remove in array
+                    this.goodCrateArr.splice(index, 1);
+                    this.counter = 0;
+            }
+        })
 
-        // this.badCrateArr.forEach((crate, index) => {
-        //     if (this.boatBody.position.distanceTo(crate.position) <= 25) {
-        //             this.score -= 1;
-        //             this.scene.remove(crate);
-        //             // remove in array
-        //             this.badCrateArr.splice(index, 1);
-        //     }
-        // })
+        this.badCrateArr.forEach((crate, index) => {
+            if (this.boatBody.position.distanceTo(crate.position) <= 25) {
+                    this.score -= 1;
+                    this.scene.remove(crate);
+                    // remove in array
+                    this.badCrateArr.splice(index, 1);
+            }
+        })
         scoreDisplay.innerHTML = this.score;
     }
 
@@ -157,7 +157,5 @@ export default class Rock {
             // rock.body.position.copy(rock.position)
             // rock.body.quaternion.copy(rock.quaternion)
         })
-        console.log(this.score);
-
     }
 }

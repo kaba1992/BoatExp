@@ -125,17 +125,15 @@ export default class Boat {
                 target: this.model,
             }
         )
-        // Boat.modelBody = AddBody.setCustomBody(
-        //     1000, {
-        //     type: Body.DYNAMIC,
-        //     fixedRotation: true,
-        // },
-        //     this.physic.world,
-        //     {
-        //         width: 45, height: 12, depth: 12
-        //     })
-
-
+        Boat.modelBody = AddBody.setCustomBody(
+            1000, {
+            type: Body.DYNAMIC,
+            fixedRotation: true,
+        },
+            this.physic.world,
+            {
+                width: 45, height: 12, depth: 12
+            })
     }
     setKeyUp() {
         window.addEventListener('keyup', (event) => {
@@ -229,7 +227,7 @@ export default class Boat {
         this.scene.add(group)
 
         group.position.set(300, -3, -10)
-        group.scale.set(1.5, 2.5, 5)
+        group.scale.set(2, 3.5, 8)
         group.rotateY(Math.PI / 2)
 
         this.renderer = new SpriteRenderer(group, THREE);
@@ -292,8 +290,8 @@ export default class Boat {
             this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 1;
             this.model.rotation.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
             this.axesHelper.position.copy(this.model.position)
-            // Boat.modelBody.position.copy(this.model.position)
-            // Boat.modelBody.quaternion.copy(this.model.quaternion)
+            Boat.modelBody.position.copy(this.model.position)
+            Boat.modelBody.quaternion.copy(this.model.quaternion)
         
 
 
