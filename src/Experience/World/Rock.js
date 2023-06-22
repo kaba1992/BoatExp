@@ -29,7 +29,7 @@ export default class Rock {
         this.rocksArr = []
         this.setRock();
         this.setCrate();
-       
+
     }
 
     setRock() {
@@ -46,23 +46,25 @@ export default class Rock {
                 const radius = 200 + Math.random() * 2000 + j * distanceBetweenEachRockAngle;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                const y = 6
+                const y = 0;
 
                 this.rock.position.set(x, y, z);
                 this.rock.scale.set(10, 10, 10);
                 this.scene.add(this.rock);
                 this.rocksArr.push(this.rock)
 
-                // this.rock.body = AddBody.setBody(
-                //     this.rock,
-                //     100,
-                //     {
-                //         fixedRotation: true,
-                   
-                //     },
-                //     this.physic.world,
-                // )
-        
+                this.rock.body = AddBody.setBody(
+                    this.rock,
+                    10000,
+                    {
+                        fixedRotation: true,
+                        collisionFilterGroup: bodyTypes.ROCK,
+                        collisionFilterMask: bodyTypes.BOAT
+
+                    },
+                    this.physic.world,
+                )
+
                 // rock.visible = false;
             }
 
@@ -129,20 +131,20 @@ export default class Rock {
         const scoreDisplay = document.querySelector(".score_display")
         this.goodCrateArr.forEach((crate, index) => {
             if (this.boatBody.position.distanceTo(crate.position) <= 25) {
-                    this.score += 1;
-                    this.scene.remove(crate);
-                    // remove in array
-                    this.goodCrateArr.splice(index, 1);
-                    this.counter = 0;
+                this.score += 1;
+                this.scene.remove(crate);
+                // remove in array
+                this.goodCrateArr.splice(index, 1);
+                this.counter = 0;
             }
         })
 
         this.badCrateArr.forEach((crate, index) => {
             if (this.boatBody.position.distanceTo(crate.position) <= 25) {
-                    this.score -= 1;
-                    this.scene.remove(crate);
-                    // remove in array
-                    this.badCrateArr.splice(index, 1);
+                this.score -= 1;
+                this.scene.remove(crate);
+                // remove in array
+                this.badCrateArr.splice(index, 1);
             }
         })
         scoreDisplay.innerHTML = this.score;
@@ -154,8 +156,8 @@ export default class Rock {
         this.initFloating(this.badCrateArr, elapsedTime);
         this.scoreManager();
         this.rocksArr.forEach(rock => {
-            // rock.body.position.copy(rock.position)
-            // rock.body.quaternion.copy(rock.quaternion)
+            rock.body.position.copy(rock.position)
+            rock.body.quaternion.copy(rock.quaternion)
         })
     }
 }

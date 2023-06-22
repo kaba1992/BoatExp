@@ -12,7 +12,7 @@ class AddBody {
 
             // const shape = threeToCannon(object);
 
-            const { shape, offset, quaternion } = threeToCannon(object,{type:ShapeType.HULL}) || {};
+            const { shape, offset, quaternion } = threeToCannon(object) || {};
             // create a cannon body with the shape
 
             const body = new CANNON.Body({
