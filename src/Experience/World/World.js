@@ -12,7 +12,7 @@ export default class World {
 
 
         this.resources.on('ready', (e) => {
-            console.log(e)
+           
             // Setup
             this.boat = new Boat()
             this.skyWater = new SkyWater()
@@ -27,5 +27,10 @@ export default class World {
 
         }
 
+    }
+    resize() {
+        if(this.boat ) {
+            // this.boat.resize()
+        }
     }
 }

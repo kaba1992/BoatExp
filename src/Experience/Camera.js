@@ -8,6 +8,7 @@ export default class Camera {
         this.experience = new Experience()
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
+        this.orthoScene = this.experience.orthoScene
         this.canvas = this.experience.canvas
 
         this.setInstance()
@@ -15,10 +16,12 @@ export default class Camera {
     }
 
     setInstance() {
-        this.instance = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 1, 10000);
-        this.instance.position.set(30, 30, 100);
+        this.instance =  new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 100 );
+        // this.instanceOrtho = new THREE.OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+        this.instance.position.set(0,7,10)
 
         this.scene.add(this.instance)
+        // this.orthoScene.add(this.instanceOrtho)
     }
 
     setControls() {

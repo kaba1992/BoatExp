@@ -9,6 +9,7 @@ import World from './World/World.js'
 import Resources from './Utils/Resources.js'
 import Physique from './World/Physique.js'
 import Stats from 'three/examples/jsm/libs/stats.module'
+import { Octree } from '@brakebein/threeoctree';
 
 import sources from './sources.js'
 
@@ -33,11 +34,22 @@ export default class Experience {
         this.sizes = new Sizes()
         this.time = new Time()
         this.scene = new THREE.Scene()
+        this.orthoScene = new THREE.Scene()
         this.resources = new Resources(sources)
         this.camera = new Camera()
         this.renderer = new Renderer()
         this.world = new World()
         this.physic = new Physique()
+        this.octree = new Octree({
+            undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
+            depthMax: Infinity, // optional, default = Infinity, infinite depth
+            objectsThreshold: 8, // optional, default = 8
+            overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
+            //scene: this.scene // optional, pass scene as parameter only if you wish to visualize octree
+        })
+   
+    
+        
 
         // Resize event
         this.sizes.on('resize', () => {
@@ -55,6 +67,7 @@ export default class Experience {
     resize() {
         this.camera.resize()
         this.renderer.resize()
+        this.world.resize()
     }
 
     update() {
@@ -62,6 +75,7 @@ export default class Experience {
         this.world.update()
         this.renderer.update()
         this.physic.update()
+        this.octree.update()
         this.stats.update()
     }
 

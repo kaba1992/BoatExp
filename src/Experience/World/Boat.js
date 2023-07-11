@@ -7,19 +7,38 @@ import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
 import fragment from '../../../static/shaders/Boat/fragement.glsl'
 import vertex from '../../../static/shaders/Boat/vertex.glsl'
-import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color } from "three-nebula"
+import * as Nodes from 'three/examples/jsm/nodes/Nodes.js';
+
+import { texture, MeshBasicNodeMaterial } from 'three/nodes';
+import fragmentPiscine from '../../../static/shaders/Boat/fragmentPiscine.glsl'
+import vertexPiscine from '../../../static/shaders/Boat/vertexPiscine.glsl'
+
+const uniforms = THREE.UniformsUtils.clone(THREE.ShaderLib.standard.uniforms)
+// import { Capsule } from 'three/addons/math/Capsule.js';
+// import { Octree } from 'three/addons/math/Octree.js';
+import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color, log } from "three-nebula"
 export default class Boat {
   static modelBody
+  static model
+  static velocity
+
+
   constructor() {
     this.experience = new Experience()
     this.scene = this.experience.scene
+    this.orthoScene = this.experience.orthoScene
     this.resources = this.experience.resources
+    this.renderer = this.experience.renderer.instance
+    this.depthTexture = this.experience.renderer.depthTextureTarget
     this.time = this.experience.time
     this.debug = this.experience.debug
     this.camera = this.experience.camera.instance
+    this.cameraOrtho = this.experience.camera.instanceOrtho
     this.orbitControls = this.experience.camera.controls
+    this.sizes = this.experience.sizes
     this.model = null
     this.velocity = 50
+    Boat.velocity = this.velocity
     this.rotVelocity = 0.5
     this.clock = new THREE.Clock()
     this.keyboard = new THREEx.KeyboardState()
@@ -31,7 +50,11 @@ export default class Boat {
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
     this.boostProgress.innerHTML = `${this.boost}%`
-
+    this.supportsDepthTextureExtension = this.experience.renderer.supportsDepthTextureExtension
+    // this.octree = this.experience.octree
+    // this.octree = new Octree()
+    // this.colliider = new Capsule(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 0), 0)
+  
     //Camera
 
     this.rotateAngle = new THREE.Vector3(0, 1, 0)
@@ -44,20 +67,35 @@ export default class Boat {
 
     // Resource
     this.resource = this.resources.items.boatModel
+    this.piscineRessource = this.resources.items.piscineModel
 
     this.setModel()
     this.setKeyUp()
     this.axesHelper = new THREE.AxesHelper(5);
     this.scene.add(this.axesHelper);
     this.setParticle()
+    // this.setPiscine()
+
+
 
   }
+ 
+
+ 
 
 
 
 
   setModel() {
+
     this.model = this.resource.scene.children[0]
+
+    Boat.model = this.model
+    // this.model.velocity = new THREE.Vector3(0, 0, 0)
+    this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
+    this.boatFlag2 = this.model.getObjectByName('StylShip_SailFront_Mat_StylShip_SailsRope_0')
+    this.boatFlag3 = this.model.getObjectByName('StylShip_SailMid2_Mat_StylShip_SailsRope_0')
+
     this.childs = []
     const textures = []
     this.model.traverse((child) => {
@@ -66,6 +104,7 @@ export default class Boat {
         this.childs.push(child)
         textures.push(child.material.map)
         child.castShadow = true
+        // this.octree.add(child)
       }
     })
 
@@ -78,9 +117,9 @@ export default class Boat {
           uTime: { value: 5 },
           uTexture: { value: textures[i] },
           lightPosition: { value: new THREE.Vector3(1000, 1000, - 1.25) },
-
         }
       })
+      console.log(this.childs.length);
 
       window.setTimeout(
         () => {
@@ -90,10 +129,6 @@ export default class Boat {
               value: 0,
               duration: 5,
               onComplete() {
-                // console.log('end')
-                // gsap.set(this.boatFlag1.scale, { x: 1, y: 0.1, z: 1 })
-                // gsap.set(this.boatFlag2.scale, { x: 1, y: 0.1, z: 1 })
-                // gsap.set(this.boatFlag3.scale, { x: 1, y: 0.1, z: 1 })
               }
               // repeat: -1,
               // yoyo: true,
@@ -109,9 +144,7 @@ export default class Boat {
 
 
     const boatPlane = this.model.getObjectByName('WaterPlane_Mat_Water_0')
-    this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
-    this.boatFlag2 = this.model.getObjectByName('StylShip_SailFront_Mat_StylShip_SailsRope_0')
-    this.boatFlag3 = this.model.getObjectByName('StylShip_SailMid2_Mat_StylShip_SailsRope_0')
+
     // boatFlag.scale(1, 0.1, 1)
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag2.scale, { x: 1, y: 1, z: 1 })
@@ -122,8 +155,11 @@ export default class Boat {
     this.model.position.y = Math.random() * Math.PI * 2;
     this.model.position.z = 0
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
+
     this.model.rotation.z = -Math.PI / 2.5;
-    this.scene.add(this.model)
+    // this.scene.add(this.model)
+
+    //this.octree.add(this.model)
 
 
 
@@ -138,12 +174,13 @@ export default class Boat {
       type: Body.DYNAMIC,
       fixedRotation: true,
       collisionFilterGroup: bodyTypes.BOAT,
-      collisionFilterMask: bodyTypes.ROCK 
+      collisionFilterMask: bodyTypes.ROCK
     },
       this.physic.world,
       {
-        width: 45, height: 24, depth:24
+        width: 45, height: 24, depth: 24
       })
+
   }
   setKeyUp() {
     window.addEventListener('keyup', (event) => {
@@ -256,7 +293,7 @@ export default class Boat {
     this.particleGroup.scale.set(2, 0, 8)
     this.particleGroup.rotateY(Math.PI / 2)
 
-    this.renderer = new SpriteRenderer(this.particleGroup, THREE);
+    this.spriteRender = new SpriteRenderer(this.particleGroup, THREE);
     const texture = new THREE.TextureLoader().load("../textures/foam.png")
 
     const sprite = new THREE.Sprite(
@@ -288,7 +325,7 @@ export default class Boat {
       ])
       .emit();
 
-    this.system.addEmitter(this.emitter).addRenderer(this.renderer)
+    this.system.addEmitter(this.emitter).addRenderer(this.spriteRender)
 
     this.model.add(this.particleGroup)
     if (this.debug.active && this.model) {
@@ -307,6 +344,7 @@ export default class Boat {
 
 
   update() {
+  
 
     this.boatControls()
     this.updateSpeed()
@@ -319,11 +357,16 @@ export default class Boat {
       this.axesHelper.position.copy(this.model.position)
       Boat.modelBody.position.copy(this.model.position)
       Boat.modelBody.quaternion.copy(this.model.quaternion)
-
-
-
     }
+
+
+
+
+    // this.postPlaneMaterial.uniforms.uDepth.value = this.depthTexture;
+    // this.postPlaneMaterial.uniforms.uDiffuse.value = this.depthTextureTarget.texture;
+
     this.system.update(delta)
 
   }
 }
+

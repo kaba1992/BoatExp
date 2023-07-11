@@ -19,9 +19,9 @@ export default class SkyWater {
             azimuth: 49
         }
 
-        this.setWater()
-        this.setSky()
-        this.updateSun()
+        // this.setWater()
+        // this.setSky()
+        // this.updateSun()
     }
 
     setWater() {
@@ -76,7 +76,7 @@ export default class SkyWater {
         this.sun.z = Math.sin(phi) * Math.cos(theta);
 
         this.sky.material.uniforms['sunPosition'].value.copy(this.sun);
-        this.water.material.uniforms['sunDirection'].value.copy(this.sun).normalize();
+        // this.water.material.uniforms['sunDirection'].value.copy(this.sun).normalize();
 
         this.scene.environment = pmremGenerator.fromScene(this.sky).texture;
 
@@ -85,7 +85,7 @@ export default class SkyWater {
     }
 
     update() {
-        this.water.material.uniforms['time'].value += 1.0 / 60.0;
-        this.rock.update()
+        // this.water.material.uniforms['time'].value += 1.0 / 60.0;
+        // this.rock.update()
     }
 }

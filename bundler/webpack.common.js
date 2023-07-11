@@ -84,7 +84,8 @@ module.exports = {
                         loader: 'webpack-glsl-loader',
                         options: {}
                     }
-                }
+                },
+                
         ]
     }
 }
