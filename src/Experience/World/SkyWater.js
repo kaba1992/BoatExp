@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Vector3, TextureLoader, PlaneGeometry,PMREMGenerator } from 'three'
 import Experience from '../Experience.js'
 import { Water } from 'three/examples/jsm/objects/Water.js'
 import { Sky } from 'three/examples/jsm/objects/Sky.js'
@@ -10,7 +10,7 @@ export default class SkyWater {
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.renderer = this.experience.renderer.instance
-        this.sun = new THREE.Vector3();
+        this.sun = new Vector3();
         this.water = null
         this.sky = null
         this.gui = new dat.GUI()
@@ -25,18 +25,18 @@ export default class SkyWater {
     }
 
     setWater() {
-        const waterGeometry = new THREE.PlaneGeometry(5000, 5000);
+        const waterGeometry = new PlaneGeometry(5000, 5000);
         this.water = new Water(
             waterGeometry,
             {
                 textureWidth: 512,
                 textureHeight: 512,
-                waterNormals: new THREE.TextureLoader().load('textures/Water_1_M_Normal.jpg', function (texture) {
+                waterNormals: new TextureLoader().load('textures/Water_1_M_Normal.jpg', function (texture) {
 
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    texture.wrapS = texture.wrapT = RepeatWrapping;
 
                 }),
-                sunDirection: new THREE.Vector3(),
+                sunDirection: new Vector3(),
                 sunColor: 0xffffff,
                 waterColor: 0x001e0f,
                 distortionScale: 3.7,
@@ -46,13 +46,13 @@ export default class SkyWater {
         );
         this.water.rotation.x = - Math.PI / 2;
         this.scene.add(this.water);
-        this.rock = new Rock({ water: this.water })
+        // this.rock = new Rock({ water: this.water })
 
     }
     setSky() {
         this.sky = new Sky();
-        this.sky.scale.setScalar(5000);
-        this.scene.add(this.sky);
+        this.sky.scale.setScalar(500);
+        // this.scene.add(this.sky);
 
         const skyUniforms = this.sky.material.uniforms;
 
@@ -67,7 +67,7 @@ export default class SkyWater {
     }
     updateSun() {
 
-        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        const pmremGenerator = new PMREMGenerator(this.renderer);
         const theta = Math.PI * (this.parameters.elevation - 0.5);
         const phi = 2 * Math.PI * (this.parameters.azimuth - 0.5);
 

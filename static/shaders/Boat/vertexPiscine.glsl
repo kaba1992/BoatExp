@@ -12,8 +12,9 @@ void main() {
 
     vUv = uv;
     vNormal = normal;
-    vNoiseUv = uv * _SurfaceNoise_ST.xy + _SurfaceNoise_ST.zw;
-    vDistortUv = vUv * _SurfaceDistortion_St.xy + _SurfaceDistortion_St.zw;
+    //50. for 2500 plane
+    vNoiseUv = uv * _SurfaceNoise_ST.xy * 12.;
+    vDistortUv = vUv * _SurfaceDistortion_St.xy * 12.;
                 #include <begin_vertex>
                 #include <project_vertex>
                 #include <fog_vertex>

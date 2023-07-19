@@ -22,34 +22,37 @@ export default [
         type: 'texture',
         path: 'textures/dirt/normal.jpg'
     },
-    {
-        name: 'foxModel',
-        type: 'gltfModel',
-        path: 'models/Fox/glTF/Fox.gltf'
-    },
+
     {
         name: 'boatModel',
-        type: 'gltfModel',
+        type: 'dracoLoader',
         path: 'models/Boat/Boat.glb'
     },
     {
-        name: 'piscineModel',
-        type: 'gltfModel',
-        path: 'models/Boat/scenePiscine.glb'
+        name: 'miniIslandModel',
+        type: 'dracoLoader',
+        path: 'models/Islands/miniIsland.glb'
     },
     {
-        name: 'rockModel1',
-        type: 'gltfModel',
-        path: 'models/Rock/Rock1.glb'
+        name: 'sharkModel',
+        type: 'dracoLoader',
+        path: 'models/Boat/shark.glb'
     },
-    {
-        name: 'rockModel2',
-        type: 'gltfModel',
-        path: 'models/Rock/Rock2.glb'
-    },
+  
+  
+    // {
+    //     name: 'rockModel1',
+    //     type: 'gltfModel',
+    //     path: 'models/Rock/Rock1.glb'
+    // },
+    // {
+    //     name: 'rockModel2',
+    //     type: 'gltfModel',
+    //     path: 'models/Rock/Rock2.glb'
+    // },
     {
         name: 'crateModel',
-        type: 'gltfModel',
+        type: 'dracoLoader',
         path: 'models/Crate/crate.glb'
     }
 ]

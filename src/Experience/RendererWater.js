@@ -1,0 +1,208 @@
+import {
+    AmbientLight,
+    WebGLRenderer,
+    WebGLRenderTarget,
+    DepthTexture,
+    UnsignedShortType,
+    MeshDepthMaterial,
+    RGBADepthPacking,
+    NoBlending,
+    TextureLoader,
+    Vector4,
+    Vector2,
+    PlaneGeometry,
+    ShaderMaterial,
+    UniformsUtils,
+    UniformsLib,
+    Mesh,
+    MeshStandardMaterial,
+    Clock,
+    NearestFilter,
+    RepeatWrapping
+} from 'three'
+import Experience from './Experience.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import fragmentPiscine from './../../static/shaders/Boat/fragmentPiscine.glsl'
+import vertexPiscine from './../../static/shaders/Boat/vertexPiscine.glsl'
+import GUI from 'lil-gui'
+
+export default class RendererWater {
+    constructor() {
+        this.experience = new Experience()
+        this.canvas = this.experience.canvas
+        this.sizes = this.experience.sizes
+        this.scene = this.experience.scene
+        this.time = this.experience.time
+        this.debug = this.experience.debug
+        this.orthoScene = this.experience.orthoScene
+        this.camera = this.experience.camera
+        this.cameraOrtho = this.experience.camera.instanceOrtho
+        this.depthMaterial = null
+        this.clock = new Clock()
+        this.model = null
+        this.pixelRatio = Math.min(this.sizes.pixelRatio, 2)
+        if (this.debug.active) {
+            this.debugFolder = this.debug.ui.addFolder('rendererWater')
+        }
+        this.setInstance()
+        this.setPiscine()
+    }
+
+    setInstance() {
+        const ambientLight = new AmbientLight(0xcccccc, 0.4);
+        this.scene.add(ambientLight);
+
+        this.instance = new WebGLRenderer({
+            canvas: this.canvas,
+            antialias: true
+        })
+        this.instance.setSize(this.sizes.width, this.sizes.height)
+        this.instance.setPixelRatio(this.pixelRatio)
+        this.instance.gammaOutput = true;
+    }
+
+    setPiscine() {
+        const supportsDepthTextureExtension = !!this.instance.extensions.get("WEBGL_depth_texture");
+
+        // Cache des valeurs réutilisées
+        const width = window.innerWidth * this.pixelRatio;
+        const height = window.innerHeight * this.pixelRatio;
+
+        this.depthTextureTarget = this.createRenderTarget(width, height, supportsDepthTextureExtension);
+
+        this.depthMaterial = this.createDepthMaterial();
+
+        // Déplacer la logique de chargement dans une méthode séparée
+        this.setWater(supportsDepthTextureExtension);
+    }
+
+    createRenderTarget(width, height, supportsDepthTextureExtension) {
+        const target = new WebGLRenderTarget(width, height);
+        target.texture.minFilter = NearestFilter;
+        target.texture.magFilter = NearestFilter;
+        target.texture.generateMipmaps = false;
+        target.stencilBuffer = false;
+
+        if (supportsDepthTextureExtension) {
+            target.depthTexture = new DepthTexture();
+            target.depthTexture.type = UnsignedShortType;
+            target.depthTexture.minFilter = NearestFilter;
+            target.depthTexture.maxFilter = NearestFilter;
+        }
+
+        return target;
+    }
+
+    createDepthMaterial() {
+        const material = new MeshDepthMaterial();
+        material.depthPacking = RGBADepthPacking;
+        material.blending = NoBlending;
+
+        return material;
+    }
+
+    setWater(supportsDepthTextureExtension) {
+        const textureLoader = new TextureLoader();
+            const WaterDistortionTexture = textureLoader.load('textures/testAssets/WaterDistortion.png')
+            WaterDistortionTexture.wrapS = WaterDistortionTexture.wrapT = RepeatWrapping
+            const WaterNoiseTexture = textureLoader.load('textures/testAssets/PerlinNoise.png')
+            WaterNoiseTexture.wrapS = WaterNoiseTexture.wrapT = RepeatWrapping
+            // const textureMapRock = textureLoader.load('textures/testAssets/Rock1_BaseColor.png')
+    
+            this.waterUniforms = {
+                uDepthTexture: { value: null },
+                uCameraProjectionMatrix: { value: null },
+                cameraNear: { value: 0 },
+                cameraFar: { value: 0 },
+                uCameraNormalsTexture: { value: null },
+                uTime: { value: 0 },
+                _SurfaceNoise: { value: null },
+                _SurfaceDistortion: { value: null },
+                _SurfaceNoise_ST: { value: new Vector4() },
+                _SurfaceDistortion_St: { value: new Vector4() },
+                resolution: {
+                    value: new Vector2()
+                },
+
+                _DepthMaxDistance: { value: 0 },
+                _FoamDistance: { value: 0 },
+
+                _SurfaceNoiseCutoff: { value: 0 },
+                _SurfaceDistortionAmount: { value: 0 },
+
+            }
+
+            // materials
+            this.waterMaterial = new ShaderMaterial({
+                defines: {
+                    DEPTH_PACKING: supportsDepthTextureExtension === true ? 0 : 1,
+                    ORTHOGRAPHIC_CAMERA: 0
+                },
+                uniforms: UniformsUtils.merge([UniformsLib["fog"], this.waterUniforms]),
+                vertexShader: vertexPiscine,
+                fragmentShader: fragmentPiscine,
+                // transparent: true,
+                fog: true,
+            })
+
+            this.waterMaterial.uniforms.uDepthTexture.value = supportsDepthTextureExtension === true ? this.depthTextureTarget.depthTexture : this.depthTextureTarget.texture;
+            this.waterMaterial.uniforms.uCameraProjectionMatrix.value = this.camera.instance.projectionMatrix;
+            this.waterMaterial.uniforms.cameraNear.value = this.camera.instance.near;
+            this.waterMaterial.uniforms.cameraFar.value = this.camera.instance.far;
+            this.waterMaterial.uniforms._SurfaceDistortion.value = WaterDistortionTexture;
+            this.waterMaterial.uniforms._SurfaceNoise.value = WaterNoiseTexture;
+            this.waterMaterial.uniforms._SurfaceNoise_ST.value = new Vector4(4, 4, 1, 1);
+            this.waterMaterial.uniforms._SurfaceDistortion_St.value = new Vector4(3, 3, 3, 3);
+            this.waterMaterial.uniforms.uCameraNormalsTexture.value = this.depthTextureTarget.texture;
+            this.waterMaterial.uniforms.resolution.value.set(
+                window.innerWidth * this.sizes.pixelRatio,
+                window.innerHeight * this.sizes.pixelRatio
+            )
+            const waterGeometry = new PlaneGeometry(500, 500);
+            this.water = new Mesh(waterGeometry, this.waterMaterial)
+            this.water.rotation.x = - Math.PI * 0.5
+            
+            this.water.material = this.waterMaterial
+            this.waterFloor=  this.water.clone()
+            this.waterFloor.position.y = - 10
+            // this.scene.add(this.waterGround)
+            this.scene.add(this.water)
+
+    }
+
+    resize() {
+        this.instance.setSize(this.sizes.width, this.sizes.height)
+        this.instance.setPixelRatio(Math.min(this.sizes.pixelRatio, 2))
+        if (this.waterMaterial != null) {
+            this.waterMaterial.uniforms.resolution.value.set(
+                window.innerWidth * this.sizes.pixelRatio,
+                window.innerHeight * this.sizes.pixelRatio
+            )
+
+        }
+        this.depthTextureTarget.setSize(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio)
+    }
+
+    update() {
+        if (this.water != null) {
+            this.water.visible = false
+        }
+        this.scene.overrideMaterial = this.depthMaterial;
+        this.instance.setRenderTarget(this.depthTextureTarget);
+        this.instance.render(this.scene, this.camera.instance);
+        this.instance.setRenderTarget(null);
+        this.scene.overrideMaterial = null;
+        if (this.water != null) {
+            this.water.visible = true
+        }
+        const time = this.clock.getElapsedTime();
+
+        if (this.waterMaterial != null) {
+
+            this.waterMaterial.uniforms.uTime.value = time
+
+        }
+        this.instance.render(this.scene, this.camera.instance);
+        //  console.log(this.supportsDepthTextureExtension );
+    }
+}

@@ -1,5 +1,5 @@
 import Experience from "../Experience";
-import * as THREE from "three";
+import { Clock, Vector3 } from "three";
 import * as dat from 'lil-gui'
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
@@ -7,9 +7,9 @@ import Boat from "./Boat";
 
 const TwoPI = Math.PI * 2;
 const scoreDisplay = document.querySelector(".score_display");
-const vector1 = new THREE.Vector3();
-const vector2 = new THREE.Vector3();
-const vector3 = new THREE.Vector3();
+const vector1 = new Vector3();
+const vector2 = new Vector3();
+const vector3 = new Vector3();
 
 export default class Rock {
 
@@ -21,7 +21,7 @@ export default class Rock {
         this.water = params.water;
         this.gui = new dat.GUI();
         this.cameraUi = this.gui.addFolder('camera')
-        this.clock = new THREE.Clock();
+        this.clock = new Clock();
         this.rock = null
         this.crate = null
         this.goodCrateArr = [];
@@ -61,7 +61,7 @@ export default class Rock {
                 // this.scene.add(this.rock);
                 // this.octree.add(this.rock)
 
-                this.rocksArr.push({ rock: this.rock, velocity: new THREE.Vector3() });
+                this.rocksArr.push({ rock: this.rock, velocity: new Vector3() });
                 this.rock.traverse(child => {
                     if (child.isMesh) {
                         this.octree.add(child)
