@@ -1,10 +1,12 @@
-import { Scene, AxesHelper, Mesh, Vector3 } from 'three';
+
+import * as THREE from 'three'
 import Experience from '../Experience.js'
 import THREEx from '../Utils/Keyboard.js'
 import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
+import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color } from "three-nebula"
 import fragment from '../../../static/shaders/Boat/fragement.glsl'
 import vertex from '../../../static/shaders/Boat/vertex.glsl'
 import Sharks from './GameElements/Sharks.js';
@@ -20,6 +22,7 @@ export default class Boat {
     this.experience = new Experience()
     this.scene = this.experience.scene
     this.resources = this.experience.resources
+    this.renderer = this.experience.renderer.instance;
     this.time = this.experience.time
     this.camera = this.experience.camera.instance
     this.keyboard = new THREEx.KeyboardState()
@@ -28,7 +31,7 @@ export default class Boat {
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
     this.boostProgress.innerHTML = `${this.boost}%`
-
+    this.clock = new THREE.Clock()
     // this.octree = this.experience.octree
     // this.octree = new Octree()
     // this.colliider = new Capsule(new Vector3(0, 0, 0), new Vector3(0, 0, 0), 0)
@@ -38,8 +41,9 @@ export default class Boat {
 
     this.setModel()
     this.setKeyUp()
-    this.axesHelper = new AxesHelper(5);
-    this.scene.add(this.axesHelper);
+    this.setParticle()
+    // this.axesHelper = new AxesHelper(5);
+    // this.scene.add(this.axesHelper);
 
   }
 
@@ -63,41 +67,13 @@ export default class Boat {
     const textures = []
     this.model.traverse((child) => {
 
-      if (child instanceof Mesh) {
+      if (child instanceof THREE.Mesh) {
         this.childs.push(child)
         textures.push(child.material.map)
-        child.castShadow = true
-        // this.octree.add(child)
+
       }
     })
 
-    // for (let i = 0; i < this.childs.length; i++) {
-    // this.childs[i].material = new ShaderMaterial({
-    //   fragmentShader: fragment,
-    //   vertexShader: vertex,
-    //   transparent: true,
-    //   uniforms: {
-    //     uTime: { value: 5 },
-    //     uTexture: { value: textures[i] },
-    //     lightPosition: { value: new Vector3(1000, 1000, - 1.25) },
-    //   }
-    // })
-    //   console.log(this.childs.length);
-
-    //   window.setTimeout(
-    //     () => {
-    //       const revealAnim = gsap.to(
-    //         this.childs[i].material.uniforms.uTime,
-    //         {
-    //           value: 0,
-    //           duration: 5,
-    //           onComplete() {
-    //           }
-    //         }
-    //       )
-    //     }, 1000
-    //   )
-    // }
 
 
 
@@ -107,6 +83,7 @@ export default class Boat {
     // gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
     // boatPlane.visible = false
     this.model.scale.set(0.2, 0.2, 0.2)
+    // this.model.position.set(10, 0, -10)
     // this.model.position.x = 0
     // this.model.position.y = Math.random() * Math.PI * 2;
     // this.model.position.z = 0
@@ -114,7 +91,6 @@ export default class Boat {
 
     // this.model.rotation.y = Math.PI / 2 ;
     // this.scene.add(this.model)
-
     //this.octree.add(this.model)
 
 
@@ -150,6 +126,71 @@ export default class Boat {
       })
 
   }
+
+  setParticle() {
+    this.system = new System()
+    this.emitter = new Emitter()
+
+
+    this.particleGroup = new THREE.Group()
+
+    this.scene.add(this.particleGroup)
+
+    this.particleGroup.position.set(0,2, -3.5)
+    this.particleGroup.scale.set(0.1,0.1, 0.1)
+    // this.particleGroup.rotateY(-Math.PI / 2)
+
+    this.particleRenderer = new SpriteRenderer(this.particleGroup, THREE);
+    const texture = new THREE.TextureLoader().load("../textures/circle_03.png")
+
+    const sprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: texture,
+        color: 0xffffff,
+        transparent: true,
+        depthWrite: false,
+        depthTest: true,
+        blending: THREE.AdditiveBlending,
+        fog: true,
+      })
+    )
+
+    const color = new THREE.Color("blue");
+    this.emitter
+      .setRate(new Rate(new Span(0.1, 1), new Span(0.2)))
+      .setInitializers([
+        new Mass(1),
+        new Radius(6, 8),
+        new Life(1),
+        new Body(sprite),
+        new RadialVelocity(40, new Vector3D(0, 0, -1), -180),
+      ])
+      .setBehaviours([
+        new Alpha(1, 0.5),
+        new Scale(1, 2),
+        new Color(color),
+      ])
+      .emit();
+
+    this.system.addEmitter(this.emitter).addRenderer(this.particleRenderer)
+    console.log(this.system);
+
+    this.model.add(this.particleGroup)
+    // if (this.debug.active && this.model) {
+    //   this.debugFolder = this.debug.ui.addFolder("particleGroup")
+    //   this.debugFolder.add(this.particleGroup.position, 'y').min(-100).max(300).step(0.0001).name('positionY')
+    //   this.debugFolder.add(this.particleGroup.position, 'x').min(-100).max(100).step(0.0001).name('positionX')
+    //   this.debugFolder.add(this.particleGroup.position, 'z').min(-100).max(100).step(0.0001).name('positionZ')
+    //   // rotation
+    //   // this.debugFolder.add(this.group.rotation, 'x').min(0).max(Math.PI * 2).step(0.0001).name('rotationX')
+    //   // this.debugFolder.add(this.group.rotation, 'y').min(0).max(Math.PI * 2).step(0.0001).name('rotationY')
+    //   // this.debugFolder.add(this.group.rotation, 'z').min(0).max(Math.PI * 2).step(0.0001).name('rotationZ')
+    // }
+
+  }
+
+
+
   setKeyUp() {
     window.addEventListener('keyup', (event) => {
       if (event.key === 'Shift') {
@@ -226,19 +267,19 @@ export default class Boat {
 
     this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
-
+    const delta = this.clock.getDelta()
     if (this.model) {
       this.ThirdPersonCamera.update(this.time.delta)
       this.Shark.update(this.time.delta)
       this.island.update(this.time.delta)
       this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.03;
       // this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
-      this.axesHelper.position.copy(this.model.position)
+      // this.axesHelper.position.copy(this.model.position)
       // Boat.modelBody.position.copy(this.model.position)
       // Boat.modelBody.quaternion.copy(this.model.quaternion)
     }
 
-
+    this.system.update(delta)
   }
 }
 

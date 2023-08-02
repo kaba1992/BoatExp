@@ -6,7 +6,7 @@ import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
 import Experience from "../Experience.js";
 import { CustomOutlinePass } from "./CustomOutlinePass.js";
 import FindSurfaces from "./FindSurfaces";
-
+import { GammaCorrectionShader } from 'three/examples/jsm/shaders/GammaCorrectionShader.js';
 
 
 export default class Outline {
@@ -19,7 +19,7 @@ export default class Outline {
         this.sizes = this.experience.sizes
         this.surfaceFinder = new FindSurfaces();
         this.setRenderPass()
-        this.renderTarget = this.createRenderTarget(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio);
+        this.renderTarget = this.createRenderTarget(this.sizes.width * this.sizes.pixelRatio, window.innerHeight);
     }
     // Create a render target that holds a depthTexture so we can use it in the outline pass
     createRenderTarget(width, height) {
@@ -28,6 +28,7 @@ export default class Outline {
 
         target.depthTexture = depthTexture;
         target.depthBuffer = true;
+
         return target;
     }
     // Initial render pass.
@@ -35,20 +36,21 @@ export default class Outline {
         this.composer = new EffectComposer(this.renderer, this.renderTarget);
         this.pass = new RenderPass(this.scene, this.camera);
         this.composer.addPass(this.pass);
-
+        const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);  
+        // this.composer.addPass(gammaCorrectionPass);
         // Outline pass
         this.CustomOutline = new CustomOutlinePass(
-            new THREE.Vector2(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio),
+            new THREE.Vector2(this.sizes.width * this.sizes.pixelRatio, window.innerHeight),
             this.scene,
             this.camera
         );
-        this.composer.addPass(this.CustomOutline);
+        // this.composer.addPass(this.CustomOutline);
 
         // Anti-aliasing pass
         this.effectFXAA = new ShaderPass(FXAAShader);
         this.effectFXAA.uniforms["resolution"].value.set(
-            1 / (this.sizes.width * this.sizes.pixelRatio),
-            1 / (this.sizes.height * this.sizes.pixelRatio)
+            1 / (window.innerWidth),
+            1 / (window.innerHeight)
         );
         this.composer.addPass(this.effectFXAA);
         // init surfaceFinder
@@ -68,9 +70,9 @@ export default class Outline {
     }
 
     resize() {
-        this.composer.setSize(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio);
-        this.effectFXAA.setSize(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio);
-        this.CustomOutline.setSize(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio);
+        this.composer.setSize(window.innerWidth, window.innerHeight);
+        this.effectFXAA.setSize(window.innerWidth, window.innerHeight);
+        this.CustomOutline.setSize(window.innerWidth, window.innerHeight);
         this.effectFXAA.uniforms["resolution"].value.set(
             1 / (window.innerWidth),
             1 / (window.innerHeight)

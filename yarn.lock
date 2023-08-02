@@ -3702,6 +3702,11 @@
     "select-hose" "^2.0.0"
     "spdy-transport" "^3.0.0"
 
+"stats-gl@^1.0.4":
+  "integrity" "sha512-oxo13HHonoMWIYcrIu4xCk8IcFEFaqAOkMOMIyfvZFxNZzGy+jnW8sy0W3VfEjKQd5JX0Kp2KhePAKhtI6/TSw=="
+  "resolved" "https://registry.npmjs.org/stats-gl/-/stats-gl-1.0.4.tgz"
+  "version" "1.0.4"
+
 "stats-js@^1.0.1":
   "integrity" "sha512-EAwEFghGNv8mlYC4CZzI5kWghsnP8uBKXw6VLRHtXkOk5xySfUKLTqTkjgJFfDluIkf/O7eZwi5MXP50VeTbUg=="
   "resolved" "https://registry.npmjs.org/stats-js/-/stats-js-1.0.1.tgz"
@@ -4098,3 +4103,8 @@
   "integrity" "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A=="
   "resolved" "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz"
   "version" "4.0.0"
+
+"yuka@^0.7.8":
+  "integrity" "sha512-G/pFcMZh2Azz7Yy500NSV1jQ0Ru7h9hTNyEW+HjRXcdzjJIyp/3mCGspnx7VJVP06zxORqK6mkl5TywLqVUnVg=="
+  "resolved" "https://registry.npmjs.org/yuka/-/yuka-0.7.8.tgz"
+  "version" "0.7.8"

@@ -9,8 +9,9 @@ import World from './World/World.js'
 import Outline from './Outline/Outline.js'
 import Resources from './Utils/Resources.js'
 import Physique from './World/Physique.js'
-import Stats from 'three/examples/jsm/libs/stats.module'
+// import Stats from 'three/examples/jsm/libs/stats.module'
 import { Octree } from '@brakebein/threeoctree';
+import Stats from "stats-gl";
 
 import sources from './sources.js'
 
@@ -49,16 +50,35 @@ export default class Experience {
             overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
             //scene: this.scene // optional, pass scene as parameter only if you wish to visualize octree
         })
-   
-    
-        
+
+        // create a new Stats object
+        this.stats = new Stats({
+            logsPerSecond: 20,
+            samplesLog: 100,
+            samplesGraph: 10,
+            precision: 2,
+            horizontal: true,
+            minimal: false,
+            mode: 2
+        });
+        document.body.appendChild( this.stats.container );
+        this.stats.init( this.renderer.instance.domElement );
+        this.scene.onBeforeRender = () => {
+            this.stats.begin();
+        }
+
+        this.scene.onAfterRender = () => {
+            this.stats.end();
+        }
+
+
 
         // Resize event
         this.sizes.on('resize', () => {
             this.resize()
         })
-        this.stats = Stats()
-        document.body.appendChild(this.stats.dom)
+        // this.stats = Stats()
+        // document.body.appendChild(this.stats.dom)
 
         // Time tick event
         this.time.on('tick', () => {
@@ -74,13 +94,15 @@ export default class Experience {
     }
 
     update() {
+        // this.stats.begin();
         this.camera.update()
         this.world.update()
         this.renderer.update()
         this.physic.update()
         this.octree.update()
         this.outline.update()
-        this.stats.update()
+        // this.stats.end();
+        // this.stats.update()
     }
 
     destroy() {

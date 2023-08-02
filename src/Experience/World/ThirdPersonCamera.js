@@ -71,21 +71,22 @@ export default class ThirdPersonCamera {
             this.renderer.domElement.style.cursor = "none";
 
             // if (this.mouseDown) {
-            const { movementX, movementY } = e;
-            const offset = new Spherical().setFromVector3(this.camera.position.clone().sub(this.cameraOriginPoint));
-            const phi = offset.phi - movementY * 0.004;
-            offset.theta -= movementX * 0.0008;
-            // make sure camera doesn't move on
-            offset.phi = Math.max(0.01, Math.min(0.35 * Math.PI, phi));
-            offset.radius = 4;
-            this.camera.position.copy(this.cameraOriginPoint.clone().add(new Vector3().setFromSpherical(offset)));
-            // console.log("camera position", this.container.position);
+                const { movementX, movementY } = e;
+                const offset = new Spherical().setFromVector3(this.camera.position.clone().sub(this.cameraOriginPoint));
+                const phi = offset.phi - movementY * 0.004;
+                offset.theta -= movementX * 0.0008;
+                // make sure camera doesn't move on
+                offset.phi = Math.max(0.01, Math.min(0.35 * Math.PI, phi));
+                offset.radius = 4;
+                this.camera.position.copy(this.cameraOriginPoint.clone().add(new Vector3().setFromSpherical(offset)));
+                // console.log("camera position", this.container.position);
             // };
             
-
-            this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
+            
             // console.log("camera position", this.camera.position);
+            this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
         });
+
     }
 
     getWordInfo() {
@@ -131,7 +132,5 @@ export default class ThirdPersonCamera {
 
     update() {
         this.getWordInfo();
-
-
     }
 }
