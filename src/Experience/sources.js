@@ -22,11 +22,16 @@ export default [
         type: 'texture',
         path: 'textures/dirt/normal.jpg'
     },
+    {
+        name: 'HyperlapsNoiseTexture',
+        type: 'texture',
+        path: 'textures/hyperlapsNoise.png'
+    },
 
     {
         name: 'boatModel',
         type: 'dracoLoader',
-        path: 'models/Boat/Boat.glb'
+        path: 'models/Boat/boatToon.glb'
     },
     {
         name: 'miniIslandModel',

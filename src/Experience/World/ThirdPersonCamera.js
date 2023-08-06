@@ -1,5 +1,5 @@
 import Experience from "../Experience";
-import { Vector3, Clock, Group, Spherical } from 'three';
+import * as THREE from 'three'
 import * as dat from 'lil-gui'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls'
 
@@ -17,24 +17,24 @@ export default class ThirdPersonCamera {
         this.target = params.target;
 
         this.gui = new dat.GUI();
-        this.currentPosition = new Vector3();
-        this.currentLookAt = new Vector3();
+        this.currentPosition = new THREE.Vector3();
+        this.currentLookAt = new THREE.Vector3();
         this.cameraUi = this.gui.addFolder('camera')
-        this.clock = new Clock();
+        this.clock = new THREE.Clock();
         // this.idealOffset = new Vector3(150, 20, 0);
         // Container for both camera and person
-        this.container = new Group();
+        this.container = new THREE.Group();
         this.scene.add(this.container);
         // get camera X  axis
-        this.xAxis = new Vector3(1, 0, 0);
-        this.tempCameraVector = new Vector3();
-        this.tempTargetVector = new Vector3();
-        this.cameraOriginPoint = new Vector3(0, 0, 0);
+        this.xAxis = new THREE.Vector3(1, 0, 0);
+        this.tempCameraVector = new THREE.Vector3();
+        this.tempTargetVector = new THREE.Vector3();
+        this.cameraOriginPoint = new THREE.Vector3(0, 0.5, 0);
         this.camera.lookAt(this.cameraOriginPoint);
         this.container.add(this.camera);
         this.container.add(this.target);
-        this.container.position.set(0, -0.22, 0);
-        this.speed = params.speed || 0.02;
+        this.container.position.set(0, -0.05, 0);
+        this.speed = params.speed || 0.04;
         this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
 
         this.movingForward = false;
@@ -46,7 +46,7 @@ export default class ThirdPersonCamera {
     mouseEvents() {
         window.addEventListener("keydown", (e) => {
             if (e.key === "z") {
-                this.movingForward = true;
+                // this.movingForward = true;
             }
         });
 
@@ -60,10 +60,14 @@ export default class ThirdPersonCamera {
             this.controls.lock();
 
             this.mouseDown = true;
+            this.movingForward = true;
+
         });
 
         window.addEventListener("pointerup", (e) => {
             this.mouseDown = false;
+            this.movingForward = false;
+
         });
 
         window.addEventListener("pointermove", (e) => {
@@ -72,13 +76,17 @@ export default class ThirdPersonCamera {
 
             // if (this.mouseDown) {
                 const { movementX, movementY } = e;
-                const offset = new Spherical().setFromVector3(this.camera.position.clone().sub(this.cameraOriginPoint));
+                const offset = new THREE.Spherical().setFromVector3(this.camera.position.clone().sub(this.cameraOriginPoint));
+                // lerp camera position
                 const phi = offset.phi - movementY * 0.004;
+                
                 offset.theta -= movementX * 0.0008;
                 // make sure camera doesn't move on
                 offset.phi = Math.max(0.01, Math.min(0.35 * Math.PI, phi));
-                offset.radius = 4;
-                this.camera.position.copy(this.cameraOriginPoint.clone().add(new Vector3().setFromSpherical(offset)));
+                offset.radius = 3;
+                // this.camera.position.copy(this.cameraOriginPoint.clone().add(new THREE.Vector3().setFromSpherical(offset)));
+                // lerp camera position
+                this.camera.position.lerp(this.cameraOriginPoint.clone().add(new THREE.Vector3().setFromSpherical(offset)), 0.3);
                 // console.log("camera position", this.container.position);
             // };
             
@@ -88,7 +96,7 @@ export default class ThirdPersonCamera {
         });
 
     }
-
+  
     getWordInfo() {
         if (this.movingForward) {
             // console.log("moving forward");
@@ -119,13 +127,16 @@ export default class ThirdPersonCamera {
             }
 
             // rotate boat to face camera direction
+            // use slerp to smooth rotation
+            // this.target.quaternion.slerp(new Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), shortestAngle), 0.1);
 
             this.target.rotateY(Math.max(-0.05, Math.min(shortestAngle, 0.05)));
+         
 
             this.container.position.add(directionCam.multiplyScalar(this.speed));
-            this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
-
+            
         }
+        this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
 
 
     }

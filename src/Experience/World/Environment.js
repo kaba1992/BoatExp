@@ -19,58 +19,28 @@ export default class Environment {
     }
 
     setSunLight() {
-        this.sunLight = new DirectionalLight('#ffffff', 0.1)
+        this.sunLight = new DirectionalLight('#f8f1e6', 0.5)
         this.sunLight.castShadow = true
         this.sunLight.shadow.camera.far = 15
-        this.sunLight.shadow.mapSize.set(1024, 1024)
+        this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set(10, 10, - 1.25)
+        this.sunLight.position.set(4, 4, 4);
         this.scene.add(this.sunLight)
         // const helper = new DirectionalLightHelper(this.sunLight, 1000);
         // this.scene.add(helper);
 
-        // Debug
-        // if(this.debug.active)
-        // {
-        //     this.debugFolder
-        //         .add(this.sunLight, 'intensity')
-        //         .name('sunLightIntensity')
-        //         .min(0)
-        //         .max(10)
-        //         .step(0.001)
-
-        //     this.debugFolder
-        //         .add(this.sunLight.position, 'x')
-        //         .name('sunLightX')
-        //         .min(- 5)
-        //         .max(5)
-        //         .step(0.001)
-
-        //     this.debugFolder
-        //         .add(this.sunLight.position, 'y')
-        //         .name('sunLightY')
-        //         .min(- 5)
-        //         .max(5)
-        //         .step(0.001)
-
-        //     this.debugFolder
-        //         .add(this.sunLight.position, 'z')
-        //         .name('sunLightZ')
-        //         .min(- 5)
-        //         .max(5)
-        //         .step(0.001)
-        // }
+ 
     }
 
     setEnvironmentMap() {
         const textureLoader = new TextureLoader()
         this.environmentMap = {}
         this.environmentMap.intensity = 0.4
-        this.environmentMap.texture = this.resources.items.environmentMapTexture
-        // this.environmentMap.texture = textureLoader.load('/textures/environmentMap/cartoon_clouds.jpg')
+        // this.environmentMap.texture = this.resources.items.environmentMapTexture
+        this.environmentMap.texture = textureLoader.load('/textures/environmentMap/cartoon_clouds.jpg')
         this.environmentMap.texture.encoding = SRGBColorSpace
         this.environmentMap.colorSpace = SRGBColorSpace
-        // this.environmentMap.mapping = EquirectangularReflectionMapping;
+        this.environmentMap.mapping = EquirectangularReflectionMapping;
 
 
         this.scene.environment = this.environmentMap.texture

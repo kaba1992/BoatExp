@@ -29,20 +29,29 @@ body {
 	height: 100%;
 	overflow: hidden;
 }
+.loading-parent {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	background-color: #000000;
+	z-index: 10;
+}
 
 .loading-bar {
-	position: absolute;
-	top: 50%;
 	width: 100%;
 	height: 2px;
 	background: #ffffff;
 	transform: scaleX(0);
 	transform-origin: top left;
 	transition: transform 0.5s;
-	will-change: transform; /*opti*/
+	will-change: transform;
 }
 
 .loading-bar.ended {
+	
 	transform-origin: 100% 0;
 	transition: transform 1.5s ease-in-out;
 }
@@ -53,7 +62,7 @@ body {
 	right: 5%;
 	width: 450px;
 	height: 50px;
-	z-index: 5;
+
 }
 
 .boostBar {
@@ -75,7 +84,7 @@ body {
 		#f12711
 	); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 	animation: gradientAnimation 3s ease infinite;
-	z-index: 5;
+	/* z-index: 5; */
 }
 @keyframes gradientAnimation {
 	0% {
@@ -101,5 +110,4 @@ body {
 	font-size: 2rem;
 	height: 50px;
 	text-align: center;
-	z-index: 5;
 }

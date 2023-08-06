@@ -1,12 +1,9 @@
 
 import Experience from "../../Experience"
 import * as THREE from "three"
-import { MeshBasicMaterial, Vector3, SRGBColorSpace, TextureLoader, Mesh, BackSide, InstancedMesh, Matrix4, LinearSRGBColorSpace } from "three"
-import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { gsap } from "gsap";
+//import Sine gsap plugin
+import { Sine } from "gsap/all";
 
 export default class Islands {
     constructor(params) {
@@ -21,8 +18,6 @@ export default class Islands {
         this.boat = params.boat
         this.setMiniIsland()
         this.setReveal()
-
-
     }
 
     setReveal() {
@@ -76,10 +71,10 @@ void main() {
 }
 `;
         const loader = new THREE.TextureLoader();
-        const revealTexture = loader.load('textures/reveal.png')
+        const revealTexture = loader.load('textures/revealTest1.jpg')
         const uniforms = {
-            uTime: { value: -2 },
-            uResolution: { value: new THREE.Vector2(window.innerWidth,window.innerHeight) },
+            uTime: { value: -1 },
+            uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
             renderTexture: { value: this.renderTexture.texture },
             revealNoise: { value: revealTexture }
         };
@@ -88,7 +83,7 @@ void main() {
             vertexShader,
             fragmentShader,
             uniforms,
-            
+
         });
         // this.material = new THREE.MeshBasicMaterial({ map: this.renderTexture.texture });
         // console.log(this.renderTexture);
@@ -97,11 +92,13 @@ void main() {
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
         gsapTimeline.to(this.material.uniforms.uTime, {
-            duration: 4,
+            duration: 3,
             value: 1,
-            delay: 0.5
+            delay: 0.5,
+            ease: Sine.easeIn, y: -500
+
         })
-        gsapTimeline.eventCallback("onComplete", function() {
+        gsapTimeline.eventCallback("onComplete", function () {
             mesh.visible = false
         })
 
@@ -110,57 +107,67 @@ void main() {
 
 
     setMiniIsland() {
-        const textureLoader = new TextureLoader()
-        const miniIslandTexture = textureLoader.load('textures/Islands/baked.jpg')
-        miniIslandTexture.colorSpace = SRGBColorSpace
+        const textureLoader = new THREE.TextureLoader()
+        const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew.jpg')
+        miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
-        const miniIslandMaterial = new MeshBasicMaterial({ map: miniIslandTexture })
+        const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
         this.miniIsland = this.resource.scene
-        let islandGeometry;
+  
 
+        const instanceCount = 25;
+        const miniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
+        const instancedMiniIsland = new THREE.InstancedMesh(miniIslandMesh.geometry, miniIslandMaterial, instanceCount);
+        const matrix = new THREE.Matrix4();
+        let positions = []; // Un tableau pour stocker les positions existantes
+        let overlap = true; // Un indicateur pour vérifier s'il y a un chevauchement
+        let minimaleDistance = 20; // La distance minimale acceptable entre les îles
+        let tailleZoneExclue = 20; // Taille de la zone carrée exclue au centre
+        let minScale = 1;
 
-        this.miniIsland.traverse((child) => {
-            if (child.isMesh) {
+        for (let i = 0; i < instanceCount; i++) {
+            while (overlap) { // Continue jusqu'à ce qu'il n'y ait pas de chevauchement
+                overlap = false;
+                let x = Math.random() * 125 - 75;
+                let z = Math.random() * 125 - 75;
 
-                child.material = miniIslandMaterial
+                // Vérifie si les coordonnées sont dans la zone exclue au centre
+                if (Math.abs(x) < tailleZoneExclue / 2 && Math.abs(z) < tailleZoneExclue / 2) {
+                    overlap = true;
+                    continue;
+                }
 
-                islandGeometry = child.geometry
-
+                for (let pos of positions) {
+                    let dx = pos.x - x;
+                    let dz = pos.z - z;
+                    let distance = Math.sqrt(dx * dx + dz * dz);
+                    if (distance < minimaleDistance) { // Supposons que 20 est la distance minimale acceptable
+                        overlap = true;
+                        break;
+                    }
+                }
+                if (!overlap) { // Si aucune superposition n'est détectée, ajoutez la nouvelle position
+                    let scale = Math.random() * (3 - minScale) + minScale;  // Génère un facteur d'échelle aléatoire entre 0.5 et 1
+                    let y = scale < 1.5 ? 0.5 : 0.8;
+                    matrix.makeTranslation(x, y, z).scale(new THREE.Vector3(scale, scale, scale));
+                    // add random rotation on y axis
+                    matrix.multiply(new THREE.Matrix4().makeRotationY(Math.random() * Math.PI * 2));
+                    // matrix.makeTranslation(x, 0.5, z);
+                    instancedMiniIsland.setMatrixAt(i, matrix);
+                    positions.push({ x: x, z: z });
+                }
             }
-        })
-        this.miniIsland.scale.set(1.5, 1.5, 1.5)
-
-        this.miniIsland.position.set(0, -0.1, 0)
-
-
-        for (let i = 0; i < 25; i++) {
-            const miniIslandClone = new Mesh(islandGeometry, miniIslandMaterial);
-            miniIslandClone.position.set(Math.random() * 125 - 75, 0.5, Math.random() * 125 - 75);
-            this.scene.add(miniIslandClone)
-
+            overlap = true; // Réinitialisez l'indicateur pour la prochaine itération
         }
 
-        // clone 50 * island with thre.instancedMesh
 
-        // const instanceCount = 25;
-        // const miniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
-        // const instancedMiniIsland = new InstancedMesh(miniIslandMesh.geometry, miniIslandMaterial, instanceCount);
-        // const matrix = new Matrix4();
-
-        // for (let i = 0; i < instanceCount; i++) {
-        //     matrix.makeTranslation(Math.random() * 125 - 75,0.5, Math.random() * 125 - 75);
-        //     instancedMiniIsland.setMatrixAt(i, matrix);
-        // }
-
-        // this.scene.add(instancedMiniIsland);
+        this.scene.add(instancedMiniIsland);
         // this.scene.add(this.miniIsland)
 
 
     }
 
     update(deltaTime) {
-        // this.composer.render()
-        // this.revealShader.uniforms.revealThreshold.value += deltaTime * 0.01;
-        // this.material.uniforms.uTime.value = deltaTime * 0.5;
+
     }
 }

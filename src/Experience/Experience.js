@@ -6,7 +6,6 @@ import Time from './Utils/Time.js'
 import Camera from './Camera.js'
 import RendererWater from './RendererWater.js'
 import World from './World/World.js'
-import Outline from './Outline/Outline.js'
 import Resources from './Utils/Resources.js'
 import Physique from './World/Physique.js'
 // import Stats from 'three/examples/jsm/libs/stats.module'
@@ -42,7 +41,6 @@ export default class Experience {
         this.renderer = new RendererWater()
         this.world = new World()
         this.physic = new Physique()
-        this.outline = new Outline()
         this.octree = new Octree({
             undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
             depthMax: Infinity, // optional, default = Infinity, infinite depth
@@ -90,7 +88,6 @@ export default class Experience {
         this.camera.resize()
         this.renderer.resize()
         this.world.resize()
-        this.outline.resize()
     }
 
     update() {
@@ -100,7 +97,6 @@ export default class Experience {
         this.renderer.update()
         this.physic.update()
         this.octree.update()
-        this.outline.update()
         // this.stats.end();
         // this.stats.update()
     }

@@ -20,6 +20,7 @@ export default class Resources extends EventEmitter {
 
     setLoaders() {
         const loading = document.querySelector(".loading-bar")
+        const loadingParent = document.querySelector(".loading-parent")
         this.loadingManager = new THREE.LoadingManager(
             // Loaded
             () => {
@@ -33,6 +34,9 @@ export default class Resources extends EventEmitter {
             (url, itemsLoaded, itemsTotal) => {
                 const progressRatio = itemsLoaded / itemsTotal
                 loading.style.transform = `scaleX(${progressRatio})`
+                if (progressRatio === 1) {
+                    loadingParent.style.display = "none"
+                }
 
             }
         )

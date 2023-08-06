@@ -22,6 +22,7 @@ import {
     SRGBColorSpace,
     RGBAFormat,
 } from 'three'
+import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 import Experience from './Experience.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import fragmentPiscine from './../../static/shaders/Boat/fragmentPiscine.glsl'
@@ -46,20 +47,12 @@ export default class RendererWater {
         if (this.debug.active) {
             this.debugFolder = this.debug.ui.addFolder('rendererWater')
         }
-        const gl = this.canvas.getContext('webgl2');
-        const ext = gl.getExtension('EXT_disjoint_timer_query_webgl2');
-        if (!ext) {
-            console.error('EXT_disjoint_timer_query_webgl2 is not available');
-        } else {
-            console.log('EXT_disjoint_timer_query_webgl2 is available');
-        }
-
         this.setInstance()
-        this.setPiscine()
+        this.setup()
     }
 
     setInstance() {
-        const ambientLight = new AmbientLight(0xcccccc, 0.4);
+        const ambientLight = new AmbientLight("#ffffff", 0.5);
         this.scene.add(ambientLight);
 
         this.instance = new WebGLRenderer({
@@ -68,13 +61,15 @@ export default class RendererWater {
         })
         this.instance.setSize(this.sizes.width, this.sizes.height)
         this.instance.setPixelRatio(this.pixelRatio)
-        this.instance.gammaOutput = true;
+        this.outlineEffect = new OutlineEffect( this.instance );
+
+        // this.instance.gammaOutput = true;
         // this.instance.outputColorSpace = SRGBColorSpace;
 
 
     }
 
-    setPiscine() {
+    setup() {
         const supportsDepthTextureExtension = !!this.instance.extensions.get("WEBGL_depth_texture");
 
         // Cache des valeurs réutilisées
@@ -180,10 +175,12 @@ export default class RendererWater {
             window.innerHeight * this.sizes.pixelRatio
         )
         const waterGeometry = new PlaneGeometry(500, 500);
+    
         this.water = new Mesh(waterGeometry, this.waterMaterial)
         this.water.rotation.x = - Math.PI * 0.5
 
         this.water.material = this.waterMaterial
+        this.water.receiveShadow = true
         // this.waterFloor=  this.water.clone()
         // this.waterFloor.position.y = - 10
         // this.scene.add(this.waterGround)
@@ -227,8 +224,9 @@ export default class RendererWater {
         this.instance.render(this.scene, this.camera.instance, this.renderTexture, true);
         this.instance.render(this.scene, this.camera.instance);
         this.instance.setRenderTarget(null);
-
+        
         this.instance.render(this.scene, this.camera.instance);
+        this.outlineEffect.render(this.scene, this.camera.instance);
         //  console.log(this.supportsDepthTextureExtension );
     }
 }
