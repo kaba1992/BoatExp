@@ -33,10 +33,10 @@ export default class ThirdPersonCamera {
         this.camera.lookAt(this.cameraOriginPoint);
         this.container.add(this.camera);
         this.container.add(this.target);
-        this.container.position.set(0, -0.05, 0);
+        this.container.position.set(0, 0.02, 0);
         this.speed = params.speed || 0.04;
         this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
-
+        this.bootWheel= this.target.getObjectByName('volant')
         this.movingForward = false;
         this.mouseDown = false;
         this.mouseEvents();
@@ -78,7 +78,7 @@ export default class ThirdPersonCamera {
                 const { movementX, movementY } = e;
                 const offset = new THREE.Spherical().setFromVector3(this.camera.position.clone().sub(this.cameraOriginPoint));
                 // lerp camera position
-                const phi = offset.phi - movementY * 0.004;
+                const phi =15;
                 
                 offset.theta -= movementX * 0.0008;
                 // make sure camera doesn't move on
@@ -131,6 +131,7 @@ export default class ThirdPersonCamera {
             // this.target.quaternion.slerp(new Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), shortestAngle), 0.1);
 
             this.target.rotateY(Math.max(-0.05, Math.min(shortestAngle, 0.05)));
+            this.bootWheel.rotateZ(Math.max(-0.05, Math.min(shortestAngle, 0.05)));
          
 
             this.container.position.add(directionCam.multiplyScalar(this.speed));

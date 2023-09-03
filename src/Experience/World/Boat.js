@@ -7,7 +7,6 @@ import ThirdPersonCamera from './ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import AddBody from '../Utils/addBody.js';
 import bodyTypes from "../Utils/BodyTypes.js";
-import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color, log } from "three-nebula"
 import hyperlapsFragment from '../../../static/shaders/Boat/hyperlapsFragment.glsl'
 import hyperlapsVertex from '../../../static/shaders/Boat/hyperlapsVertex.glsl'
 import toonVertex from '../../../static/shaders/Boat/toonVertex.glsl'
@@ -42,7 +41,6 @@ export default class Boat {
 
     this.setModel()
     this.setKeyUp()
-    this.setParticle()
     this.setHyperLaps()
 
   }
@@ -67,7 +65,7 @@ export default class Boat {
     })
     this.hyperlapsPlane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.hyperlapsMaterial)
     // this.scene.add(this.hyperlapsPlane)
-    this.camera.add(this.hyperlapsPlane)
+    // this.camera.add(this.hyperlapsPlane)
     this.hyperlapsPlane.visible = false
 
   }
@@ -143,7 +141,7 @@ export default class Boat {
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
     // boatPlane.visible = false
-    this.model.scale.set(0.2, 0.2, 0.2)
+    this.model.scale.set(0.3, 0.3, 0.3)
     // this.model.position.set(0, 6, 0) // check in ThrdPeson cam
     // this.model.position.x = 0
     // this.model.position.y = Math.random() * Math.PI * 2;
@@ -179,75 +177,14 @@ export default class Boat {
 
   }
 
-  setParticle() {
-    this.system = new System()
-    this.emitter = new Emitter()
-
-
-    this.particleGroup = new THREE.Group()
-
-    this.scene.add(this.particleGroup)
-
-    this.particleGroup.position.set(0, 2, -3.5)
-    this.particleGroup.scale.set(0.1, 0.1, 0.1)
-    // this.particleGroup.rotateY(-Math.PI / 2)
-
-    this.particleRenderer = new SpriteRenderer(this.particleGroup, THREE);
-    const texture = new THREE.TextureLoader().load("../textures/circle_03.png")
-
-    const sprite = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: texture,
-        color: 0xffffff,
-        transparent: true,
-        depthWrite: false,
-        depthTest: true,
-        blending: THREE.AdditiveBlending,
-        fog: true,
-      })
-    )
-
-    const color = new THREE.Color("blue");
-    this.emitter
-      .setRate(new Rate(new Span(0.1, 1), new Span(0.2)))
-      .setInitializers([
-        new Mass(1),
-        new Radius(6, 8),
-        new Life(1),
-        new Body(sprite),
-        new RadialVelocity(40, new Vector3D(0, 0, -1), -180),
-      ])
-      .setBehaviours([
-        new Alpha(1, 0.5),
-        new Scale(1, 2),
-        new Color(color),
-      ])
-      .emit();
-
-    this.system.addEmitter(this.emitter).addRenderer(this.particleRenderer)
-
-
-    this.model.add(this.particleGroup)
-    // if (this.debug.active && this.model) {
-    //   this.debugFolder = this.debug.ui.addFolder("particleGroup")
-    //   this.debugFolder.add(this.particleGroup.position, 'y').min(-100).max(300).step(0.0001).name('positionY')
-    //   this.debugFolder.add(this.particleGroup.position, 'x').min(-100).max(100).step(0.0001).name('positionX')
-    //   this.debugFolder.add(this.particleGroup.position, 'z').min(-100).max(100).step(0.0001).name('positionZ')
-    //   // rotation
-    //   // this.debugFolder.add(this.group.rotation, 'x').min(0).max(Math.PI * 2).step(0.0001).name('rotationX')
-    //   // this.debugFolder.add(this.group.rotation, 'y').min(0).max(Math.PI * 2).step(0.0001).name('rotationY')
-    //   // this.debugFolder.add(this.group.rotation, 'z').min(0).max(Math.PI * 2).step(0.0001).name('rotationZ')
-    // }
-
-  }
 
 
 
   setKeyUp() {
     window.addEventListener('keyup', (event) => {
       if (event.key === 'Shift') {
-        gsap.to(this.boatFlag1.scale, { x: 1, y: 0.5, z: 1, duration: 1, easing: "easeOut" })
-        gsap.to(this.boatFlag3.scale, { x: 1, y: 0.5, z: 1, duration: 1, easing: "easeOut" })
+        gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
+        gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
         this.hyperlapsPlane.visible = false
 
@@ -279,8 +216,8 @@ export default class Boat {
     if (this.boost <= 0) {
       this.ThirdPersonCamera.speed = 0.04
       // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
-      gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 0, duration: 1, easing: "easeOut" })
-      gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 0, duration: 1, easing: "easeOut" })
+      gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
+      gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
 
       // console.log('boost ended');
       this.hyperlapsPlane.visible = false
@@ -322,14 +259,13 @@ export default class Boat {
       this.ThirdPersonCamera.update(this.time.delta)
       this.Shark.update(this.time.delta)
       this.island.update(this.time.delta)
-      this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.04;
+      this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.02;
       // this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.01;
       // this.axesHelper.position.copy(this.model.position)
       // Boat.modelBody.position.copy(this.model.position)
       // Boat.modelBody.quaternion.copy(this.model.quaternion)
     }
     this.hyperlapsMaterial.uniforms.uTime.value = elapsedTime
-    this.system.update(delta)
   }
 }
 

@@ -16,7 +16,8 @@ export default class Islands {
         // this.time = this.experience.time
         this.resource = this.resources.items.miniIslandModel
         this.boat = params.boat
-        this.setMiniIsland()
+        this.miniIslands = []
+        this.setMiniIslands()
         this.setReveal()
     }
 
@@ -106,32 +107,29 @@ void main() {
 
 
 
-    setMiniIsland() {
+    setMiniIslands() {
         const textureLoader = new THREE.TextureLoader()
         const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew.jpg')
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
-        const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
         this.miniIsland = this.resource.scene
-  
-
-        const instanceCount = 25;
-        const miniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
-        const instancedMiniIsland = new THREE.InstancedMesh(miniIslandMesh.geometry, miniIslandMaterial, instanceCount);
-        const matrix = new THREE.Matrix4();
-        let positions = []; // Un tableau pour stocker les positions existantes
-        let overlap = true; // Un indicateur pour vérifier s'il y a un chevauchement
-        let minimaleDistance = 20; // La distance minimale acceptable entre les îles
-        let tailleZoneExclue = 20; // Taille de la zone carrée exclue au centre
+        const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
+        const originalMiniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
+        console.log(this.miniIsland);
+        let positions = [];
+        let overlap = true;
+        let minimaleDistance = 20;
+        let tailleZoneExclue = 20;
         let minScale = 1;
 
-        for (let i = 0; i < instanceCount; i++) {
-            while (overlap) { // Continue jusqu'à ce qu'il n'y ait pas de chevauchement
+        for (let i = 0; i < 25; i++) {
+            const miniIslandClone = originalMiniIslandMesh.geometry.clone();
+
+            while (overlap) {
                 overlap = false;
                 let x = Math.random() * 125 - 75;
                 let z = Math.random() * 125 - 75;
 
-                // Vérifie si les coordonnées sont dans la zone exclue au centre
                 if (Math.abs(x) < tailleZoneExclue / 2 && Math.abs(z) < tailleZoneExclue / 2) {
                     overlap = true;
                     continue;
@@ -141,30 +139,29 @@ void main() {
                     let dx = pos.x - x;
                     let dz = pos.z - z;
                     let distance = Math.sqrt(dx * dx + dz * dz);
-                    if (distance < minimaleDistance) { // Supposons que 20 est la distance minimale acceptable
+                    if (distance < minimaleDistance) {
                         overlap = true;
                         break;
                     }
                 }
-                if (!overlap) { // Si aucune superposition n'est détectée, ajoutez la nouvelle position
-                    let scale = Math.random() * (3 - minScale) + minScale;  // Génère un facteur d'échelle aléatoire entre 0.5 et 1
+
+                if (!overlap) {
+                    let scale = Math.random() * (3 - minScale) + minScale;
                     let y = scale < 1.5 ? 0.5 : 0.8;
-                    matrix.makeTranslation(x, y, z).scale(new THREE.Vector3(scale, scale, scale));
-                    // add random rotation on y axis
-                    matrix.multiply(new THREE.Matrix4().makeRotationY(Math.random() * Math.PI * 2));
-                    // matrix.makeTranslation(x, 0.5, z);
-                    instancedMiniIsland.setMatrixAt(i, matrix);
+
+                    const miniIslandMesh = new THREE.Mesh(miniIslandClone, miniIslandMaterial);
+                    miniIslandMesh.position.set(x, y, z);
+                    miniIslandMesh.scale.set(scale, scale, scale);
+                    miniIslandMesh.rotation.y = Math.random() * Math.PI * 2;
+                    this.miniIslands.push(miniIslandMesh);
+
+                    this.scene.add(miniIslandMesh);
+
                     positions.push({ x: x, z: z });
                 }
             }
-            overlap = true; // Réinitialisez l'indicateur pour la prochaine itération
+            overlap = true;
         }
-
-
-        this.scene.add(instancedMiniIsland);
-        // this.scene.add(this.miniIsland)
-
-
     }
 
     update(deltaTime) {
