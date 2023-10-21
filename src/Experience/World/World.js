@@ -1,7 +1,6 @@
 import Experience from '../Experience.js'
 import Environment from './Environment.js'
-import SkyWater from './SkyWater.js'
-import Boat from './Boat.js'
+import Boat from './GameElements/Boat.js'
 
 
 export default class World {
@@ -12,24 +11,24 @@ export default class World {
 
 
         this.resources.on('ready', (e) => {
-           
+
             // Setup
             this.boat = new Boat()
-            this.skyWater = new SkyWater()
+            // this.skyWater = new SkyWater()
             this.environment = new Environment()
         })
     }
 
     update() {
-        if (this.boat && this.skyWater) {
+        if (this.boat) {
             this.boat.update()
-            this.skyWater.update()
+
 
         }
 
     }
     resize() {
-        if(this.boat ) {
+        if (this.boat) {
             // this.boat.resize()
         }
     }

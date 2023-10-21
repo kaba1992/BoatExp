@@ -34,17 +34,15 @@ export default class Environment {
 
     setEnvironmentMap() {
         const textureLoader = new TextureLoader()
-        this.environmentMap = {}
-        this.environmentMap.intensity = 0.4
         // this.environmentMap.texture = this.resources.items.environmentMapTexture
-        this.environmentMap.texture = textureLoader.load('/textures/environmentMap/cartoon_clouds.jpg')
-        this.environmentMap.texture.encoding = SRGBColorSpace
+        this.environmentMap = textureLoader.load('/textures/environmentMap/EnvMap.jpg')
+        this.environmentMap.intensity = 0.4
         this.environmentMap.colorSpace = SRGBColorSpace
         this.environmentMap.mapping = EquirectangularReflectionMapping;
 
 
-        this.scene.environment = this.environmentMap.texture
-        this.scene.background = this.environmentMap.texture
+        this.scene.environment = this.environmentMap
+        this.scene.background = this.environmentMap
 
         this.environmentMap.updateMaterials = () => {
             this.scene.traverse((child) => {

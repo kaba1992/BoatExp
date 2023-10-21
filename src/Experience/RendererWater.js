@@ -227,6 +227,6 @@ export default class RendererWater {
         
         this.instance.render(this.scene, this.camera.instance);
         this.outlineEffect.render(this.scene, this.camera.instance);
-        //  console.log(this.supportsDepthTextureExtension );
+     
     }
 }

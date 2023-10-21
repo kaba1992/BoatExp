@@ -39,25 +39,30 @@ export default [
         path: 'models/Islands/miniIsland.glb'
     },
     {
+        name: 'emptysModel',
+        type: 'dracoLoader',
+        path: 'models/Islands/Emptys.glb'
+    },
+    {
+        name: 'volcanoModel',
+        type: 'dracoLoader',
+        path: 'models/Islands/Volcano.glb'
+    },
+    {
         name: 'sharkModel',
         type: 'dracoLoader',
         path: 'models/Boat/SharkNew.glb'
     },
-  
-  
-    // {
-    //     name: 'rockModel1',
-    //     type: 'gltfModel',
-    //     path: 'models/Rock/Rock1.glb'
-    // },
-    // {
-    //     name: 'rockModel2',
-    //     type: 'gltfModel',
-    //     path: 'models/Rock/Rock2.glb'
-    // },
+
+
     {
         name: 'crateModel',
         type: 'dracoLoader',
-        path: 'models/Crate/crate.glb'
+        path: 'models/Crate/crateToon.glb'
+    },
+    {
+        name: 'crateSlotModel',
+        type: 'gltfModel',
+        path: 'models/Crate/crateSlots.glb'
     }
 ]

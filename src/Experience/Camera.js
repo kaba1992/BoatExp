@@ -16,9 +16,9 @@ export default class Camera {
     }
 
     setInstance() {
-        this.instance = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+        this.instance = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 5000);
         // this.instanceOrtho = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
-        this.instance.position.set(0, 3, -2);
+        this.instance.position.set(0, 4, -6);
 
         this.scene.add(this.instance)
         // this.orthoScene.add(this.instanceOrtho)

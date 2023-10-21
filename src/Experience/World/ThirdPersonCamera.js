@@ -29,11 +29,11 @@ export default class ThirdPersonCamera {
         this.xAxis = new THREE.Vector3(1, 0, 0);
         this.tempCameraVector = new THREE.Vector3();
         this.tempTargetVector = new THREE.Vector3();
-        this.cameraOriginPoint = new THREE.Vector3(0, 0.5, 0);
+        this.cameraOriginPoint = new THREE.Vector3(0, 2,0);
         this.camera.lookAt(this.cameraOriginPoint);
         this.container.add(this.camera);
         this.container.add(this.target);
-        this.container.position.set(0, 0.02, 0);
+        this.container.position.set(0, 0.05, 0);
         this.speed = params.speed || 0.04;
         this.controls = new PointerLockControls(this.camera, this.renderer.domElement);
         this.bootWheel= this.target.getObjectByName('volant')
@@ -83,7 +83,7 @@ export default class ThirdPersonCamera {
                 offset.theta -= movementX * 0.0008;
                 // make sure camera doesn't move on
                 offset.phi = Math.max(0.01, Math.min(0.35 * Math.PI, phi));
-                offset.radius = 3;
+                offset.radius = 5;
                 // this.camera.position.copy(this.cameraOriginPoint.clone().add(new THREE.Vector3().setFromSpherical(offset)));
                 // lerp camera position
                 this.camera.position.lerp(this.cameraOriginPoint.clone().add(new THREE.Vector3().setFromSpherical(offset)), 0.3);
@@ -92,7 +92,7 @@ export default class ThirdPersonCamera {
             
             
             // console.log("camera position", this.camera.position);
-            this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
+            // this.camera.lookAt(this.container.position.clone().add(this.cameraOriginPoint));
         });
 
     }

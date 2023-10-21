@@ -4,8 +4,9 @@ import * as THREE from "three"
 import { gsap } from "gsap";
 //import Sine gsap plugin
 import { Sine } from "gsap/all";
+import { log } from "three-nebula";
 
-export default class Islands {
+export default class Island {
     constructor(params) {
         this.experience = new Experience()
         this.scene = this.experience.scene
@@ -15,10 +16,16 @@ export default class Islands {
         this.renderTexture = this.experience.renderer.renderTexture
         // this.time = this.experience.time
         this.resource = this.resources.items.miniIslandModel
+        this.emptysResource = this.resources.items.emptysModel
+        this.bigIslandResource = this.resources.items.volcanoModel
         this.boat = params.boat
         this.miniIslands = []
+        this.miniIslandEmpty = []
+        this.bigIslands = []
         this.setMiniIslands()
         this.setReveal()
+
+
     }
 
     setReveal() {
@@ -52,21 +59,25 @@ void main() {
     vec4 clrBG = 0.6 * vec4(1., 1., 1., 1.) * gridTexture(vUv * vec2(5., 5.)) + 0.6;
 
     float t =  (sin(uTime) + 1.) / 2.;
-
+    
     float edge_width_start = 0.15;
     float edge_width_end = 0.05;
     float edge_width = mix(edge_width_start, edge_width_end, smoothstep(0., 1., 1.-t));
     float myAlpha = mix(0. - edge_width, 1., 1.- t);
+    
 
     vec2 uv_mask = vUv;
     vec4 alphaTex = texture2D(revealNoise, uv_mask );
     float a = step(alphaTex.r, myAlpha);
+    // float a = 0.5;
+
     float edge = smoothstep(alphaTex.r - edge_width, alphaTex.r, myAlpha);
 
     vec4 edgeColor = vec4(0., 0.1, 1.0, 1.0);
     edgeColor *= edge  * mask_tile;
     clrA += edgeColor;
-
+    
+    // vec4(mix(clrA.rgb, clrBG.rgb, a), clrA.a);
     gl_FragColor = mix(clrA, clrBG, a);
     // gl_FragColor = vec4(clrA.rgb, a);
 }
@@ -90,14 +101,15 @@ void main() {
         // console.log(this.renderTexture);
 
         const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material);
+       // change mesh render order to render after the boat
+        mesh.renderOrder = -10
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
         gsapTimeline.to(this.material.uniforms.uTime, {
             duration: 3,
             value: 1,
-            delay: 0.5,
-            ease: Sine.easeIn, y: -500
-
+            // delay: 0.5,
+            ease: Sine.easeIn,
         })
         gsapTimeline.eventCallback("onComplete", function () {
             mesh.visible = false
@@ -112,59 +124,56 @@ void main() {
         const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew.jpg')
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
-        this.miniIsland = this.resource.scene
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
-        const originalMiniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
-        console.log(this.miniIsland);
-        let positions = [];
-        let overlap = true;
-        let minimaleDistance = 20;
-        let tailleZoneExclue = 20;
-        let minScale = 1;
+        this.miniIsland = this.resource.scene
+        this.bigIsland = this.bigIslandResource.scene
+        this.emptysParent = this.emptysResource.scene
 
-        for (let i = 0; i < 25; i++) {
-            const miniIslandClone = originalMiniIslandMesh.geometry.clone();
+        this.emptysParent.traverse((child) => {
 
-            while (overlap) {
-                overlap = false;
-                let x = Math.random() * 125 - 75;
-                let z = Math.random() * 125 - 75;
+            this.miniIslandEmpty.push(child)
 
-                if (Math.abs(x) < tailleZoneExclue / 2 && Math.abs(z) < tailleZoneExclue / 2) {
-                    overlap = true;
-                    continue;
-                }
+        });
 
-                for (let pos of positions) {
-                    let dx = pos.x - x;
-                    let dz = pos.z - z;
-                    let distance = Math.sqrt(dx * dx + dz * dz);
-                    if (distance < minimaleDistance) {
-                        overlap = true;
-                        break;
-                    }
-                }
 
-                if (!overlap) {
-                    let scale = Math.random() * (3 - minScale) + minScale;
-                    let y = scale < 1.5 ? 0.5 : 0.8;
+        const instanceCount = 13;
+        const miniIslandMesh = this.miniIsland.children.find(child => child.isMesh);
+        const bigIslandMesh = this.bigIsland.children.find(child => child.isMesh);
+        let minScale = 3;
 
-                    const miniIslandMesh = new THREE.Mesh(miniIslandClone, miniIslandMaterial);
-                    miniIslandMesh.position.set(x, y, z);
-                    miniIslandMesh.scale.set(scale, scale, scale);
-                    miniIslandMesh.rotation.y = Math.random() * Math.PI * 2;
-                    this.miniIslands.push(miniIslandMesh);
+        for (let i = 0; i < this.miniIslandEmpty.length; i++) {
+            // create 25 island with 1 miniIslandMesh
 
-                    this.scene.add(miniIslandMesh);
+            console.log(this.miniIslandEmpty[i].name.startsWith('Island'));
+            // set the miniIsland position to the miniIslandEmpty position
+            if (this.miniIslandEmpty[i].name.startsWith('Island')) {
+                const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
+                this.miniIslands.push(miniIsland)
 
-                    positions.push({ x: x, z: z });
-                }
+                miniIsland.position.copy(this.miniIslandEmpty[i].position)
+                // get rando float between 1 and 3
+                const scale = Math.random() * (6 - minScale) + minScale;
+
+                let y = scale < 1.5 ? 0.8 : 1.3;
+                miniIsland.scale.multiplyScalar(scale)
+                miniIsland.position.y = y
+                this.scene.add(miniIsland)
             }
-            overlap = true;
-        }
-    }
+            if (this.miniIslandEmpty[i].name.startsWith('BigIsland')) {
+                const bigIsland = this.bigIsland.clone()
+                bigIsland.scale.multiplyScalar(0.2)
 
+                bigIsland.position.copy(this.miniIslandEmpty[i].position)
+                bigIsland.position.y = -2.4
+                this.miniIslands.push(bigIsland)
+                this.scene.add(bigIsland)
+            }
+        }
+
+
+    }
     update(deltaTime) {
+
 
     }
 }

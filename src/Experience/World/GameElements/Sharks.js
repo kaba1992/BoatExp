@@ -4,13 +4,12 @@ import * as THREE from "three"
 import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer } from "three"
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as YUKA from 'yuka';
-import Islands from "./Islands";
+
 // import ThirdPersonCamera from "../ThirdPersonCamera";
 
-export default class Sharks {
+export default class Shark {
     constructor(params) {
         this.experience = new Experience()
-        this.islands = new Islands(params)
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.resource = this.resources.items.sharkModel
@@ -59,7 +58,7 @@ export default class Sharks {
         evader.steering.add(seekBehavior);
         this.entityManager.add(evader);
         this.entityManager.add(this.chaser);
-        this.setUpObstacles()
+        // this.setUpObstacles()
 
 
         this.chaser.active = false
@@ -90,11 +89,11 @@ export default class Sharks {
         const onPathBehavior = new YUKA.OnPathBehavior(path);
         vehicle.steering.add(onPathBehavior);
         // set up obstacles
-        this.setUpObstacles()
+        // this.setUpObstacles()
 
     // add obstacles behavior
-    const obstacleAvoidanceBehavior = new YUKA.ObstacleAvoidanceBehavior(this.obstacles);
-    vehicle.steering.add(obstacleAvoidanceBehavior);
+    // const obstacleAvoidanceBehavior = new YUKA.ObstacleAvoidanceBehavior(this.obstacles);
+    // vehicle.steering.add(obstacleAvoidanceBehavior);
 
     
 
@@ -145,7 +144,7 @@ export default class Sharks {
         this.shark.material = this.sharMaterial
         this.sharkGeometry = this.shark.children[0].children[0].geometry
         this.sharkGeometry.computeBoundingSphere()
-        console.log(this.shark);
+        // console.log(this.shark);
         //scale sharkGeometry
 
         // this.sharkGeometry.matrixAutoUpdate = false;
