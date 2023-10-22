@@ -116,6 +116,7 @@ export default class Crate {
     animateCrateToBoat(crate, index) {
         const crateWorldPosition = new THREE.Vector3();
         crate.getWorldPosition(crateWorldPosition);
+
         const initialCratePosition = crateWorldPosition.clone();
         // Pourcentage de progression le long de la courbe
         let progress = 0;
@@ -123,8 +124,17 @@ export default class Crate {
         let controlPoint1 = null;
         let controlPoint2 = null;
         const crateSlots = this.crateSlots;
+        const scene = this.scene;
 
         const gsapTimeline = gsap.timeline()
+        gsapTimeline.to(progress, {
+            duration: 2,
+            value: 1,
+            // delay: 0.5,
+            ease: "circ.out",
+        })
+       
+        // on update
         gsapTimeline.eventCallback("onUpdate", function () {
             progress = gsapTimeline.progress();
             const slotWorldPosition = new THREE.Vector3();
@@ -142,6 +152,11 @@ export default class Crate {
             crateSlots[index].add(crate);
             crate.position.copy(crateSlots[index].position);
             crate.scale.set(0.08, 0.08, 0.08);
+            if(index >= crateSlots.length - 1){
+                //remove crate
+                // scene.remove(crate);
+                console.log("remove crate");
+            }
         })
     }
 
@@ -152,7 +167,6 @@ export default class Crate {
             object.rotation.x += Math.sin(object.userData.initFloating + time) * 0.001;
             object.rotation.z += Math.sin(object.userData.initFloating + time) * 0.001;
         });
-
     }
     scoreManager() {
         this.counter++
@@ -165,9 +179,9 @@ export default class Crate {
                 this.score += 1;
                 this.animateCrateToBoat(crate, this.slotIndex % this.crateSlots.length);
                 this.slotIndex++;
-
                 // remove in array
                 this.crateArr.splice(index, 1);
+                
                 this.counter = 0;
             }
         })
@@ -182,9 +196,8 @@ export default class Crate {
         this.crateSlots.forEach((crateSlot) => {
             const crateSlotWorld = new THREE.Vector3();
             crateSlot.getWorldPosition(crateSlotWorld);
-            // console.log(crateSlotWorld);
         });
         this.scoreManager();
- 
+
     }
 }
