@@ -1,46 +1,34 @@
 import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
+import UiManager from './UiManager';
 
 export default class Home extends EventEmitter {
     constructor() {
         super();
         this.experience = new Experience();
         this.resources = this.experience.resources;
-        this.rootElement = document.querySelector("#root");
-        this.startElement = document.querySelector('#start'); // Ciblage de l'élément dans le constructeur
-    
-        this.rootElement.style.opacity = 0;
+        this.startElement = document.querySelector('#start');
+       //Ciblage de l'élément dans le constructeur
+        this.uiManager = new UiManager();
+        this.uiManager.hide('#root');
+       
         this.homeClicked = new Event('homeClicked');
         window.addEventListener('resourcesReady', () => {
-           
-            this.show();
-            window.dispatchEvent(this.homeClicked);
-            this.hide();
-
+            this.uiManager.show('#root',true);
+            
         });
-        // this.addEvent(this.startElement, 'click', () => {
-        //     window.dispatchEvent(this.homeClicked);
-        //     this.hide();
-        //     console.log("hided");
-        // });
+   
         this.startElement.addEventListener('click', () => {
-        
+            window.dispatchEvent(this.homeClicked);
+            this.uiManager.hide('#root');
             console.log("hided");
 
         });
         
     }
 
-    show() {
-        this.rootElement.style.opacity = 1;
-        console.log(this.rootElement.style.opacity);
-    }
-
-    hide() {
-        this.rootElement.style.opacity = 0;
-    }
-
+  
     addEvent(element, event, callback) {
         if (element) {
             element.addEventListener(event, callback);

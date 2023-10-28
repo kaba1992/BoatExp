@@ -13,6 +13,7 @@ import Shark from './Sharks.js';
 import Island from './islands.js';
 import Crate from './Crates.js';
 import { lerp } from 'three/src/math/MathUtils.js';
+import UiManager from '../../../UI/UiManager.js';
 
 export default class Boat {
   static modelBody
@@ -31,6 +32,8 @@ export default class Boat {
     this.size = this.experience.sizes
     this.keyboard = new THREEx.KeyboardState()
     this.boost = 100
+    this.uiManager = new UiManager();
+    this.uiManager.hide('.boost');
     this.physic = this.experience.physic
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
@@ -43,12 +46,12 @@ export default class Boat {
     this.distance = null
     this.rotation = null
 
-    this.velocity = 2
-    this.rotVelocity = 0.5
+    this.velocity = 3
+    this.rotVelocity = 0.8
 
     this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
     this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
-    this.sailingTraceAudio.volume =0.2;
+    this.sailingTraceAudio.volume = 0.2;
     this.voileAudio.volume = 0.5;
     this.voileAudioPlayed = false;
 
@@ -61,17 +64,22 @@ export default class Boat {
 
     this.setModel()
     this.setKeyUp()
-    window.addEventListener('homeClicked', () => {
-      this.canUpdate = true
-      this.island.setReveal()
-    })
-
-
+    this.getListener()
   }
 
 
 
+  getListener() {
+    window.addEventListener('homeClicked', () => {
+      this.island.setReveal()
+    })
+    window.addEventListener('revealEnd', () => {
+      this.canUpdate = true
+      this.uiManager.show('.boost', false);
+      this.uiManager.fadeIn('.boost', 1);
+    })
 
+  }
 
 
   setModel() {
@@ -178,14 +186,14 @@ export default class Boat {
 
 
   setKeyUp() {
-  this.isKeyUp = false;
+    this.isKeyUp = false;
 
     window.addEventListener('keyup', (event) => {
       this.stop()
       // lerp volume to 0
       this.isKeyUp = true;
       console.log(this.sailingTraceAudio.volume);
-     
+
       if (event.key === 'Shift') {
         this.voileAudioPlayed = false;
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
@@ -220,7 +228,7 @@ export default class Boat {
 
     if (this.boost <= 0) {
       // this.ThirdPersonCamera.speed = 0.04
-      this.velocity = 2
+      this.velocity = 3
       // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
       gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
       gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
@@ -255,7 +263,7 @@ export default class Boat {
       this.distance = this.velocity * this.delta
       this.isKeyUp = false;
       this.sailingTraceAudio.play();
-      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume,0.2, 0.1);
+      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
     }
     if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
       this.distance = -(this.velocity / 4) * this.delta
@@ -265,11 +273,11 @@ export default class Boat {
       this.boostManager()
       this.unfillBoost()
       if (this.boost > 0) {
-        if(!this.voileAudioPlayed){
+        if (!this.voileAudioPlayed) {
           this.voileAudio.play();
           this.voileAudioPlayed = true;
         }
-        
+
         gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
         // gsap.to(this.particleGroup.scale, { x: 2, y: 3.5, z: 8, duration: 3, ease: "easeOut" })
@@ -279,7 +287,7 @@ export default class Boat {
       // console.log("shift pressed");
 
     } else {
-      this.velocity = 2
+      this.velocity = 3
       this.fillBoost()
     }
   }
@@ -301,9 +309,9 @@ export default class Boat {
       }
       this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.08;
       this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.03;
-      if(this.isKeyUp){
+      if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
-       
+
       }
     }
 

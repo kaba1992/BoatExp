@@ -23,9 +23,9 @@ export default [
         path: 'textures/dirt/normal.jpg'
     },
     {
-        name: 'HyperlapsNoiseTexture',
+        name: 'exclamationMark',
         type: 'texture',
-        path: 'textures/hyperlapsNoise.png'
+        path: 'textures/Sharks/exclamationMark.png'
     },
 
     {

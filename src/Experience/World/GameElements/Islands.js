@@ -111,8 +111,10 @@ void main() {
             // delay: 0.5,
             ease: Sine.easeIn,
         })
+        const revealEndEvent = new Event('revealEnd')
         gsapTimeline.eventCallback("onComplete", function () {
             mesh.visible = false
+            window.dispatchEvent(revealEndEvent)
         })
 
     }

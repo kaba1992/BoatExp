@@ -97,6 +97,7 @@ export default class Experience {
         this.renderer.update()
         this.physic.update()
         this.octree.update()
+        this.resources.update()
         // this.stats.end();
         // this.stats.update()
     }

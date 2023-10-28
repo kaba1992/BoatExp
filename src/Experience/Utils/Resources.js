@@ -14,6 +14,8 @@ export default class Resources extends EventEmitter {
         this.toLoad = this.sources.length
         this.loaded = 0
         this.resourcesReady = new Event('resourcesReady')
+        this.currentRatio = 0;
+        this.targetRatio = 0;
 
         this.setLoaders()
         this.startLoading()
@@ -21,6 +23,7 @@ export default class Resources extends EventEmitter {
 
     setLoaders() {
         const loading = document.querySelector(".loading-bar")
+        const loadingShark = document.querySelector(".loading-shark")
         const loadingParent = document.querySelector(".loading-parent")
         this.loadingManager = new THREE.LoadingManager(
             // Loaded
@@ -28,15 +31,33 @@ export default class Resources extends EventEmitter {
                 window.setTimeout(() => {
                     loading.classList.add('ended')
                     loading.style.transform = ""
+                    // loadingShark.style.left = ""
                 }, 500);
 
             },
             //progress
             (url, itemsLoaded, itemsTotal) => {
-                const progressRatio = itemsLoaded / itemsTotal
-                loading.style.transform = `scaleX(${progressRatio})`
-                if (progressRatio === 1) {
-                    loadingParent.style.display = "none"
+                this.targetRatio = itemsLoaded / itemsTotal
+                // const windowWidth = window.innerWidth;
+
+                // let maxPosition;
+
+                // if (windowWidth <= 480) { // Mobiles
+                //     maxPosition = 50; // Vous pouvez ajuster cette valeur
+                // } else if (windowWidth <= 768) { // Tablettes
+                //     maxPosition = 80; // Vous pouvez ajuster cette valeur
+                // } else { // PC et autres grandes tailles d'écran
+                //     maxPosition = 100; // Vous pouvez ajuster cette valeur
+                // }
+
+                // const newPosition = progressRatio * maxPosition;
+                // loadingShark.style.left = `${newPosition}vw`;
+                // loading.style.transform = `scaleX(${progressRatio})`
+
+                if (this.targetRatio  === 1) {
+                    setTimeout(() => {
+                        loadingParent.style.display = "none"
+                    }, 1000);
                 }
 
             }
@@ -61,12 +82,11 @@ export default class Resources extends EventEmitter {
                     }
                 )
             }
-            else if(source.type === 'dracoLoader'){
+            else if (source.type === 'dracoLoader') {
                 this.loaders.gltfLoader.setDRACOLoader(this.dracoLoader)
                 this.loaders.gltfLoader.load(
                     source.path,
-                    (file) =>
-                    {
+                    (file) => {
                         this.sourceLoaded(source, file)
                     }
                 )
@@ -105,6 +125,27 @@ export default class Resources extends EventEmitter {
 
         if (this.loaded === this.toLoad) {
             this.trigger('ready')
-            window.dispatchEvent(this.resourcesReady)        }
+            window.dispatchEvent(this.resourcesReady)
+        }
+    }
+
+    update() {
+        this.currentRatio += (this.targetRatio - this.currentRatio) * 0.05;
+
+        const windowWidth = window.innerWidth;
+        let maxPosition;
+
+        if (windowWidth <= 480) { // Mobiles
+            maxPosition = 50;
+        } else if (windowWidth <= 768) { // Tablettes
+            maxPosition = 80;
+        } else { // PC et autres grandes tailles d'écran
+            maxPosition = 100;
+        }
+
+        const newPosition = this.currentRatio * maxPosition;
+        const loadingShark = document.querySelector(".loading-shark");
+        loadingShark.style.left = `${newPosition}vw`;
+
     }
 }
