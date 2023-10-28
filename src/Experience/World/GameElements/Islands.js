@@ -23,7 +23,7 @@ export default class Island {
         this.miniIslandEmpty = []
         this.bigIslands = []
         this.setMiniIslands()
-        this.setReveal()
+       
 
 
     }

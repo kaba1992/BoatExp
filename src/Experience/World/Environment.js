@@ -17,6 +17,7 @@ export default class Environment {
         this.setSunLight()
         this.setEnvironmentMap()
     }
+    
 
     setSunLight() {
         this.sunLight = new DirectionalLight('#f8f1e6', 0.5)

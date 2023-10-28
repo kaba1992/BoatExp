@@ -12,6 +12,7 @@ import toonFragment from '../../../../static/shaders/Boat/toonFragment.glsl'
 import Shark from './Sharks.js';
 import Island from './islands.js';
 import Crate from './Crates.js';
+import { lerp } from 'three/src/math/MathUtils.js';
 
 export default class Boat {
   static modelBody
@@ -21,6 +22,7 @@ export default class Boat {
 
   constructor() {
     this.experience = new Experience()
+    this.home = this.experience.home
     this.scene = this.experience.scene
     this.resources = this.experience.resources
     this.renderer = this.experience.renderer.instance;
@@ -34,12 +36,37 @@ export default class Boat {
     this.boostProgress = document.querySelector('.boostProgress')
     this.boostProgress.innerHTML = `${this.boost}%`
     this.clock = new THREE.Clock()
-
+    this.canUpdate = false
     // Resource
     this.resource = this.resources.items.boatModel
 
+    this.distance = null
+    this.rotation = null
+
+    this.velocity = 2
+    this.rotVelocity = 0.5
+
+    this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
+    this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
+    this.sailingTraceAudio.volume =0.2;
+    this.voileAudio.volume = 0.5;
+    this.voileAudioPlayed = false;
+
+    //Camera
+
+    this.rotateAngle = new THREE.Vector3(0, 1, 0)
+    this.rotateQuarternion = new THREE.Quaternion()
+    this.cameraTarget = new THREE.Vector3()
+
+
     this.setModel()
     this.setKeyUp()
+    window.addEventListener('homeClicked', () => {
+      this.canUpdate = true
+      this.island.setReveal()
+    })
+
+
   }
 
 
@@ -57,19 +84,7 @@ export default class Boat {
     this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
     this.boatFlag3 = this.model.getObjectByName('StylShip_SailMid2_Mat_StylShip_SailsRope_0')
 
-    // this.boatToonMaterial = new THREE.ShaderMaterial({
-    //   vertexShader: toonVertex,
-    //   fragmentShader: toonFragment,
-    //   lights: true,
-    //   uniforms: {
-    //     ...THREE.UniformsLib.lights,
-    //     // green: { value: new THREE.Color('#00FF00') },
-    //     uColor: { value: new THREE.Color('#409851') },
-    //     uGlossiness: { value: 2 }
 
-    //   },
-
-    // })
     const alpha = 0.5;
     const beta = 0.5;
     const gamma = 0.5;
@@ -102,30 +117,24 @@ export default class Boat {
         this.childs.push(child)
         textures.push(child.material.map)
         child.material = material
-        // console.log(child.name)
-
 
       }
     })
 
     this.model.castShadow = true
-
-
-
-
     // boatFlag.scale(1, 0.1, 1)
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
     // boatPlane.visible = false
     this.model.scale.set(0.5, 0.5, 0.5)
-    // this.model.position.set(0, 6, 0) // check in ThrdPeson cam
-    // this.model.position.x = 0
-    // this.model.position.y = Math.random() * Math.PI * 2;
-    // this.model.position.z = 0
+    // this.model.position.set(0, 6, 0) :// check in ThrdPeson cam
+    this.model.position.x = 0
+    // this.model.position.y = Math.random() * Math.PI * 2;:::
+    this.model.position.z = 0
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
-    // this.model.rotation.y = Math.PI / 2 ;
-    // this.scene.add(this.model)
+    // this.model.rotation.y = Math.PI  /2;
+    this.scene.add(this.model)
     //this.octree.add(this.model)
 
 
@@ -134,14 +143,13 @@ export default class Boat {
       {
         camera: this.camera,
         target: this.model,
-        speed: this.velocity,
       }
 
     )
     this.Shark = new Shark(
       {
         boat: this.model,
-        container: this.ThirdPersonCamera.container,
+
       }
     )
     this.island = new Island(
@@ -159,13 +167,27 @@ export default class Boat {
 
 
   }
+  stop() {
+    if (this.model) {
+      this.distance = 0
+      this.rotation = 0
+    }
+  }
 
 
 
 
   setKeyUp() {
+  this.isKeyUp = false;
+
     window.addEventListener('keyup', (event) => {
+      this.stop()
+      // lerp volume to 0
+      this.isKeyUp = true;
+      console.log(this.sailingTraceAudio.volume);
+     
       if (event.key === 'Shift') {
+        this.voileAudioPlayed = false;
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
@@ -197,7 +219,8 @@ export default class Boat {
 
 
     if (this.boost <= 0) {
-      this.ThirdPersonCamera.speed = 0.04
+      // this.ThirdPersonCamera.speed = 0.04
+      this.velocity = 2
       // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
       gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
       gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
@@ -205,18 +228,48 @@ export default class Boat {
 
     }
     else {
-      this.ThirdPersonCamera.speed = 0.2
+      // this.ThirdPersonCamera.speed = 0.2
+      this.velocity = 8
+    }
+  }
+
+  updateSpeed() {
+    if (this.model) {
+      this.model.rotation.y += this.rotation
+      this.model.translateZ(this.distance)
+
     }
   }
 
 
-
   boatControls() {
+    this.delta = this.clock.getDelta()
+    if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
+      this.rotation = this.rotVelocity * this.delta
+    }
+    if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
+      this.rotation = -this.rotVelocity * this.delta
+      console.log("right");
+    }
+    if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
+      this.distance = this.velocity * this.delta
+      this.isKeyUp = false;
+      this.sailingTraceAudio.play();
+      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume,0.2, 0.1);
+    }
+    if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
+      this.distance = -(this.velocity / 4) * this.delta
+    }
 
     if (this.keyboard.pressed('shift')) {
       this.boostManager()
       this.unfillBoost()
       if (this.boost > 0) {
+        if(!this.voileAudioPlayed){
+          this.voileAudio.play();
+          this.voileAudioPlayed = true;
+        }
+        
         gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
         // gsap.to(this.particleGroup.scale, { x: 2, y: 3.5, z: 8, duration: 3, ease: "easeOut" })
@@ -226,7 +279,7 @@ export default class Boat {
       // console.log("shift pressed");
 
     } else {
-      this.ThirdPersonCamera.speed = 0.04
+      this.velocity = 2
       this.fillBoost()
     }
   }
@@ -235,18 +288,23 @@ export default class Boat {
   update() {
 
     this.boatControls()
+    this.updateSpeed()
     const elapsedTime = this.time.elapsed * 0.0008
     const delta = this.clock.getDelta()
     if (this.model) {
-      this.ThirdPersonCamera.update(this.time.delta)
-      this.Shark.update(this.time.delta)
-      this.island.update(this.time.delta)
-      this.crate.update(this.time.delta)
-      this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.02;
-      // this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.01;
-      // this.axesHelper.position.copy(this.model.position)
-      // Boat.modelBody.position.copy(this.model.position)
-      // Boat.modelBody.quaternion.copy(this.model.quaternion)
+
+      if (this.canUpdate) {
+        this.ThirdPersonCamera.update(this.time.delta)
+        this.Shark.update(this.time.delta)
+        this.island.update(this.time.delta)
+        this.crate.update(this.time.delta)
+      }
+      this.model.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.08;
+      this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.03;
+      if(this.isKeyUp){
+        this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
+       
+      }
     }
 
   }

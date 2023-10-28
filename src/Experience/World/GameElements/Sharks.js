@@ -12,7 +12,7 @@ export default class Sharks {
         this.resources = this.experience.resources;
         this.resource = this.resources.items.sharkModel;
         this.boat = params.boat;
-        this.container = params.container;
+        this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
         this.Sharks = [];
         this.setShark();
         this.time = new YUKA.Time();
@@ -38,6 +38,7 @@ export default class Sharks {
             clonedShark.scale.set(1.5, 1.5, 1.5);
             clonedShark.randomDirection = new Vector3(Math.random() * 10 - 1, 0, Math.random() * 10 - 1).normalize();
             clonedShark.notChasing = true;
+            clonedShark.aggoSoundPlayed = false;
 
             this.Sharks.push(clonedShark);
             this.scene.add(clonedShark);
@@ -49,15 +50,24 @@ export default class Sharks {
     }
 
     checkDistance(shark) {
-        let distance = this.container.position.distanceTo(shark.position);
+        
+        let distance = this.boat.position.distanceTo(shark.position);
         if (distance < 1) {
             console.log("GameOver");
+           
+            
             return;
         }
-        if (distance < 15) {
+        if (distance <= 15 ) {
             shark.notChasing = false;
+            if(!shark.aggoSoundPlayed){
+                // this.aggroAudio.play();
+                shark.aggoSoundPlayed = true;
+            }
+           
         } else if (distance > 30) {
             shark.notChasing = true;
+            shark.aggoSoundPlayed = false;
         }
     }
 
@@ -65,7 +75,7 @@ export default class Sharks {
         const yukaDeltaTime = this.time.update().getDelta();
 
         this.Sharks.forEach(shark => {
-            let sharkDirection = shark.notChasing ? shark.randomDirection : this.container.position.clone().sub(shark.position).normalize();
+            let sharkDirection = shark.notChasing ? shark.randomDirection : this.boat.position.clone().sub(shark.position).normalize();
 
             const shift = new Vector3();
             shift.copy(sharkDirection).multiplyScalar(this.speed * deltaTime * 0.003);
@@ -84,6 +94,11 @@ export default class Sharks {
 
             if (shark && this.boat) {
                 this.checkDistance(shark);
+            }
+
+            if(shark.aggro){
+                this.aggroAudio.play();
+              
             }
         });
     }

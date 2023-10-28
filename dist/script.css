@@ -1,0 +1,116 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html,
+body {
+	overflow: hidden;
+	height: 100%;
+	width: 100%;
+}
+
+.webgl {
+	position: fixed;
+	top: 0;
+	left: 0;
+	outline: none;
+}
+
+.score {
+	position: absolute;
+	margin: 2rem;
+	font-size: 2rem;
+	z-index: 5;
+}
+.container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+.loading-parent {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+	background-color: #000000;
+	z-index: 10;
+}
+
+.loading-bar {
+	width: 100%;
+	height: 2px;
+	background: #ffffff;
+	transform: scaleX(0);
+	transform-origin: top left;
+	transition: transform 0.5s;
+	will-change: transform;
+}
+
+.loading-bar.ended {
+	
+	transform-origin: 100% 0;
+	transition: transform 1.5s ease-in-out;
+}
+
+.boost {
+	position: absolute;
+	bottom: 5%;
+	right: 5%;
+	width: 450px;
+	height: 50px;
+
+}
+
+.boostBar {
+	position: absolute;
+	bottom: 5%;
+	right: 5%;
+	width: 100%;
+	height: 100%;
+	border-radius: 10px;
+	background: #f12711; /* fallback for old browsers */
+	background: -webkit-linear-gradient(
+		to right,
+		#f5af19,
+		#f12711
+	); /* Chrome 10-25, Safari 5.1-6 */
+	background: linear-gradient(
+		to right,
+		#f5af19,
+		#f12711
+	); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+	animation: gradientAnimation 3s ease infinite;
+	/* z-index: 5; */
+}
+@keyframes gradientAnimation {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+.boostProgress {
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	bottom: 90%;
+	right: 5%;
+	width: 100%;
+	color: #ffffff;
+	font-size: 2rem;
+	height: 50px;
+	text-align: center;
+}
+
+
+/*# sourceMappingURL=script.css.map*/

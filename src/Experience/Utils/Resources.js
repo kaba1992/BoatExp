@@ -13,6 +13,7 @@ export default class Resources extends EventEmitter {
         this.items = {}
         this.toLoad = this.sources.length
         this.loaded = 0
+        this.resourcesReady = new Event('resourcesReady')
 
         this.setLoaders()
         this.startLoading()
@@ -104,6 +105,6 @@ export default class Resources extends EventEmitter {
 
         if (this.loaded === this.toLoad) {
             this.trigger('ready')
-        }
+            window.dispatchEvent(this.resourcesReady)        }
     }
 }
