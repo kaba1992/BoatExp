@@ -3,8 +3,7 @@
 	padding: 0;
 }
 
-html,
-body {
+html, body {
 	overflow: hidden;
 	height: 100%;
 	width: 100%;
@@ -15,15 +14,20 @@ body {
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	background: url(../../static/textures/Ui/Test4.jpg) no-repeat center center/
-		cover;
+	background: url(../../static/textures/Ui/Test4.jpg) no-repeat center center/cover;
 	z-index: 10;
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	flex-direction: column;
+	gap: 2rem;
 }
 
 #start {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 	width: 120px;
 	height: 40px;
 	font-size: 2rem;
@@ -31,4 +35,213 @@ body {
 	text-align: center;
 	border-radius: 10px;
 	cursor: pointer;
+	z-index: 2;
+}
+
+.dialogue {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.dialogue-captain {
+	position: absolute;
+	width: 60em;
+	bottom: 0;
+	left: 0;
+}
+
+.dialogue-text {
+	position: absolute;
+	width: 360px;
+	top: 7em;
+	left: 21.5em;
+	font-size: 1.5rem;
+	text-align: left;
+}
+
+/* Media queries pour tablettes */
+@media (max-width: 768px) and (min-height: 1024px) {
+	#start {
+		font-size: 1.5rem;
+		width: 100px;
+		height: 30px;
+	}
+	.dialogue-captain {
+		width: 40em; /* réduire la taille de l'image */
+	}
+	.dialogue-text {
+		width: 300px; /* réduire la largeur */
+		font-size: 1.2rem;
+		left: 18em;
+	}
+}
+
+/* Media queries pour téléphones mobiles */
+
+@media (min-width: 375px) and (max-width: 480px) and (min-height: 667px) and (max-height: 800px) {
+	#start {
+		font-size: 1rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 24em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 32em;
+		left: 18em;
+	}
+}
+
+/* max-width: 480px; and max-height: 800px; */
+
+@media (min-width: 480px) and (min-height: 801px) and (max-height: 844px) {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 47em;
+		left: 18em;
+	}
+}
+
+@media (min-width: 390px) and (min-height: 844px) and (max-height: 844px) {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 47em;
+		left: 18em;
+	}
+}
+
+@media (min-width: 360px) and (min-height: 740px) and (max-height: 740px) {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 37em;
+		left: 18em;
+	}
+}
+
+@media (min-width: 360px) and (min-height: 800px) and (max-height: 800px) {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 43em;
+		left: 18em;
+	}
+}
+
+
+
+
+@media (max-width: 414px) and (min-height: 896px) {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 26em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.8rem;
+		top: 43em;
+		left: 17em;
+	}
+}
+@media (max-width: 412px) and (min-height: 915px) {
+
+	.dialogue-captain {
+		width: 26em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		top: 45em;
+	}
+}
+
+@media screen and (device-width: 360px) and (device-height: 760px)  {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 26em;
+		left: 18em;
+	}
+}
+
+@media screen and (device-width: 375px) and (device-height:812px)  {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 44em;
+		left: 18em;
+	}
+}
+
+@media screen and (device-width: 393px) and (device-height:851px)  {
+	#start {
+		font-size:1.2rem;
+		width: 80px;
+		height: 25px;
+	}
+	.dialogue-captain {
+		width: 25em; /* encore plus réduit */
+	}
+	.dialogue-text {
+		width: 144px;
+		font-size: 0.7rem;
+		top: 47em;
+		left: 18em;
+	}
 }

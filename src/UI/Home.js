@@ -9,27 +9,40 @@ export default class Home extends EventEmitter {
         this.experience = new Experience();
         this.resources = this.experience.resources;
         this.startElement = document.querySelector('#start');
-       //Ciblage de l'élément dans le constructeur
+        //Ciblage de l'élément dans le constructeur
         this.uiManager = new UiManager();
         this.uiManager.hide('#root');
-       
+
+        this.dialogues = [
+            "Hello young Rookie, welcome to 'Sea Of Sharks'. I am Captain Flyn, and I need your help!",
+            "My cargo was lost at sea and half of my crew was eaten by sharks",
+            "Your job is to bring me back my supplies as fast as possible. But I have to warn you ehe, I did hire more mercenaries, only the fastest one will be paid.",
+            "Be carefull, the sharks are still roaming around us. Good luck rookies and may the best win !",
+        ]
+
         this.homeClicked = new Event('homeClicked');
+        const text1 = document.querySelector('.dialogue-text-container1');
+        const text2 = document.querySelector('.dialogue-text-container2');
+
+        text1.innerHTML = this.dialogues[2];
+
         window.addEventListener('resourcesReady', () => {
-            this.uiManager.show('#root',true);
-            
+            this.uiManager.show('#root', true);
         });
-   
+
         this.startElement.addEventListener('click', () => {
             window.dispatchEvent(this.homeClicked);
             this.uiManager.hide('#root');
             console.log("hided");
 
         });
-        
+
+
     }
 
-  
+
     addEvent(element, event, callback) {
+
         if (element) {
             element.addEventListener(event, callback);
         } else {
