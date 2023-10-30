@@ -226,7 +226,7 @@ export default class RendererWater {
         this.instance.setRenderTarget(null);
         
         this.instance.render(this.scene, this.camera.instance);
-        // this.outlineEffect.render(this.scene, this.camera.instance);
+        this.outlineEffect.render(this.scene, this.camera.instance);
      
     }
 }

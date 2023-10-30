@@ -55,9 +55,9 @@ export default class Resources extends EventEmitter {
                 // loading.style.transform = `scaleX(${progressRatio})`
 
                 if (this.targetRatio  === 1) {
-                    setTimeout(() => {
+                  
                         loadingParent.style.display = "none"
-                    }, 1000);
+                   
                 }
 
             }

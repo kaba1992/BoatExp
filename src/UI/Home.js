@@ -22,12 +22,16 @@ export default class Home extends EventEmitter {
 
         this.homeClicked = new Event('homeClicked');
         const text1 = document.querySelector('.dialogue-text-container1');
-        const text2 = document.querySelector('.dialogue-text-container2');
 
-        text1.innerHTML = this.dialogues[2];
+        this.uiManager.hide(".dialogue-text-container1");
+        this.uiManager.hide(".dialogue-text-container2");
+
+        // text1.innerHTML = this.dialogues[2];
 
         window.addEventListener('resourcesReady', () => {
             this.uiManager.show('#root', true);
+            this.setDilogues(text1);
+
         });
 
         this.startElement.addEventListener('click', () => {
@@ -39,6 +43,34 @@ export default class Home extends EventEmitter {
 
 
     }
+
+
+    setDilogues(text1) {
+        this.uiManager.show(".dialogue-text-container1", false);
+        text1.innerHTML = this.dialogues[0];
+        this.uiManager.fadeIn(".dialogue-text-container1", 1);
+        setTimeout(() => {
+            for (let i = 0; i < this.dialogues.length; i++) {
+                if (i % 2 == 0) {
+                    setTimeout(() => {
+                        this.uiManager.fadeOut(".dialogue-text-container1", 1);
+                        setTimeout(() => {
+                            text1.innerHTML = this.dialogues[i + 1];
+                            this.uiManager.fadeIn(".dialogue-text-container1", 1);
+                        }, 1000);
+
+                    }, 4000 * i);
+                }
+                if (i == this.dialogues.length - 1) {
+                    console.log("last");
+                }
+
+            }
+        }, 4000);
+
+    }
+
+
 
 
     addEvent(element, event, callback) {
