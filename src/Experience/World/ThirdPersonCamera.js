@@ -13,9 +13,12 @@ export default class ThirdPersonCamera {
         this.camera = params.camera;
         this.target = params.target;
         this.gui = new dat.GUI();
-        this.currentPosition = new THREE.Vector3();
-        this.currentLookAt = new THREE.Vector3();
-        this.cameraUi = this.gui.addFolder('camera')
+        this.currentPosition = this.calculateIdealOffset();
+        this.currentLookAt = this.calculateIdealLookAt();
+
+        this.camera.position.copy(this.currentPosition);
+        this.camera.lookAt(this.currentLookAt);
+        // this.cameraUi = this.gui.addFolder('camera')
         this.clock = new THREE.Clock();
 
 

@@ -59,14 +59,14 @@ export default class Experience {
             minimal: false,
             mode: 2
         });
-        document.body.appendChild( this.stats.container );
-        this.stats.init( this.renderer.instance.domElement );
+        // document.body.appendChild( this.stats.container );
+        // this.stats.init( this.renderer.instance.domElement );
         this.scene.onBeforeRender = () => {
-            this.stats.begin();
+            // this.stats.begin();
         }
 
         this.scene.onAfterRender = () => {
-            this.stats.end();
+            // this.stats.end();
         }
 
 

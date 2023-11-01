@@ -73,10 +73,11 @@ export default class Boat {
     window.addEventListener('homeClicked', () => {
       this.island.setReveal()
     })
-    window.addEventListener('revealEnd', () => {
+    window.addEventListener('dialogueEnd', () => {
       this.canUpdate = true
-      this.uiManager.show('.boost', false);
       this.uiManager.fadeIn('.boost', 1);
+
+      this.uiManager.show('.boost', false);
     })
 
   }
@@ -141,7 +142,7 @@ export default class Boat {
     this.model.position.z = 0
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
-    // this.model.rotation.y = Math.PI  /2;
+    this.model.rotation.y = Math.PI ;
     this.scene.add(this.model)
     //this.octree.add(this.model)
 
@@ -199,8 +200,6 @@ export default class Boat {
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
-
-
       }
     })
 

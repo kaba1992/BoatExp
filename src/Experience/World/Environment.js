@@ -11,7 +11,7 @@ export default class Environment {
 
         // Debug
         if (this.debug.active) {
-            this.debugFolder = this.debug.ui.addFolder('environment')
+            // this.debugFolder = this.debug.ui.addFolder('environment')
         }
 
         this.setSunLight()
@@ -57,13 +57,13 @@ export default class Environment {
 
         // Debug
         if (this.debug.active) {
-            this.debugFolder
-                .add(this.environmentMap, 'intensity')
-                .name('envMapIntensity')
-                .min(0)
-                .max(4)
-                .step(0.001)
-                .onChange(this.environmentMap.updateMaterials)
+            // this.debugFolder
+            //     .add(this.environmentMap, 'intensity')
+            //     .name('envMapIntensity')
+            //     .min(0)
+            //     .max(4)
+            //     .step(0.001)
+            //     .onChange(this.environmentMap.updateMaterials)
         }
     }
 

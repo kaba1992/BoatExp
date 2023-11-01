@@ -24,11 +24,11 @@ export default class UiManager {
     }
 
     // Montre un élément ou un groupe d'éléments
-    show(selectorOrElements, toogleOpacity = false) {
+    show(selectorOrElements, toogleOpacity = false,displayType = 'block') {
         if (toogleOpacity) {
-            gsap.set(this._getElements(selectorOrElements), { opacity: 1, display: 'block' });
+            gsap.set(this._getElements(selectorOrElements), { opacity: 1, display: displayType });
         } else{
-            gsap.set(this._getElements(selectorOrElements), { display: 'block' });
+            gsap.set(this._getElements(selectorOrElements), { display: displayType });
         }
     }
 

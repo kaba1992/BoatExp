@@ -27,7 +27,7 @@ export default class Sharks {
 
     getListener() {
         window.addEventListener('revealEnd', () => {
-            this.uiManager.show('.pursuer-info', false);
+            this.uiManager.show('.pursuer-info', false, 'flex');
         });
 
     }
@@ -38,6 +38,7 @@ export default class Sharks {
         const exclamationMarkMap = this.resources.items.exclamationMark;
         exclamationMarkMap.wrapS = THREE.RepeatWrapping;
         exclamationMarkMap.wrapT = THREE.RepeatWrapping;
+        exclamationMarkMap.flipY = false;
         exclamationMarkMap.repeat.set(1, 1);
         exclamationMarkMap.minFilter = THREE.LinearFilter;
         exclamationMarkMap.magFilter = THREE.LinearFilter;
@@ -48,43 +49,57 @@ export default class Sharks {
             side: THREE.DoubleSide,
             map: exclamationMarkMap,
             transparent: true,
-            alphaTest: 0.5,
-
+            // alphaTest: 1,
+            flipY: false,
         });
 
 
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 40; i++) {
             let clonedShark = SkeletonUtils.clone(this.resource.scene);
-            clonedShark.plane = new THREE.Mesh(sharkPlaneGeometry, sharkPlaneMaterial);
-            // clonedShark.plane.lookAt(this.camera.position);
-            clonedShark.plane.position.set(0, 1, 0);
+            clonedShark.traverse((child) => {
+                if (child.name === "planeShark") {
+                    child.layers.set(1);
+                    child.material = sharkPlaneMaterial;
+                    child.position.y = 1.5;
+                    child.lookAt(this.camera.position);
+                    clonedShark.plane = child;
+                    child.visible = false;
+
+                }
+            });
             clonedShark.material = this.sharkMaterial;
             clonedShark.mixer = new AnimationMixer(clonedShark);
             clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
             clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
             clonedShark.action.play();
-            let distance = 20 + Math.random() * 80; // génère une distance entre 50 et 200
+            let distance = 20 + Math.random() * 300; // génère une distance entre 50 et 200
             let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
             // Convertit la distance et l'angle en coordonnées x et z
             let x = Math.cos(angle) * distance;
             let z = Math.sin(angle) * distance;
             clonedShark.position.set(x, 0, z);
             clonedShark.scale.set(1.5, 1.5, 1.5);
-            clonedShark.randomDirection = new Vector3(Math.random() * 10 - 10, 0, Math.random() * 10 - 10).normalize();
+            let randomAngle = Math.random() * 2 * Math.PI;
+            clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
             clonedShark.notChasing = true;
             clonedShark.aggoSoundPlayed = false;
 
             this.Sharks.push(clonedShark);
             this.scene.add(clonedShark);
-            clonedShark.add(clonedShark.plane);
+            // clonedShark.add(clonedShark.plane);
+            // get random Delay between 5000 and 10000
+            const randomDelay = Math.random() * (10000 - 5000) + 5000;
+
+
 
             setInterval(() => {
-                clonedShark.randomDirection = new Vector3(Math.random() * 10 - 10, 0, Math.random() * 10 - 10).normalize();
-            }, 5000);
+                let randomAngle = Math.random() * 2 * Math.PI;
+                clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+            }, randomDelay);
         }
     }
 
-    checkDistance(shark) {
+   async checkDistance(shark) {
 
         let distance = this.boat.position.distanceTo(shark.position);
         if (distance < 1) {
@@ -100,8 +115,10 @@ export default class Sharks {
                 this.aggroAudio.play();
                 this.pursuerNumber++;
                 this.uiManager.fadeIn('.pursuer-info', 0.5);
-
+                shark.plane.visible = true;
                 shark.aggoSoundPlayed = true;
+                await new Promise(r => setTimeout(r, 2000));
+                shark.plane.visible = false;
             }
 
         } else if (distance > 30) {
@@ -119,7 +136,7 @@ export default class Sharks {
     update(deltaTime) {
         const yukaDeltaTime = this.time.update().getDelta();
         const pursuerNumber = document.querySelector('.pursuer-number');
-        pursuerNumber.innerHTML = this.pursuerNumber;
+        pursuerNumber.innerHTML = `X ${this.pursuerNumber}`;
         this.Sharks.forEach(shark => {
             let sharkDirection = shark.notChasing ? shark.randomDirection : this.boat.position.clone().sub(shark.position).normalize();
 

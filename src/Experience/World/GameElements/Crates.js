@@ -21,7 +21,7 @@ export default class Crate {
         this.resources = this.experience.resources;
         this.params = params;
         this.gui = new dat.GUI();
-        this.cameraUi = this.gui.addFolder('camera')
+        // this.cameraUi = this.gui.addFolder('camera')
         this.clock = new THREE.Clock();
         this.crate = null
         this.crateArr = [];
@@ -186,7 +186,7 @@ export default class Crate {
             }
         })
 
-        scoreDisplay.innerHTML = this.score;
+        scoreDisplay.innerHTML = `X ${this.score}`;
     }
 
     update() {
