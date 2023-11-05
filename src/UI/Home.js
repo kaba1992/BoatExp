@@ -21,6 +21,8 @@ export default class Home extends EventEmitter {
         this.uiManager.hide(".dialogue-text-container1");
         this.uiManager.hide(".dialogue-text-container2");
         this.uiManager.hide(".dialogue");
+        this.uiManager.hide(".movement-hint");
+        this.uiManager.hide(".score");
 
         const text1 = document.querySelector('.dialogue-text-container1');
         this.setListeners(text1);
@@ -32,10 +34,21 @@ export default class Home extends EventEmitter {
             this.uiManager.show('#root', true);
             this.setDilogues(text1);
         });
+        const readyButton = document.querySelector('.movement-hint-ready');
+        const dialogueEndEvent = new Event('dialogueEnd');
+
+        readyButton.addEventListener('click', () => {
+            this.uiManager.fadeOut(".movement-hint", 1);
+            setTimeout(() => {
+                this.uiManager.show(".score", false, "flex");
+                this.uiManager.fadeIn(".score", 1);
+                window.dispatchEvent(dialogueEndEvent);
+            }, 1000);
+        });
+
     }
 
     async setDilogues(text1) {
-        const dialogueEndEvent = new Event('dialogueEnd');
         window.addEventListener('revealEnd', async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.uiManager.show(".dialogue", false);
@@ -52,7 +65,8 @@ export default class Home extends EventEmitter {
                     if (i == dialogues.length - 2) {
                         await new Promise(resolve => setTimeout(resolve, 4000));
                         this.uiManager.fadeOut(".dialogue", 1);
-                        window.dispatchEvent(dialogueEndEvent);
+                        this.uiManager.show(".movement-hint", false);
+                        this.uiManager.fadeIn(".movement-hint", 1);
                     }
                 }
             }

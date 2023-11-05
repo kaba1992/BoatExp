@@ -7,7 +7,7 @@ import Camera from './Camera.js'
 import RendererWater from './RendererWater.js'
 import World from './World/World.js'
 import Resources from './Utils/Resources.js'
-import Physique from './World/Physique.js'
+import InitCannon from './Utils/InitCannon.js'
 // import Stats from 'three/examples/jsm/libs/stats.module'
 import { Octree } from '@brakebein/threeoctree';
 import Stats from "stats-gl";
@@ -39,8 +39,8 @@ export default class Experience {
         this.resources = new Resources(sources)
         this.camera = new Camera()
         this.renderer = new RendererWater()
+        this.physic = new InitCannon()
         this.world = new World()
-        this.physic = new Physique()
         this.octree = new Octree({
             undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
             depthMax: Infinity, // optional, default = Infinity, infinite depth
@@ -95,9 +95,9 @@ export default class Experience {
         this.camera.update()
         this.world.update()
         this.renderer.update()
-        this.physic.update()
         this.octree.update()
         this.resources.update()
+        this.physic.update()
         // this.stats.end();
         // this.stats.update()
     }

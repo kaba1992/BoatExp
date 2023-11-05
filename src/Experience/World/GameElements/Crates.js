@@ -1,8 +1,6 @@
 import Experience from "../../Experience";
 import * as THREE from "three";
 import * as dat from 'lil-gui'
-import AddBody from '../../Utils/addBody.js';
-import bodyTypes from "../../Utils/BodyTypes.js";
 import { Sine } from "gsap/all";
 
 import { gsap } from "gsap";
@@ -31,7 +29,6 @@ export default class Crate {
         this.crateModel = this.resources.items.crateModel
         this.crateSlotModel = this.resources.items.crateSlotModel
         this.physic = this.experience.physic;
-        this.boatBody = Boat.modelBody;
         this.boat = params.boat;
         this.counter = 0;
         this.slotIndex = 0;

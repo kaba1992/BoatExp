@@ -2,9 +2,11 @@
 import Experience from "../../Experience"
 import * as THREE from "three"
 import { gsap } from "gsap";
-//import Sine gsap plugin
 import { Sine } from "gsap/all";
 import { log } from "three-nebula";
+import * as CANNON from 'cannon-es'
+import CannonDebugger from "cannon-es-debugger";
+
 
 export default class Island {
     constructor(params) {
@@ -19,11 +21,14 @@ export default class Island {
         this.emptysResource = this.resources.items.emptysModel
         this.bigIslandResource = this.resources.items.volcanoModel
         this.boat = params.boat
+        this.group = new THREE.Group()
         this.miniIslands = []
         this.miniIslandEmpty = []
         this.bigIslands = []
         this.setMiniIslands()
-       
+        // this.setCollider()
+        this.CannonDebugger = new CannonDebugger(this.scene, this.experience.physic.world)
+        this.scene.add(this.group)
 
 
     }
@@ -101,7 +106,7 @@ void main() {
         // console.log(this.renderTexture);
 
         const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material);
-       // change mesh render order to render after the boat
+        // change mesh render order to render after the boat
         mesh.renderOrder = -10
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
@@ -146,7 +151,7 @@ void main() {
         for (let i = 0; i < this.miniIslandEmpty.length; i++) {
             // create 25 island with 1 miniIslandMesh
 
-            console.log(this.miniIslandEmpty[i].name.startsWith('Island'));
+
             // set the miniIsland position to the miniIslandEmpty position
             if (this.miniIslandEmpty[i].name.startsWith('Island')) {
                 const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
@@ -159,7 +164,20 @@ void main() {
                 let y = scale < 1.5 ? 0.8 : 1.3;
                 miniIsland.scale.multiplyScalar(scale)
                 miniIsland.position.y = y
-                this.scene.add(miniIsland)
+                // get miniIsland radius depending on boundingSphere radius
+                const radius = miniIslandMesh.geometry.boundingSphere.radius * scale
+
+                miniIsland.body = new CANNON.Body({
+                    // sphereShape
+                    mass: 0,
+                    shape: new CANNON.Sphere(radius),
+                    type: CANNON.Body.STATIC,
+                    // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
+
+                });
+                this.experience.physic.world.addBody(miniIsland.body)
+                this.group.add(miniIsland)
+
             }
             if (this.miniIslandEmpty[i].name.startsWith('BigIsland')) {
                 const bigIsland = this.bigIsland.clone()
@@ -168,14 +186,51 @@ void main() {
                 bigIsland.position.copy(this.miniIslandEmpty[i].position)
                 bigIsland.position.y = -2.4
                 this.miniIslands.push(bigIsland)
-                this.scene.add(bigIsland)
+                const radius = bigIslandMesh.geometry.boundingSphere.radius * 0.2
+                bigIsland.body = new CANNON.Body({
+                    // sphereShape
+                    mass: 0,
+                    shape: new CANNON.Sphere(radius),
+                    type: CANNON.Body.STATIC,
+                    // position: new CANNON.Vec3(bigIsland.position.x, bigIsland.position.y, bigIsland.position.z)
+
+                });
+                this.experience.physic.world.addBody(bigIsland.body)
+                this.group.add(bigIsland)
+
             }
         }
 
 
     }
+
+    setCollider() {
+        this.staticGenerator = new StaticGeometryGenerator(this.group);
+        this.staticGenerator.attributes = ['position'];
+        const mergedGeometry = this.staticGenerator.generate();
+        mergedGeometry.boundsTree = new MeshBVH(mergedGeometry);
+
+        this.collider = new THREE.Mesh(mergedGeometry);
+        this.collider.material.wireframe = true;
+        this.collider.material.opacity = 0.5;
+        this.collider.material.transparent = true;
+
+        this.visualizer = new MeshBVHVisualizer(this.collider, 1);
+
+        this.scene.add(this.visualizer)
+        this.scene.add(this.collider);
+        this.scene.add(this.group)
+        console.log(this.collider);
+
+    }
+
     update(deltaTime) {
+        // this.CannonDebugger.update()
+        this.miniIslands.forEach(miniIsland => {
+            miniIsland.body.position.copy(miniIsland.position)
+            miniIsland.body.quaternion.copy(miniIsland.quaternion)
+           
 
-
+        })
     }
 }

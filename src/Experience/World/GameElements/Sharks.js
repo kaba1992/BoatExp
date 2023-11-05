@@ -2,7 +2,6 @@ import Experience from "../../Experience";
 import * as THREE from "three";
 import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer } from "three";
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-import * as YUKA from 'yuka';
 import UiManager from "../../../UI/UiManager";
 
 export default class Sharks {
@@ -20,7 +19,7 @@ export default class Sharks {
         this.Sharks = [];
         this.setShark();
         this.pursuerNumber = 0;
-        this.time = new YUKA.Time();
+        this.time = this.experience.time;
         this.speed = 1.2;
         this.getListener();
     }
@@ -61,7 +60,7 @@ export default class Sharks {
                     child.layers.set(1);
                     child.material = sharkPlaneMaterial;
                     child.position.y = 1.5;
-                    child.lookAt(this.camera.position);
+                    // child.lookAt(this.camera.position);
                     clonedShark.plane = child;
                     child.visible = false;
 
@@ -134,7 +133,7 @@ export default class Sharks {
     }
 
     update(deltaTime) {
-        const yukaDeltaTime = this.time.update().getDelta();
+       
         const pursuerNumber = document.querySelector('.pursuer-number');
         pursuerNumber.innerHTML = `X ${this.pursuerNumber}`;
         this.Sharks.forEach(shark => {
@@ -152,7 +151,7 @@ export default class Sharks {
             shark.quaternion.slerp(targetQuaternion, deltaTime * 0.001);
 
             if (shark.mixer) {
-                shark.mixer.update(yukaDeltaTime);
+                shark.mixer.update(this.time.delta * 0.001 );
             }
 
             if (shark && this.boat) {

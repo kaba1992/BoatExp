@@ -62,7 +62,12 @@ export default class RendererWater {
         })
         this.instance.setSize(this.sizes.width, this.sizes.height)
         this.instance.setPixelRatio(this.pixelRatio)
-        this.outlineEffect = new OutlineEffect(this.instance);
+        this.outlineEffect = new OutlineEffect(this.instance, {
+            defaultThickness: 0.002,
+            blur: true,	// Enable blurring
+            xRay: true
+
+        });
         console.log(this.outlineEffect);
 
         const width = window.innerWidth * this.pixelRatio;
@@ -195,14 +200,14 @@ export default class RendererWater {
         this.instance.render(this.scene, this.camera.instance);
         this.instance.setRenderTarget(null);
 
-   
+
 
         this.instance.render(this.scene, this.camera.instance);
         this.camera.instance.layers.enable(1);
         this.instance.render(this.scene, this.camera.instance);
 
         this.outlineEffect.render(this.scene, this.camera.instance);
-        
+
 
     }
 }
