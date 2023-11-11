@@ -82,6 +82,9 @@ export default class Experience {
         this.time.on('tick', () => {
             this.update()
         })
+        window.addEventListener('reset', () => {
+            // this.destroy()
+        })
     }
 
     resize() {
@@ -124,7 +127,7 @@ export default class Experience {
             }
         })
 
-        this.camera.controls.dispose()
+       
         this.renderer.instance.dispose()
 
         if (this.debug.active)

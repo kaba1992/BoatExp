@@ -13,29 +13,33 @@ export default class ThirdPersonCamera {
         this.camera = params.camera;
         this.target = params.target;
         this.gui = new dat.GUI();
-        this.currentPosition = this.calculateIdealOffset();
-        this.currentLookAt = this.calculateIdealLookAt();
         this.time = this.experience.time;
-        this.camera.position.copy(this.currentPosition);
-        this.camera.lookAt(this.currentLookAt);
-        // this.cameraUi = this.gui.addFolder('camera')
-        this.clock = new THREE.Clock();
-
-
-
-    }
-    calculateIdealOffset() {
-        const params = {
+        this.idealOffsetPos = {
             x: 0,
             y: 5,
             z: -8,
         }
+        this.currentPosition = this.calculateIdealOffset();
+        this.currentLookAt = this.calculateIdealLookAt();
+        this.camera.position.copy(this.currentPosition);
+        this.camera.lookAt(this.currentLookAt);
+        // this.cameraUi = this.gui.addFolder('camera')
+        this.clock = new THREE.Clock();
+      
+        window.addEventListener("reset", () => {
+            this.reset();
+        });
+
+
+    }
+    calculateIdealOffset() {
+    
         // convert target rotation from euler to quaternion
         const targetRotation = new THREE.Quaternion();
         const camRot = new THREE.Euler(0, this.target.rotation.y, 0);
         targetRotation.setFromEuler(camRot);
 
-        const idealOffset = new THREE.Vector3(params.x, params.y, params.z);
+        const idealOffset = new THREE.Vector3(this.idealOffsetPos.x, this.idealOffsetPos.y, this.idealOffsetPos.z);
         idealOffset.applyQuaternion(this.target.body.quaternion);
 
         idealOffset.add(this.target.body.position);
@@ -66,9 +70,19 @@ export default class ThirdPersonCamera {
         const idealOffset = this.calculateIdealOffset();
         const idealLookAt = this.calculateIdealLookAt();
         // fill these in
-        this.currentPosition.lerp(idealOffset, lerpPow);
-        this.currentLookAt.lerp(idealLookAt, lerpPow);
         this.camera.position.copy(this.currentPosition);
         this.camera.lookAt(this.currentLookAt);
+        this.currentPosition.lerp(idealOffset, lerpPow);
+        this.currentLookAt.lerp(idealLookAt, lerpPow);
+        console.log("hahjhjdjdkkkdkd");
+    }
+async reset() {
+        
+    await new Promise(r => setTimeout(r, 200));
+    this.currentPosition = this.calculateIdealOffset();
+    this.currentLookAt = this.calculateIdealLookAt();
+    this.camera.position.copy(this.currentPosition);
+    this.camera.lookAt(this.currentLookAt);
+    console.log(this.target.position);
     }
 }

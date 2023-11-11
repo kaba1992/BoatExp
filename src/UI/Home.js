@@ -21,29 +21,49 @@ export default class Home extends EventEmitter {
         this.uiManager.hide(".dialogue-text-container1");
         this.uiManager.hide(".dialogue-text-container2");
         this.uiManager.hide(".dialogue");
+        this.uiManager.hide(".gameOverContainer");
         this.uiManager.hide(".movement-hint");
         this.uiManager.hide(".score");
+
 
         const text1 = document.querySelector('.dialogue-text-container1');
         this.setListeners(text1);
     }
 
     setListeners(text1) {
+        const readyButton = document.querySelector('.movement-hint-ready');
+        const resetButton = document.querySelector('.gameOver-restart');
+        const dialogueEndEvent = new Event('dialogueEnd');
+        const resetEvent = new Event('reset');
+        this.uiManager.fadeOut(".dialogue", 1);
+        this.uiManager.show(".movement-hint", false);
+        this.uiManager.fadeIn(".movement-hint", 1);
+
         window.addEventListener('resourcesReady', () => {
             window.dispatchEvent(this.homeClicked);
             this.uiManager.show('#root', true);
             this.setDilogues(text1);
         });
-        const readyButton = document.querySelector('.movement-hint-ready');
-        const dialogueEndEvent = new Event('dialogueEnd');
 
         readyButton.addEventListener('click', () => {
             this.uiManager.fadeOut(".movement-hint", 1);
             setTimeout(() => {
                 this.uiManager.show(".score", false, "flex");
                 this.uiManager.fadeIn(".score", 1);
-                window.dispatchEvent(dialogueEndEvent);
+        window.dispatchEvent(dialogueEndEvent);
+
             }, 1000);
+        });
+
+        window.addEventListener('gameOver', () => {
+            this.uiManager.show(".gameOverContainer", false);
+            this.uiManager.fadeIn(".gameOverContainer", 1);
+            this.reset();
+        });
+
+        resetButton.addEventListener('click', () => {
+            window.dispatchEvent(resetEvent);
+            this.uiManager.fadeOut(".gameOverContainer", 1);
         });
 
     }
@@ -51,8 +71,8 @@ export default class Home extends EventEmitter {
     async setDilogues(text1) {
         window.addEventListener('revealEnd', async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            this.uiManager.show(".dialogue", false);
-            this.uiManager.fadeIn(".dialogue", 1);
+            // this.uiManager.show(".dialogue", false);
+            // this.uiManager.fadeIn(".dialogue", 1);
             await new Promise(resolve => setTimeout(resolve, 4000));
 
             for (let i = 0; i < dialogues.length; i++) {
@@ -64,9 +84,7 @@ export default class Home extends EventEmitter {
                     this.uiManager.fadeIn(".dialogue-text-container1", 1);
                     if (i == dialogues.length - 2) {
                         await new Promise(resolve => setTimeout(resolve, 4000));
-                        this.uiManager.fadeOut(".dialogue", 1);
-                        this.uiManager.show(".movement-hint", false);
-                        this.uiManager.fadeIn(".movement-hint", 1);
+                       
                     }
                 }
             }
@@ -76,4 +94,15 @@ export default class Home extends EventEmitter {
         text1.innerHTML = dialogues[0];
         this.uiManager.fadeIn(".dialogue-text-container1", 1);
     }
+
+    reset() {
+
+        this.uiManager.fadeOut(".score", 1);
+        this.uiManager.fadeOut(".movement-hint", 1);
+        this.uiManager.fadeOut(".boost", 1);
+        this.uiManager.fadeOut(".pursuer-info", 1);
+
+    }
+
+
 }

@@ -3,6 +3,7 @@ import * as THREE from 'three'
 
 import Experience from '../../Experience.js'
 import THREEx from '../../Utils/Keyboard.js'
+import Reveal from './Reaveal.js'
 import ThirdPersonCamera from '../ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import Shark from './Sharks.js';
@@ -21,6 +22,7 @@ export default class Boat {
 
   constructor() {
     this.experience = new Experience()
+    this.reveal = new Reveal()
     this.home = this.experience.home
     this.scene = this.experience.scene
     this.resources = this.experience.resources
@@ -29,7 +31,6 @@ export default class Boat {
     this.camera = this.experience.camera.instance
     this.size = this.experience.sizes
     this.keyboard = new THREEx.KeyboardState()
-    this.boost = 100
     this.uiManager = new UiManager();
     this.uiManager.hide('.boost');
     this.physic = this.experience.physic
@@ -37,20 +38,21 @@ export default class Boat {
     this.boostProgress = document.querySelector('.boostProgress')
     this.boostProgress.innerHTML = `${this.boost}%`
     this.clock = new THREE.Clock()
-    this.canUpdate = true
-    // Resource
     this.resource = this.resources.items.boatModel
+    this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
+    this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
+    this.boost = 100
+    this.canUpdate = false
+
+    this.sailingTraceAudio.volume = 0.2;
+    this.voileAudio.volume = 0.5;
+    // Resource
 
     this.distance = null
     this.rotation = null
 
     this.velocity = 200
     this.rotVelocity = 0.8
-
-    this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
-    this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
-    this.sailingTraceAudio.volume = 0.2;
-    this.voileAudio.volume = 0.5;
     this.voileAudioPlayed = false;
 
     //Camera
@@ -69,13 +71,21 @@ export default class Boat {
 
   getListener() {
     window.addEventListener('homeClicked', () => {
-      this.island.setReveal()
+      this.reveal.setReveal()
     })
     window.addEventListener('dialogueEnd', () => {
       this.canUpdate = true
       this.uiManager.fadeIn('.boost', 1);
 
       this.uiManager.show('.boost', false);
+    })
+
+    window.addEventListener('gameOver', () => {
+      this.canUpdate = false
+    })
+
+    window.addEventListener('reset', () => {
+      this.reset()
     })
 
   }
@@ -176,6 +186,7 @@ export default class Boat {
     this.Shark = new Shark(
       {
         boat: this.model,
+        canUpdate: this.canUpdate,
 
       }
     )
@@ -218,17 +229,17 @@ export default class Boat {
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         this.model.body.angularVelocity.set(0, 0, 0); // Cela va arrêter toute rotation sur tous les axes
-       
+
         // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
       }
       else if (event.key === 'ArrowLeft' || event.key === 'q') {
         this.model.body.angularVelocity.set(0, 0, 0); // Cela va arrêter toute rotation sur tous les axes
-        
+
 
       }
       else if (event.key === 'ArrowRight' || event.key === 'd') {
         this.model.body.angularVelocity.set(0, 0, 0); // Cela va arrêter toute rotation sur tous les axes
-        
+
 
       }
     })
@@ -267,7 +278,7 @@ export default class Boat {
     }
     else {
       // this.ThirdPersonCamera.speed = 0.2
-      this.velocity = 400
+      this.velocity = 500
     }
   }
 
@@ -291,79 +302,85 @@ export default class Boat {
     let forceMagnitude = 60;
     let torque;
     let rotationSpeed = 0.6;
-    let advanceForce = 300;
+  
     // Obtenir l'orientation actuelle du bateau en THREE.js
     const quaternion = new THREE.Quaternion().copy(this.model.body.quaternion);
 
     // Obtenir la direction avant du bateau basée sur son orientation
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion).normalize();
     let impulse = new CANNON.Vec3(forward.x, forward.y, forward.z);
-    if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
+    if (this.canUpdate) {
+      if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
 
-      torque = new CANNON.Vec3(0, forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-      this.model.body.applyTorque(torque);
-      this.boatWheel.rotation.z += this.delta * rotationSpeed
-      console.log("torque" + torque);
-
-    }
-    if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
-      torque = new CANNON.Vec3(0, -forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-      this.model.body.applyTorque(torque);
-      this.boatWheel.rotation.z -= this.delta * rotationSpeed
-      console.log("torque" + torque);
-    }
-    if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
-      this.distance = this.velocity * this.delta
-     
-      impulse.scale(this.distance, impulse);
-      
-      // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
-      this.model.body.applyImpulse(impulse, topPoint);
-      this.isKeyUp = false;
-      this.sailingTraceAudio.play();
-      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
-    }
-    if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
-      this.distance = (this.velocity / 4) * this.delta
-      
-      impulse.scale(this.distance, impulse);
-      this.model.body.applyImpulse(impulse, topPoint);
-    }
-
-    if (this.keyboard.pressed('shift')) {
-      this.boostManager()
-      this.unfillBoost()
-      if (this.boost > 0) {
-        if (!this.voileAudioPlayed) {
-          this.voileAudio.play();
-          this.voileAudioPlayed = true;
-        }
-
-        gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
-        gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
-        // gsap.to(this.particleGroup.scale, { x: 2, y: 3.5, z: 8, duration: 3, ease: "easeOut" })
+        torque = new CANNON.Vec3(0, forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
+        this.model.body.applyTorque(torque);
+        this.boatWheel.rotation.z += this.delta * rotationSpeed
+        console.log("torque" + torque);
 
       }
+      if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
+        torque = new CANNON.Vec3(0, -forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
+        this.model.body.applyTorque(torque);
+        this.boatWheel.rotation.z -= this.delta * rotationSpeed
+        console.log("torque" + torque);
+      }
+      if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
+        this.distance = this.velocity * this.delta
 
-      // console.log("shift pressed");
+        impulse.scale(this.distance, impulse);
 
-    } else {
-      this.velocity = 200
-      this.fillBoost()
+        // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
+        this.model.body.applyImpulse(impulse, topPoint);
+        this.isKeyUp = false;
+        this.sailingTraceAudio.play();
+        this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
+      }
+      if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
+        this.distance = -this.velocity * this.delta
+        impulse.scale(this.distance / 2, impulse);
+        // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
+        this.model.body.applyImpulse(impulse, topPoint);
+        this.isKeyUp = false;
+        this.sailingTraceAudio.play();
+        this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
+      }
+
+      if (this.keyboard.pressed('shift')) {
+        this.boostManager()
+        this.unfillBoost()
+        if (this.boost > 0) {
+          if (!this.voileAudioPlayed) {
+            this.voileAudio.play();
+            this.voileAudioPlayed = true;
+          }
+
+          gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
+          gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
+          // gsap.to(this.particleGroup.scale, { x: 2, y: 3.5, z: 8, duration: 3, ease: "easeOut" })
+
+        }
+
+        // console.log("shift pressed");
+
+      } else {
+        this.velocity = 200
+        this.fillBoost()
+      }
+
     }
-
   }
 
 
   update() {
 
-    this.boatControls()
     // this.updateSpeed()
+    this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
     const delta = this.clock.getDelta()
     if (this.model) {
 
       if (this.canUpdate) {
+
         this.ThirdPersonCamera.update(this.time.delta)
         this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
@@ -379,6 +396,47 @@ export default class Boat {
       this.model.quaternion.copy(this.model.body.quaternion)
 
     }
+
+  }
+
+  reset() {
+
+    this.boost = 100
+ 
+    this.canUpdate = false
+    this.sailingTraceAudio.volume = 0.2;
+    this.voileAudio.volume = 0.5;
+    // Resource
+
+    this.distance = null
+    this.rotation = null
+
+    this.velocity = 200
+    this.rotVelocity = 0.8
+    this.voileAudioPlayed = false;
+    this.isKeyUp = false;
+
+    //Camera
+
+    this.rotateAngle = new THREE.Vector3(0, 1, 0)
+    this.rotateQuarternion = new THREE.Quaternion()
+    this.cameraTarget = new THREE.Vector3()
+
+    gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
+    gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
+    // boatPlane.visible = false
+    this.model.scale.set(0.5, 0.5, 0.5)
+    // this.model.position.set(0, 6, 0) :// check in ThrdPeson cam
+    this.model.position.x = 0
+    // this.model.position.y = Math.random() * Math.PI * 2;:::
+    this.model.position.z = 0
+    this.model.userData.initFloating = Math.random() * Math.PI * 2;
+
+    this.model.rotation.y = Math.PI;
+
+    this.model.body.position.set(0, 0, 0)
+    this.model.body.quaternion.set(0, 0, 0, 0)
+    
 
   }
 }

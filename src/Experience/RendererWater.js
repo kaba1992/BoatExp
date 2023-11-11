@@ -180,7 +180,7 @@ export default class RendererWater {
         this.depthTextureTarget.setSize(this.sizes.width * this.sizes.pixelRatio, this.sizes.height * this.sizes.pixelRatio)
     }
 
-    update() {
+     update() {
         this.water.visible = false
         this.camera.instance.layers.set(0);
         this.camera.instance.layers.enable(0);
@@ -195,9 +195,10 @@ export default class RendererWater {
         const time = this.clock.getElapsedTime();
         this.waterMaterial.uniforms.uTime.value = time
 
+ 
         this.instance.setRenderTarget(this.renderTexture);
         this.instance.render(this.scene, this.camera.instance, this.renderTexture, true);
-        this.instance.render(this.scene, this.camera.instance);
+        // this.instance.render(this.scene, this.camera.instance);
         this.instance.setRenderTarget(null);
 
 
@@ -207,6 +208,7 @@ export default class RendererWater {
         this.instance.render(this.scene, this.camera.instance);
 
         this.outlineEffect.render(this.scene, this.camera.instance);
+        
 
 
     }

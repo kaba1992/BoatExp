@@ -12,6 +12,11 @@ export default class Camera {
         this.canvas = this.experience.canvas
 
         this.setInstance()
+        window.addEventListener("reset", () => {
+        this.instance.position.set(0, 5, 10);
+     
+
+        });
         // this.setControls()
     }
 

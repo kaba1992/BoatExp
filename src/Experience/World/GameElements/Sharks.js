@@ -6,27 +6,16 @@ import UiManager from "../../../UI/UiManager";
 
 export default class Sharks {
     constructor(params) {
-        this.experience = new Experience();
-        this.scene = this.experience.scene;
-        this.resources = this.experience.resources;
-        this.resource = this.resources.items.sharkModel;
-        this.camera = this.experience.camera.instance;
-        this.uiManager = new UiManager();
-        this.uiManager.hide('.pursuer-info');
-        this.boat = params.boat;
-        this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
-        this.aggroAudio.volume = 0.5;
-        this.Sharks = [];
-        this.setShark();
-        this.pursuerNumber = 0;
-        this.time = this.experience.time;
-        this.speed = 1.2;
-        this.getListener();
+       this.reset(params);
     }
 
-    getListener() {
+    getListener(params) {
         window.addEventListener('revealEnd', () => {
             this.uiManager.show('.pursuer-info', false, 'flex');
+        });
+
+        window.addEventListener('reset', () => {
+            this.reset(params);
         });
 
     }
@@ -99,12 +88,14 @@ export default class Sharks {
     }
 
    async checkDistance(shark) {
+    const gameOverEvent = new Event('gameOver');
 
         let distance = this.boat.position.distanceTo(shark.position);
         if (distance < 1) {
             console.log("GameOver");
-            shark.randomDirection = shark.position
-
+           
+            window.dispatchEvent(gameOverEvent);
+           
 
             return;
         }
@@ -120,7 +111,7 @@ export default class Sharks {
                 shark.plane.visible = false;
             }
 
-        } else if (distance > 30) {
+        } else if (distance > 20) {
             shark.notChasing = true;
             if (shark.aggoSoundPlayed) {
                 this.pursuerNumber--;
@@ -163,5 +154,25 @@ export default class Sharks {
 
             }
         });
+    }
+
+    reset(params){
+        this.experience = new Experience();
+        this.scene = this.experience.scene;
+        this.resources = this.experience.resources;
+        this.resource = this.resources.items.sharkModel;
+        this.camera = this.experience.camera.instance;
+        this.uiManager = new UiManager();
+        this.uiManager.hide('.pursuer-info');
+        this.boat = params.boat;
+        this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
+        this.aggroAudio.volume = 0.5;
+        this.Sharks = [];
+        this.setShark();
+        this.pursuerNumber = 0;
+        this.canUpdate = params.canUpdate;
+        this.time = this.experience.time;
+        this.speed = 1.2;
+        this.getListener(params);
     }
 }
