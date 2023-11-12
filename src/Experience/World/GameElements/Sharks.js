@@ -6,7 +6,23 @@ import UiManager from "../../../UI/UiManager";
 
 export default class Sharks {
     constructor(params) {
-       this.reset(params);
+        this.experience = new Experience();
+        this.scene = this.experience.scene;
+        this.resources = this.experience.resources;
+        this.resource = this.resources.items.sharkModel;
+        this.camera = this.experience.camera.instance;
+        this.uiManager = new UiManager();
+        this.boat = params.boat;
+        this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
+        this.uiManager.hide('.pursuer-info');
+        this.aggroAudio.volume = 0.5;
+        this.Sharks = [];
+        this.pursuerNumber = 0;
+        this.speed = 1.2;
+        this.setShark();
+        this.canUpdate = params.canUpdate;
+        this.time = this.experience.time;
+        this.getListener(params);
     }
 
     getListener(params) {
@@ -60,7 +76,7 @@ export default class Sharks {
             clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
             clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
             clonedShark.action.play();
-            let distance = 20 + Math.random() * 300; // génère une distance entre 50 et 200
+            let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
             let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
             // Convertit la distance et l'angle en coordonnées x et z
             let x = Math.cos(angle) * distance;
@@ -87,15 +103,15 @@ export default class Sharks {
         }
     }
 
-   async checkDistance(shark) {
-    const gameOverEvent = new Event('gameOver');
+    async checkDistance(shark) {
+        const gameOverEvent = new Event('gameOver');
 
         let distance = this.boat.position.distanceTo(shark.position);
         if (distance < 1) {
-            console.log("GameOver");
-           
+
+
             window.dispatchEvent(gameOverEvent);
-           
+
 
             return;
         }
@@ -124,7 +140,7 @@ export default class Sharks {
     }
 
     update(deltaTime) {
-       
+
         const pursuerNumber = document.querySelector('.pursuer-number');
         pursuerNumber.innerHTML = `X ${this.pursuerNumber}`;
         this.Sharks.forEach(shark => {
@@ -142,7 +158,7 @@ export default class Sharks {
             shark.quaternion.slerp(targetQuaternion, deltaTime * 0.001);
 
             if (shark.mixer) {
-                shark.mixer.update(this.time.delta * 0.001 );
+                shark.mixer.update(this.time.delta * 0.001);
             }
 
             if (shark && this.boat) {
@@ -156,23 +172,28 @@ export default class Sharks {
         });
     }
 
-    reset(params){
-        this.experience = new Experience();
-        this.scene = this.experience.scene;
-        this.resources = this.experience.resources;
-        this.resource = this.resources.items.sharkModel;
-        this.camera = this.experience.camera.instance;
-        this.uiManager = new UiManager();
-        this.uiManager.hide('.pursuer-info');
-        this.boat = params.boat;
-        this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
+    reset(params) {
+       
         this.aggroAudio.volume = 0.5;
-        this.Sharks = [];
-        this.setShark();
+       
         this.pursuerNumber = 0;
-        this.canUpdate = params.canUpdate;
-        this.time = this.experience.time;
         this.speed = 1.2;
-        this.getListener(params);
+        this.canUpdate = params.canUpdate;
+        // reset sharks
+        this.Sharks.forEach(shark => {
+            shark.plane.visible = false;
+            shark.notChasing = true;
+            shark.aggoSoundPlayed = false;
+            let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
+            let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+            // Convertit la distance et l'angle en coordonnées x et z
+            let x = Math.cos(angle) * distance;
+            let z = Math.sin(angle) * distance;
+            shark.position.set(x, 0, z);
+            
+            let randomAngle = Math.random() * 2 * Math.PI;
+            shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+     
+        });
     }
 }

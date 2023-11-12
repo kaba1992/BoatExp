@@ -68,7 +68,7 @@ export default class RendererWater {
             xRay: true
 
         });
-        console.log(this.outlineEffect);
+       
 
         const width = window.innerWidth * this.pixelRatio;
         const height = window.innerHeight * this.pixelRatio;

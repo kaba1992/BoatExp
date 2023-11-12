@@ -15,6 +15,6 @@ const rootElement = document.querySelector("#root")
 window.addEventListener('DOMContentLoaded', () => {
 
     rootElement.insertAdjacentHTML("afterbegin", Home);
-    console.log(document.querySelector('#start'));  // Ceci devrait afficher l'élément avec l'ID "start"
+  
     const home = new HomeJs();
 });

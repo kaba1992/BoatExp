@@ -15,7 +15,26 @@ const scoreDisplay = document.querySelector(".score_display");
 export default class Crate {
 
     constructor(params) {
-        this.reset(params);
+        this.experience = new Experience();
+        this.scene = this.experience.scene;
+        this.resources = this.experience.resources;
+        this.params = params;
+        // this.gui = new dat.GUI();
+        // this.cameraUi = this.gui.addFolder('camera')
+        this.clock = new THREE.Clock();
+        this.crate = null
+        this.crates = [];
+        this.crateArr = [];
+        this.crateSlots = [];
+        this.score = 0;
+        this.crateModel = this.resources.items.crateModel
+        this.crateSlotModel = this.resources.items.crateSlotModel
+        this.physic = this.experience.physic;
+        this.boat = params.boat;
+        this.counter = 0;
+        this.slotIndex = 0;
+        this.crateSlot = this.crateSlotModel.scene;
+        this.setCrate();
 
         window.addEventListener('reset', () => {
             this.reset(params);
@@ -32,7 +51,7 @@ export default class Crate {
                 // child.scale.set(0.5, 0.5, 0.5);
             }
         });
-        console.log(this.crateSlots.length);
+     
 
         const crateNumb = 100;
         const crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
@@ -78,6 +97,7 @@ export default class Crate {
             crate.position.set(x, -0.2, z);
             crate.userData.initFloating = Math.random() * Math.PI * 2;
             this.crateArr.push(crate);
+            this.crates.push(crate);
             this.scene.add(crate);
             // console.log(crate.position);
             // octree.add(crate)
@@ -126,9 +146,7 @@ export default class Crate {
             crate.position.copy(crateSlots[index].position);
             crate.scale.set(0.08, 0.08, 0.08);
             if (index >= crateSlots.length - 1) {
-                //remove crate
-                // scene.remove(crate);
-                console.log("remove crate");
+              this.scene.remove(crate);
             }
         })
     }
@@ -175,27 +193,20 @@ export default class Crate {
     }
 
     reset(params) {
-        this.experience = new Experience();
-        this.scene = this.experience.scene;
-        this.resources = this.experience.resources;
-        this.params = params;
-        this.gui = new dat.GUI();
-        // this.cameraUi = this.gui.addFolder('camera')
-        this.clock = new THREE.Clock();
-        this.crate = null
-        this.crateArr = [];
-        this.badCrateArr = [];
-        this.crateSlots = [];
+        this.crates.forEach((crate) => {
+            this.scene.remove(crate);
+        });
+        this.crateSlots.forEach((crateSlot) => {
+            crateSlot.remove(crateSlot.children[0]);
+        });
         this.score = 0;
-        this.crateModel = this.resources.items.crateModel
-        this.crateSlotModel = this.resources.items.crateSlotModel
-        this.physic = this.experience.physic;
-        this.boat = params.boat;
+        this.slotIndex = 0; 
         this.counter = 0;
-        this.slotIndex = 0;
-        this.octree = this.experience.octree;
-        this.crateSlot = this.crateSlotModel.scene;
+        this.crateArr = []; 
+        this.crateSlots = [];
         this.setCrate();
-        console.log(this.crateArr.length + " crates");
+
+     
+       
     }
 }

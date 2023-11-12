@@ -36,13 +36,15 @@ export default class Boat {
     this.physic = this.experience.physic
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
-    this.boostProgress.innerHTML = `${this.boost}%`
+   
     this.clock = new THREE.Clock()
     this.resource = this.resources.items.boatModel
     this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
     this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
     this.boost = 100
     this.canUpdate = false
+    this.boostBar.style.width = `${this.boost}%`
+    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
     this.sailingTraceAudio.volume = 0.2;
     this.voileAudio.volume = 0.5;
@@ -73,7 +75,8 @@ export default class Boat {
     window.addEventListener('homeClicked', () => {
       this.reveal.setReveal()
     })
-    window.addEventListener('dialogueEnd', () => {
+    window.addEventListener('ready', () => {
+      this.model.body.wakeUp()
       this.canUpdate = true
       this.uiManager.fadeIn('.boost', 1);
 
@@ -135,18 +138,20 @@ export default class Boat {
     this.model.body = new CANNON.Body({
       // sphereShape
       mass: 40,
-      shape: new CANNON.Sphere(2),
+      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
       // fixedRotation: true,
       linearDamping: 0.85,
       angularDamping: 0.85,
 
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
+    // this.model.body.position.set(0, 0, 0)
+    this.model.body.sleep()
 
     this.experience.physic.world.addBody(this.model.body)
 
     this.childs = []
-    // this.model.material = this.boatToonMaterial
+ 
     const textures = []
     this.model.traverse((child) => {
 
@@ -159,21 +164,17 @@ export default class Boat {
     })
 
     this.model.castShadow = true
-    // boatFlag.scale(1, 0.1, 1)
+
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
-    // boatPlane.visible = false
+ 
     this.model.scale.set(0.5, 0.5, 0.5)
-    // this.model.position.set(0, 6, 0) :// check in ThrdPeson cam
-    this.model.position.x = 0
-    // this.model.position.y = Math.random() * Math.PI * 2;:::
-    this.model.position.z = 0
+
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
     this.model.rotation.y = Math.PI;
     this.scene.add(this.model)
-    //this.octree.add(this.model)
-    // set physics group
+   
 
 
     this.ThirdPersonCamera = new ThirdPersonCamera(
@@ -222,7 +223,7 @@ export default class Boat {
       this.stop()
       // lerp volume to 0
       this.isKeyUp = true;
-      console.log(this.sailingTraceAudio.volume);
+
 
       if (event.key === 'Shift') {
         this.voileAudioPlayed = false;
@@ -247,6 +248,7 @@ export default class Boat {
   }
 
   fillBoost() {
+    
     if (this.boost >= 100) return
     this.boost += 0.075
 
@@ -260,8 +262,7 @@ export default class Boat {
       this.boost -= 0.15
       this.boostBar.style.width = `${this.boost}%`
       this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
-      // console.log(this.boost);
-      console.log("can't fill");
+
     }
   }
   boostManager() {
@@ -302,7 +303,7 @@ export default class Boat {
     let forceMagnitude = 60;
     let torque;
     let rotationSpeed = 0.6;
-  
+
     // Obtenir l'orientation actuelle du bateau en THREE.js
     const quaternion = new THREE.Quaternion().copy(this.model.body.quaternion);
 
@@ -315,16 +316,17 @@ export default class Boat {
         torque = new CANNON.Vec3(0, forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
         this.model.body.applyTorque(torque);
         this.boatWheel.rotation.z += this.delta * rotationSpeed
-        console.log("torque" + torque);
+
 
       }
       if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
         torque = new CANNON.Vec3(0, -forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
         this.model.body.applyTorque(torque);
         this.boatWheel.rotation.z -= this.delta * rotationSpeed
-        console.log("torque" + torque);
+
       }
       if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
+
         this.distance = this.velocity * this.delta
 
         impulse.scale(this.distance, impulse);
@@ -379,12 +381,13 @@ export default class Boat {
     const delta = this.clock.getDelta()
     if (this.model) {
 
+      this.ThirdPersonCamera.update(this.time.delta)
       if (this.canUpdate) {
 
-        this.ThirdPersonCamera.update(this.time.delta)
         this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
+    
       }
       this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
       this.model.body.quaternion.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.008;
@@ -402,7 +405,7 @@ export default class Boat {
   reset() {
 
     this.boost = 100
- 
+
     this.canUpdate = false
     this.sailingTraceAudio.volume = 0.2;
     this.voileAudio.volume = 0.5;
@@ -412,9 +415,10 @@ export default class Boat {
     this.rotation = null
 
     this.velocity = 200
+    this.boost = 100
     this.rotVelocity = 0.8
     this.voileAudioPlayed = false;
-    this.isKeyUp = false;
+    this.isKeyUp = true;
 
     //Camera
 
@@ -433,10 +437,9 @@ export default class Boat {
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
     this.model.rotation.y = Math.PI;
-
+    // reset body position
     this.model.body.position.set(0, 0, 0)
-    this.model.body.quaternion.set(0, 0, 0, 0)
-    
+    this.model.body.quaternion = new CANNON.Quaternion(0, 0, 0, 1)
 
   }
 }

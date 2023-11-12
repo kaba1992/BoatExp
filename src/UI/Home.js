@@ -2,6 +2,7 @@ import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
 import UiManager from './UiManager';
+import Timer from './Timer.js';
 
 const dialogues = [
     "Hello young Rookie, welcome to 'Sea Of Sharks'. I am Captain Flyn, and I need your help!",
@@ -15,6 +16,7 @@ export default class Home extends EventEmitter {
         super();
         this.experience = new Experience();
         this.uiManager = new UiManager();
+        this.timer = new Timer(10,document.querySelector('.timer-text'));
         this.homeClicked = new Event('homeClicked');
 
         this.uiManager.hide('#root');
@@ -33,7 +35,7 @@ export default class Home extends EventEmitter {
     setListeners(text1) {
         const readyButton = document.querySelector('.movement-hint-ready');
         const resetButton = document.querySelector('.gameOver-restart');
-        const dialogueEndEvent = new Event('dialogueEnd');
+        const readyEvent = new Event('ready');
         const resetEvent = new Event('reset');
         this.uiManager.fadeOut(".dialogue", 1);
         this.uiManager.show(".movement-hint", false);
@@ -48,9 +50,10 @@ export default class Home extends EventEmitter {
         readyButton.addEventListener('click', () => {
             this.uiManager.fadeOut(".movement-hint", 1);
             setTimeout(() => {
+                this.timer. startTimer();
                 this.uiManager.show(".score", false, "flex");
                 this.uiManager.fadeIn(".score", 1);
-        window.dispatchEvent(dialogueEndEvent);
+                window.dispatchEvent(readyEvent);
 
             }, 1000);
         });
@@ -61,11 +64,15 @@ export default class Home extends EventEmitter {
             this.reset();
         });
 
-        resetButton.addEventListener('click', () => {
-            window.dispatchEvent(resetEvent);
-            this.uiManager.fadeOut(".gameOverContainer", 1);
-        });
+        if (resetButton) {
+            resetButton.addEventListener('click', () => {
+                window.dispatchEvent(resetEvent);
+                this.uiManager.fadeOut(".gameOverContainer", 1);
+                this.uiManager.show(".movement-hint", false);
+                this.uiManager.fadeIn(".movement-hint", 1);
+            });
 
+        }
     }
 
     async setDilogues(text1) {
@@ -84,7 +91,7 @@ export default class Home extends EventEmitter {
                     this.uiManager.fadeIn(".dialogue-text-container1", 1);
                     if (i == dialogues.length - 2) {
                         await new Promise(resolve => setTimeout(resolve, 4000));
-                       
+
                     }
                 }
             }
@@ -93,6 +100,13 @@ export default class Home extends EventEmitter {
         this.uiManager.show(".dialogue-text-container1", false);
         text1.innerHTML = dialogues[0];
         this.uiManager.fadeIn(".dialogue-text-container1", 1);
+    }
+
+    startTimer() {
+
+    }
+    stopTimer() {
+
     }
 
     reset() {

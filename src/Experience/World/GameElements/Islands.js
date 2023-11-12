@@ -77,7 +77,7 @@ export default class Island {
                 miniIsland.body = new CANNON.Body({
                     // sphereShape
                     mass: 0,
-                    shape: new CANNON.Sphere(radius),
+                    shape: new CANNON.Box(new CANNON.Vec3(radius, radius, radius)),
                     type: CANNON.Body.STATIC,
                     // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
 
@@ -97,11 +97,12 @@ export default class Island {
                 bigIsland.body = new CANNON.Body({
                     // sphereShape
                     mass: 0,
-                    shape: new CANNON.Sphere(radius),
+                    shape: new CANNON.Box(new CANNON.Vec3(radius, radius, radius)),
                     type: CANNON.Body.STATIC,
                     // position: new CANNON.Vec3(bigIsland.position.x, bigIsland.position.y, bigIsland.position.z)
 
                 });
+                bigIsland.body.wakeUp()
                 this.experience.physic.world.addBody(bigIsland.body)
                 this.group.add(bigIsland)
 
