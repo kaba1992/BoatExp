@@ -194,6 +194,8 @@ export default class Crate {
 
     reset(params) {
         this.crates.forEach((crate) => {
+            crate.geometry.dispose();
+            crate.material.dispose();
             this.scene.remove(crate);
         });
         this.crateSlots.forEach((crateSlot) => {
@@ -205,8 +207,6 @@ export default class Crate {
         this.crateArr = []; 
         this.crateSlots = [];
         this.setCrate();
-
-     
        
     }
 }
