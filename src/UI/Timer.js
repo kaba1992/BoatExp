@@ -46,7 +46,8 @@ export default class Timer {
         if (milliseconds < 100) {
             milliseconds = `0${milliseconds}`;
         }
-        this.time.textContent = `${minutes}:${seconds}:${milliseconds}`;
+        this.time.textContent = `${minutes}:${seconds}:${milliseconds.toString().substr(0, 2)}`;
+  
     }
 
 
@@ -62,9 +63,9 @@ export default class Timer {
     }
 
     endTimer() {
-        this.timesUp.style.display = 'block'
-        this.resetBtn.style.display = 'inline-block'
-        this.endCallback()
+        // this.timesUp.style.display = 'block'
+        // this.resetBtn.style.display = 'inline-block'
+        // this.endCallback()
     }
 
     resetTimer() {

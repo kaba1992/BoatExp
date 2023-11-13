@@ -144,6 +144,10 @@ html, body {
 	top: 8%;
 	right: 10%;
 	font-size: 2rem;
+	
+}
+.timer h1{
+	padding: 1rem;
 }
 
 /* Media queries pour tablettes */

@@ -16,7 +16,7 @@ export default class Home extends EventEmitter {
         super();
         this.experience = new Experience();
         this.uiManager = new UiManager();
-        this.timer = new Timer(10, document.querySelector('.timer-text'));
+        this.timer = new Timer(120, document.querySelector('.timer-text'));
         this.homeClicked = new Event('homeClicked');
 
         this.uiManager.hide('#root');
@@ -39,7 +39,7 @@ export default class Home extends EventEmitter {
         const resetButton = document.querySelector('.gameOver-restart');
         const readyEvent = new Event('ready');
         const resetEvent = new Event('reset');
-       
+
 
         window.addEventListener('resourcesReady', () => {
             window.dispatchEvent(this.homeClicked);
@@ -83,20 +83,19 @@ export default class Home extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, 4000));
 
             for (let i = 0; i < dialogues.length; i++) {
-                if (i % 2 == 0) {
-                    await new Promise(resolve => setTimeout(resolve, 4000 * i));
-                    this.uiManager.fadeOut(".dialogue-text-container1", 1);
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    text1.innerHTML = dialogues[i + 1];
-                    this.uiManager.fadeIn(".dialogue-text-container1", 1);
-                    if (i == dialogues.length - 2) {
-                        await new Promise(resolve => setTimeout(resolve, 4000));
-                        this.uiManager.fadeOut(".dialogue", 1);
-                        this.uiManager.show(".movement-hint", false);
-                        this.uiManager.fadeIn(".movement-hint", 1);
+                await new Promise(resolve => setTimeout(resolve, 4000 * i));
+                this.uiManager.fadeOut(".dialogue-text-container1", 1);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                text1.innerHTML = dialogues[i + 1];
+                this.uiManager.fadeIn(".dialogue-text-container1", 1);
+                if (i == dialogues.length - 2) {
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    this.uiManager.fadeOut(".dialogue", 1);
+                    this.uiManager.show(".movement-hint", false);
+                    this.uiManager.fadeIn(".movement-hint", 1);
 
-                    }
                 }
+                console.log(i);
             }
         });
 
