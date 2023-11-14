@@ -80,23 +80,25 @@ export default class Home extends EventEmitter {
             await new Promise(resolve => setTimeout(resolve, 1000));
             this.uiManager.show(".dialogue", false);
             this.uiManager.fadeIn(".dialogue", 1);
+                text1.innerHTML = dialogues[0];
+
             await new Promise(resolve => setTimeout(resolve, 4000));
 
-            for (let i = 0; i < dialogues.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 4000 * i));
-                this.uiManager.fadeOut(".dialogue-text-container1", 1);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                text1.innerHTML = dialogues[i + 1];
-                this.uiManager.fadeIn(".dialogue-text-container1", 1);
-                if (i == dialogues.length - 2) {
-                    await new Promise(resolve => setTimeout(resolve, 4000));
-                    this.uiManager.fadeOut(".dialogue", 1);
-                    this.uiManager.show(".movement-hint", false);
-                    this.uiManager.fadeIn(".movement-hint", 1);
+            // for (let i = 0; i < dialogues.length; i++) {
+            //     await new Promise(resolve => setTimeout(resolve, 4000 * i));
+            //     this.uiManager.fadeOut(".dialogue-text-container1", 1);
+            //     await new Promise(resolve => setTimeout(resolve, 1000));
+            //     text1.innerHTML = dialogues[i + 1];
+            //     this.uiManager.fadeIn(".dialogue-text-container1", 1);
+            //     if (i == dialogues.length - 2) {
+            //         await new Promise(resolve => setTimeout(resolve, 4000));
+            //         this.uiManager.fadeOut(".dialogue", 1);
+            //         this.uiManager.show(".movement-hint", false);
+            //         this.uiManager.fadeIn(".movement-hint", 1);
 
-                }
-                console.log(i);
-            }
+            //     }
+            //     console.log(i);
+            // }
         });
 
         this.uiManager.show(".dialogue-text-container1", false);

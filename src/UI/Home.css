@@ -3,7 +3,8 @@
 	padding: 0;
 }
 
-html, body {
+html,
+body {
 	overflow: hidden;
 	height: 100%;
 	width: 100%;
@@ -40,35 +41,35 @@ html, body {
 
 .dialogue {
 	position: relative;
-	width: 150rem;
-	height: 150rem;
+	width: 100%;
+	height: 100%;
 }
 
 .dialogue-captain {
 	position: absolute;
-	/* width: 60em; */
+	width: 52vw;
+	height:100vh ;
 	bottom: 0;
 	left: 0;
 }
 
 .dialogue-text {
 	position: absolute;
-	width: 360px;
-	top: 220px;
-	left: 450px;
-	font-size: 1.5rem;
+	width: 25vw;
+	top: 16vh;
+	left: 23vw;
+	font-size: 1.5vw;
 	text-align: left;
 }
 
-.gameOverContainer{
+.gameOverContainer {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background: rgba(0,0,0,0.5)
-	
+	background: rgba(0, 0, 0, 0.5);
 }
 
-.gameOverText{
+.gameOverText {
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -80,63 +81,62 @@ html, body {
 	font-size: 3rem;
 	color: white;
 	opacity: 1;
-
 }
-
-
 
 /* CSS */
 .gameOver-restart {
-  background-color: #3DD1E7;
-  border: 0 solid #E5E7EB;
-  box-sizing: border-box;
-  color: #000000;
-  display: flex;
-  font-family: ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
-  font-size: 1rem;
-  font-weight: 700;
-  justify-content: center;
-  line-height: 1.75rem;
-  padding: .75rem 1.65rem;
-  margin-top: 2rem;
-  position: relative;
-  text-align: center;
-  text-decoration: none #000000 solid;
-  text-decoration-thickness: auto;
-  width: 30%;
-  max-width: 460px;
-  position: relative;
-  cursor: pointer;
-  transform: rotate(-2deg);
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
+	background-color: #3dd1e7;
+	border: 0 solid #e5e7eb;
+	box-sizing: border-box;
+	color: #000000;
+	display: flex;
+	font-family: ui-sans-serif, system-ui, -apple-system, system-ui, "Segoe UI",
+		Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
+		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	font-size: 1rem;
+	font-weight: 700;
+	justify-content: center;
+	line-height: 1.75rem;
+	padding: 0.75rem 1.65rem;
+	margin-top: 2rem;
+	position: relative;
+	text-align: center;
+	text-decoration: none #000000 solid;
+	text-decoration-thickness: auto;
+	width: 30%;
+	max-width: 460px;
+	position: relative;
+	cursor: pointer;
+	transform: rotate(-2deg);
+	user-select: none;
+	-webkit-user-select: none;
+	touch-action: manipulation;
 }
 
 .gameOver-restart:focus {
-  outline: 0;
+	outline: 0;
 }
 
 .gameOver-restart:after {
-  content: '';
-  position: absolute;
-  border: 1px solid #000000;
-  bottom: 4px;
-  left: 4px;
-  width: calc(100% - 1px);
-  height: calc(100% - 1px);
+	content: "";
+	position: absolute;
+	border: 1px solid #000000;
+	bottom: 4px;
+	left: 4px;
+	width: calc(100% - 1px);
+	height: calc(100% - 1px);
 }
 
 .gameOver-restart:hover:after {
-  bottom: 2px;
-  left: 2px;
+	bottom: 2px;
+	left: 2px;
 }
 
 @media (min-width: 768px) {
-  .gameOver-restart {
-    padding: .75rem 3rem;
-    font-size: 1.25rem;
-  }
+	.gameOver-restart {
+		padding: 0.75rem 3rem;
+		font-size: 1.25rem;
+	}
 }
 
 .timer {
@@ -144,9 +144,8 @@ html, body {
 	top: 8%;
 	right: 10%;
 	font-size: 2rem;
-	
 }
-.timer h1{
+.timer h1 {
 	padding: 1rem;
 }
 
@@ -190,7 +189,7 @@ html, body {
 
 @media (min-width: 480px) and (min-height: 801px) and (max-height: 844px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -207,7 +206,7 @@ html, body {
 
 @media (min-width: 390px) and (min-height: 844px) and (max-height: 844px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -224,7 +223,7 @@ html, body {
 
 @media (min-width: 360px) and (min-height: 740px) and (max-height: 740px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -241,7 +240,7 @@ html, body {
 
 @media (min-width: 360px) and (min-height: 800px) and (max-height: 800px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -256,12 +255,9 @@ html, body {
 	} */
 }
 
-
-
-
 @media (max-width: 414px) and (min-height: 896px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -276,7 +272,6 @@ html, body {
 	} */
 }
 @media (max-width: 412px) and (min-height: 915px) {
-
 	/* .dialogue-captain {
 		width: 26em; 
 	}
@@ -285,9 +280,9 @@ html, body {
 	} */
 }
 
-@media screen and (device-width: 360px) and (device-height: 760px)  {
+@media screen and (device-width: 360px) and (device-height: 760px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -302,9 +297,9 @@ html, body {
 	} */
 }
 
-@media screen and (device-width: 375px) and (device-height:812px)  {
+@media screen and (device-width: 375px) and (device-height: 812px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
@@ -319,9 +314,9 @@ html, body {
 	} */
 }
 
-@media screen and (device-width: 393px) and (device-height:851px)  {
+@media screen and (device-width: 393px) and (device-height: 851px) {
 	#start {
-		font-size:1.2rem;
+		font-size: 1.2rem;
 		width: 80px;
 		height: 25px;
 	}
