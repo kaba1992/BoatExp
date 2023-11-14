@@ -33,7 +33,7 @@ export default class Timer {
     }
 
 
- 
+
 
     setTimeDisplay() {
         let minutes = Math.floor(this.timer.lapsed / 60000),
@@ -47,7 +47,7 @@ export default class Timer {
             milliseconds = `0${milliseconds}`;
         }
         this.time.textContent = `${minutes}:${seconds}:${milliseconds.toString().substr(0, 2)}`;
-  
+
     }
 
 
@@ -78,7 +78,7 @@ export default class Timer {
 
     decrementTimer() {
         gsap.to(this.timer, {
-            duration: 0.01, lapsed: this.timer.lapsed - 10, onComplete: () => {
+            duration: 0.01, lapsed: this.timer.lapsed - 15, onComplete: () => {
                 this.setTimeDisplay();
                 if (this.timer.lapsed > 0) {
                     this.decrementTimer();
@@ -88,6 +88,21 @@ export default class Timer {
             }
         })
     }
+
+    incrementTimer(milliseconds) {
+        gsap.to(this.timer, {
+            duration: 0.01, lapsed: this.timer.lapsed + milliseconds, onComplete: () => {
+                this.setTimeDisplay();
+                if (this.timer.lapsed > 0) {
+                    this.decrementTimer();
+                } else {
+                    this.endTimer();
+                }
+            }
+        })
+    }
+
+   
 
     setListeners() {
         let that = this;

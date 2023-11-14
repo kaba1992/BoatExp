@@ -26,6 +26,7 @@ export default class Home extends EventEmitter {
         this.uiManager.hide(".gameOverContainer");
         this.uiManager.hide(".movement-hint");
         this.uiManager.hide(".score");
+        this.uiManager.hide(".timer ");
 
 
         const text1 = document.querySelector('.dialogue-text-container1');
@@ -53,7 +54,14 @@ export default class Home extends EventEmitter {
                 this.timer.startTimer();
                 this.uiManager.show(".score", false, "flex");
                 this.uiManager.fadeIn(".score", 1);
+                this.uiManager.show(".timer", false, "block");
+                this.uiManager.fadeIn(".timer", 1);
                 window.dispatchEvent(readyEvent);
+               setInterval(() => {
+                
+                    //  this.timer.incrementTimer(2000);
+                 
+               }, 10000);
 
             }, 1000);
         });
@@ -78,10 +86,10 @@ export default class Home extends EventEmitter {
     async setDilogues(text1) {
         window.addEventListener('revealEnd', async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            this.uiManager.show(".dialogue", false);
-            this.uiManager.fadeIn(".dialogue", 1);
-                text1.innerHTML = dialogues[0];
-
+            // this.uiManager.show(".dialogue", false);
+            // this.uiManager.fadeIn(".dialogue", 1);
+            this.uiManager.show(".movement-hint", false);
+                    this.uiManager.fadeIn(".movement-hint", 1);
             await new Promise(resolve => setTimeout(resolve, 4000));
 
             // for (let i = 0; i < dialogues.length; i++) {

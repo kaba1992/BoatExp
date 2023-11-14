@@ -384,7 +384,7 @@ export default class Boat {
       this.ThirdPersonCamera.update(this.time.delta)
       if (this.canUpdate) {
 
-        this.Shark.update(this.time.delta)
+        // this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
     
