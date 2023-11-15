@@ -66,12 +66,14 @@ export default class Timer {
         // this.timesUp.style.display = 'block'
         // this.resetBtn.style.display = 'inline-block'
         // this.endCallback()
+       const event = new Event('gameOver');
+         window.dispatchEvent(event);
     }
 
     resetTimer() {
 
         this.timerDisplay.style.display = 'block'
-        this.timesUp.style.display = 'none'
+        // this.timesUp.style.display = 'none'
         this.timer.lapsed = this.secondsAllowed;
         this.setTimeDisplay();
     }
@@ -82,9 +84,7 @@ export default class Timer {
                 this.setTimeDisplay();
                 if (this.timer.lapsed > 0) {
                     this.decrementTimer();
-                } else {
-                    this.endTimer();
-                }
+                } 
             }
         })
     }
@@ -95,9 +95,8 @@ export default class Timer {
                 this.setTimeDisplay();
                 if (this.timer.lapsed > 0) {
                     this.decrementTimer();
-                } else {
-                    this.endTimer();
                 }
+              
             }
         })
     }
@@ -107,6 +106,13 @@ export default class Timer {
     setListeners() {
         let that = this;
 
+    }
+
+    update(){
+        if (this.timer.lapsed <= 0) {
+            this.endTimer();
+        }
+        
     }
 }
 

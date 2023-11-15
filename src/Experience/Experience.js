@@ -8,8 +8,8 @@ import RendererWater from './RendererWater.js'
 import World from './World/World.js'
 import Resources from './Utils/Resources.js'
 import InitCannon from './Utils/InitCannon.js'
-// import Stats from 'three/examples/jsm/libs/stats.module'
-import { Octree } from '@brakebein/threeoctree';
+import Timer from '../UI/Timer.js'
+
 import Stats from "stats-gl";
 
 import sources from './sources.js'
@@ -41,14 +41,7 @@ export default class Experience {
         this.renderer = new RendererWater()
         this.physic = new InitCannon()
         this.world = new World()
-        this.octree = new Octree({
-            undeferred: false, // optional, default = false, octree will defer insertion until you call octree.update();
-            depthMax: Infinity, // optional, default = Infinity, infinite depth
-            objectsThreshold: 8, // optional, default = 8
-            overlapPct: 0.15, // optional, default = 0.15 (15%), this helps sort objects that overlap nodes
-            //scene: this.scene // optional, pass scene as parameter only if you wish to visualize octree
-        })
-
+        this.timer = new Timer(30, document.querySelector('.timer-text'));
         // create a new Stats object
         this.stats = new Stats({
             logsPerSecond: 20,
@@ -98,9 +91,9 @@ export default class Experience {
         this.camera.update()
         this.world.update()
         this.renderer.update()
-        this.octree.update()
         this.resources.update()
         this.physic.update()
+        this.timer.update();
         // this.stats.end();
         // this.stats.update()
     }

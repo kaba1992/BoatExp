@@ -209,7 +209,5 @@ export default class RendererWater {
 
         this.outlineEffect.render(this.scene, this.camera.instance);
         
-
-
     }
 }

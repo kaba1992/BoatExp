@@ -18,6 +18,7 @@ export default class Crate {
         this.experience = new Experience();
         this.scene = this.experience.scene;
         this.resources = this.experience.resources;
+        this.timer = this.experience.timer;
         this.params = params;
         // this.gui = new dat.GUI();
         // this.cameraUi = this.gui.addFolder('camera')
@@ -145,7 +146,7 @@ export default class Crate {
             crateSlots[index].add(crate);
             crate.position.copy(crateSlots[index].position);
             crate.scale.set(0.08, 0.08, 0.08);
-            if (index >= crateSlots.length - 1) {
+            if (index > crateSlots.length - 1) {
               this.scene.remove(crate);
             }
         })
@@ -172,6 +173,7 @@ export default class Crate {
                 this.slotIndex++;
                 // remove in array
                 this.crateArr.splice(index, 1);
+                this.timer.incrementTimer(10000);
 
                 this.counter = 0;
             }

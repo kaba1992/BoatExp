@@ -2,7 +2,7 @@ import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
 import UiManager from './UiManager';
-import Timer from './Timer.js';
+
 
 const dialogues = [
     "Hello young Rookie, welcome to 'Sea Of Sharks'. I am Captain Flyn, and I need your help!",
@@ -16,7 +16,7 @@ export default class Home extends EventEmitter {
         super();
         this.experience = new Experience();
         this.uiManager = new UiManager();
-        this.timer = new Timer(120, document.querySelector('.timer-text'));
+        this.timer = this.experience.timer;
         this.homeClicked = new Event('homeClicked');
 
         this.uiManager.hide('#root');
@@ -57,11 +57,7 @@ export default class Home extends EventEmitter {
                 this.uiManager.show(".timer", false, "block");
                 this.uiManager.fadeIn(".timer", 1);
                 window.dispatchEvent(readyEvent);
-               setInterval(() => {
-                
-                    //  this.timer.incrementTimer(2000);
-                 
-               }, 10000);
+              
 
             }, 1000);
         });
@@ -78,6 +74,9 @@ export default class Home extends EventEmitter {
                 this.uiManager.fadeOut(".gameOverContainer", 1);
                 this.uiManager.show(".movement-hint", false);
                 this.uiManager.fadeIn(".movement-hint", 1);
+                this.uiManager.fadeOut(".timer", 1);
+
+                this.timer.resetTimer();
             });
 
         }
