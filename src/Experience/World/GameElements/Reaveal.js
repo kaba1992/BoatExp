@@ -9,7 +9,10 @@ export default class Reveal {
     constructor(params) {
         this.experience = new Experience()
         this.scene = this.experience.scene
+        this.ressources = this.experience.ressources
         this.renderTexture = this.experience.renderer.renderTexture
+        console.log(this.ressources);
+        this.revealTexture = this.ressources.items.revealTexture
 
     }
 
@@ -18,7 +21,7 @@ export default class Reveal {
     setReveal() {
 
         const loader = new THREE.TextureLoader();
-        const revealTexture = loader.load('textures/revealTest1.jpg')
+        const revealTexture = this.revealTexture;
         const uniforms = {
             uTime: { value: -1 },
             uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },

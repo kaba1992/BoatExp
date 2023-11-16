@@ -3,7 +3,6 @@ import * as THREE from 'three'
 
 import Experience from '../../Experience.js'
 import THREEx from '../../Utils/Keyboard.js'
-import Reveal from './Reaveal.js'
 import ThirdPersonCamera from '../ThirdPersonCamera.js'
 import { gsap } from "gsap";
 import Shark from './Sharks.js';
@@ -13,6 +12,9 @@ import { lerp } from 'three/src/math/MathUtils.js';
 import UiManager from '../../../UI/UiManager.js';
 import * as CANNON from 'cannon-es'
 import { log } from 'three-nebula';
+import { threeToCannon, ShapeType } from 'three-to-cannon';
+
+import Fishs from './Fishs.js'
 
 
 export default class Boat {
@@ -22,7 +24,6 @@ export default class Boat {
 
   constructor() {
     this.experience = new Experience()
-    this.reveal = new Reveal()
     this.home = this.experience.home
     this.scene = this.experience.scene
     this.resources = this.experience.resources
@@ -36,7 +37,7 @@ export default class Boat {
     this.physic = this.experience.physic
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
-   
+
     this.clock = new THREE.Clock()
     this.resource = this.resources.items.boatModel
     this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
@@ -72,9 +73,7 @@ export default class Boat {
 
 
   getListener() {
-    window.addEventListener('homeClicked', () => {
-      this.reveal.setReveal()
-    })
+   
     window.addEventListener('ready', () => {
       this.model.body.wakeUp()
       this.canUpdate = true
@@ -135,23 +134,27 @@ export default class Boat {
       gradientMap: gradientMap
     });
 
+    const result = threeToCannon(this.model, { type: ShapeType.BOX });
+
+    const { shape, offset, quaternion } = result;
+
     this.model.body = new CANNON.Body({
       // sphereShape
       mass: 40,
-      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
       // fixedRotation: true,
       linearDamping: 0.85,
       angularDamping: 0.85,
 
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
+    this.model.body.addShape(shape, offset, quaternion);
     // this.model.body.position.set(0, 0, 0)
     this.model.body.sleep()
 
     this.experience.physic.world.addBody(this.model.body)
 
     this.childs = []
- 
+
     const textures = []
     this.model.traverse((child) => {
 
@@ -167,14 +170,14 @@ export default class Boat {
 
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
- 
+
     this.model.scale.set(0.5, 0.5, 0.5)
 
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
     this.model.rotation.y = Math.PI;
     this.scene.add(this.model)
-   
+
 
 
     this.ThirdPersonCamera = new ThirdPersonCamera(
@@ -198,6 +201,12 @@ export default class Boat {
     )
 
     this.crate = new Crate(
+      {
+        boat: this.model,
+      }
+    )
+
+    this.Fishs = new Fishs(
       {
         boat: this.model,
       }
@@ -248,7 +257,7 @@ export default class Boat {
   }
 
   fillBoost() {
-    
+
     if (this.boost >= 100) return
     this.boost += 0.075
 
@@ -382,12 +391,14 @@ export default class Boat {
     if (this.model) {
 
       this.ThirdPersonCamera.update(this.time.delta)
+
+      this.Fishs.update(this.time.delta)
       if (this.canUpdate) {
 
         // this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
-    
+
       }
       this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
       this.model.body.quaternion.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.008;

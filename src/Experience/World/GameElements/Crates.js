@@ -90,7 +90,7 @@ export default class Crate {
 
             // set distance between crates
             const distanceBetweenEachCratesAngle = 2 * TwoPI;
-            const radius = 10 + Math.random() * 30 * distanceBetweenEachCratesAngle;
+            const radius = 10 + Math.random() * 200;
             const x = Math.sin(angle) * radius;
             const z = Math.cos(angle) * radius;
             const y = Math.random() * Math.PI * 2;

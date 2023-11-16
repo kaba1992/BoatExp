@@ -1,6 +1,6 @@
 import Experience from "../../Experience";
 import * as THREE from "three";
-import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer } from "three";
+import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer,MeshStandardMaterial } from "three";
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import UiManager from "../../../UI/UiManager";
 
@@ -37,7 +37,7 @@ export default class Sharks {
     }
 
     setShark() {
-        this.sharkMaterial = new MeshBasicMaterial({ color: 0x0ffff00 });
+        this.sharkMaterial = new MeshStandardMaterial({ color: new THREE.Color(0x000000) });
         const sharkPlaneGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
         const exclamationMarkMap = this.resources.items.exclamationMark;
         exclamationMarkMap.wrapS = THREE.RepeatWrapping;
@@ -72,6 +72,7 @@ export default class Sharks {
                 }
             });
             clonedShark.material = this.sharkMaterial;
+          
             clonedShark.mixer = new AnimationMixer(clonedShark);
             clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
             clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);

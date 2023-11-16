@@ -10,6 +10,7 @@ export default class InitCannon {
         this.world.broadphase = new CANNON.SAPBroadphase(this.world);
         this.world.allowSleep = true;
         this.time =  this.experience.time;
+  
     }
 
 

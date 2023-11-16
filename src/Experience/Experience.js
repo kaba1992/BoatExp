@@ -41,7 +41,7 @@ export default class Experience {
         this.renderer = new RendererWater()
         this.physic = new InitCannon()
         this.world = new World()
-        this.timer = new Timer(30, document.querySelector('.timer-text'));
+        this.timer = new Timer(1000, document.querySelector('.timer-text'));
         // create a new Stats object
         this.stats = new Stats({
             logsPerSecond: 20,

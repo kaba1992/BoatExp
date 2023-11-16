@@ -27,6 +27,11 @@ export default [
         type: 'texture',
         path: 'textures/Sharks/exclamationMark.png'
     },
+    {
+        name: 'revealTexture',
+        type: 'texture',
+        path: 'textures/revealTest1.jpg'
+    },
 
     {
         name: 'boatModel',
@@ -52,6 +57,16 @@ export default [
         name: 'sharkModel',
         type: 'dracoLoader',
         path: 'models/Boat/SharkNew.glb'
+    },
+    {
+        name: 'fishModel',
+        type: 'dracoLoader',
+        path: 'models/Fish/the_fish_particle.glb'
+    },
+    {
+        name: 'whaleModel',
+        type: 'dracoLoader',
+        path: 'models/Fish/Whale.glb'
     },
 
 

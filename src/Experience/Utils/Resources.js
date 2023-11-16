@@ -38,21 +38,7 @@ export default class Resources extends EventEmitter {
             //progress
             (url, itemsLoaded, itemsTotal) => {
                 this.targetRatio = itemsLoaded / itemsTotal
-                // const windowWidth = window.innerWidth;
-
-                // let maxPosition;
-
-                // if (windowWidth <= 480) { // Mobiles
-                //     maxPosition = 50; // Vous pouvez ajuster cette valeur
-                // } else if (windowWidth <= 768) { // Tablettes
-                //     maxPosition = 80; // Vous pouvez ajuster cette valeur
-                // } else { // PC et autres grandes tailles d'écran
-                //     maxPosition = 100; // Vous pouvez ajuster cette valeur
-                // }
-
-                // const newPosition = progressRatio * maxPosition;
-                // loadingShark.style.left = `${newPosition}vw`;
-                // loading.style.transform = `scaleX(${progressRatio})`
+               
 
                 if (this.targetRatio  === 1) {
                   
@@ -141,6 +127,7 @@ export default class Resources extends EventEmitter {
             maxPosition = 80;
         } else { // PC et autres grandes tailles d'écran
             maxPosition = 100;
+            console.log("PC");
         }
 
         const newPosition = this.currentRatio * maxPosition;

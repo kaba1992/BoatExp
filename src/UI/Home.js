@@ -2,7 +2,7 @@ import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
 import UiManager from './UiManager';
-
+import Reveal from '../Experience/World/GameElements/Reaveal.js';
 
 const dialogues = [
     "Hello young Rookie, welcome to 'Sea Of Sharks'. I am Captain Flyn, and I need your help!",
@@ -17,6 +17,7 @@ export default class Home extends EventEmitter {
         this.experience = new Experience();
         this.uiManager = new UiManager();
         this.timer = this.experience.timer;
+        this.reveal = new Reveal();
         this.homeClicked = new Event('homeClicked');
 
         this.uiManager.hide('#root');
@@ -45,6 +46,7 @@ export default class Home extends EventEmitter {
         window.addEventListener('resourcesReady', () => {
             window.dispatchEvent(this.homeClicked);
             this.uiManager.show('#root', true);
+            this.reveal.setReveal();
             this.setDilogues(text1);
         });
 
@@ -85,27 +87,27 @@ export default class Home extends EventEmitter {
     async setDilogues(text1) {
         window.addEventListener('revealEnd', async () => {
             await new Promise(resolve => setTimeout(resolve, 1000));
-            // this.uiManager.show(".dialogue", false);
-            // this.uiManager.fadeIn(".dialogue", 1);
-            this.uiManager.show(".movement-hint", false);
-                    this.uiManager.fadeIn(".movement-hint", 1);
+            this.uiManager.show(".dialogue", false);
+            this.uiManager.fadeIn(".dialogue", 1);
+            // this.uiManager.show(".movement-hint", false);
+            //         this.uiManager.fadeIn(".movement-hint", 1);
             await new Promise(resolve => setTimeout(resolve, 4000));
 
-            // for (let i = 0; i < dialogues.length; i++) {
-            //     await new Promise(resolve => setTimeout(resolve, 4000 * i));
-            //     this.uiManager.fadeOut(".dialogue-text-container1", 1);
-            //     await new Promise(resolve => setTimeout(resolve, 1000));
-            //     text1.innerHTML = dialogues[i + 1];
-            //     this.uiManager.fadeIn(".dialogue-text-container1", 1);
-            //     if (i == dialogues.length - 2) {
-            //         await new Promise(resolve => setTimeout(resolve, 4000));
-            //         this.uiManager.fadeOut(".dialogue", 1);
-            //         this.uiManager.show(".movement-hint", false);
-            //         this.uiManager.fadeIn(".movement-hint", 1);
+            for (let i = 0; i < dialogues.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 4000 * i));
+                this.uiManager.fadeOut(".dialogue-text-container1", 1);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                text1.innerHTML = dialogues[i + 1];
+                this.uiManager.fadeIn(".dialogue-text-container1", 1);
+                if (i == dialogues.length - 2) {
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    this.uiManager.fadeOut(".dialogue", 1);
+                    this.uiManager.show(".movement-hint", false);
+                    this.uiManager.fadeIn(".movement-hint", 1);
 
-            //     }
-            //     console.log(i);
-            // }
+                }
+                console.log(i);
+            }
         });
 
         this.uiManager.show(".dialogue-text-container1", false);
