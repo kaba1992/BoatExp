@@ -309,7 +309,7 @@ export default class Boat {
 
     let topPoint = new THREE.Vector3(0, 0, 0)
 
-    let forceMagnitude = 60;
+    let forceMagnitude = 200;
     let torque;
     let rotationSpeed = 0.6;
 
@@ -395,7 +395,7 @@ export default class Boat {
       this.Fishs.update(this.time.delta)
       if (this.canUpdate) {
 
-        // this.Shark.update(this.time.delta)
+        this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
 

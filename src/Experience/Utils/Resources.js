@@ -3,6 +3,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import EventEmitter from './EventEmitter.js'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
+import gsap from 'gsap'
+
 
 export default class Resources extends EventEmitter {
     constructor(sources) {
@@ -17,20 +19,22 @@ export default class Resources extends EventEmitter {
         this.currentRatio = 0;
         this.targetRatio = 0;
 
+
         this.setLoaders()
         this.startLoading()
+        this.isAllLoaded = false
+        this.loadingParent = document.querySelector(".loading-parent")
     }
 
     setLoaders() {
         const loading = document.querySelector(".loading-bar")
         const loadingShark = document.querySelector(".loading-shark")
-        const loadingParent = document.querySelector(".loading-parent")
         this.loadingManager = new THREE.LoadingManager(
             // Loaded
             () => {
                 window.setTimeout(() => {
-                    loading.classList.add('ended')
-                    loading.style.transform = ""
+                    // loading.classList.add('ended')
+                    // loading.style.transform = ""
                     // loadingShark.style.left = ""
                 }, 500);
 
@@ -38,12 +42,12 @@ export default class Resources extends EventEmitter {
             //progress
             (url, itemsLoaded, itemsTotal) => {
                 this.targetRatio = itemsLoaded / itemsTotal
-               
 
-                if (this.targetRatio  === 1) {
-                  
-                        loadingParent.style.display = "none"
-                   
+
+                if (this.targetRatio === 1) {
+
+                    // this.loadingParent.style.display = "none"
+
                 }
 
             }
@@ -108,31 +112,48 @@ export default class Resources extends EventEmitter {
         this.items[source.name] = file
 
         this.loaded++
+        const loadingShark = document.querySelector(".loading-shark");
 
         if (this.loaded === this.toLoad) {
-            this.trigger('ready')
-            window.dispatchEvent(this.resourcesReady)
+
+            const loadingShark = document.querySelector(".loading-shark");
+           
+       
+            gsap.to(loadingShark, {
+                duration: 3, left: "98%", ease: "power2.inOut", onComplete: () => {
+        
+                    this.loadingParent.style.display = "none"
+                    this.trigger('ready')
+                    const resourcesReadyEvent = new Event('resourcesReady')
+
+                    window.dispatchEvent(resourcesReadyEvent)
+                   
+                }
+            })
+        
+
+            this.isAllLoaded = true
         }
     }
 
     update() {
         this.currentRatio += (this.targetRatio - this.currentRatio) * 0.05;
 
-        const windowWidth = window.innerWidth;
-        let maxPosition;
+        // const windowWidth = window.innerWidth;
+        // let maxPosition;
 
-        if (windowWidth <= 480) { // Mobiles
-            maxPosition = 50;
-        } else if (windowWidth <= 768) { // Tablettes
-            maxPosition = 80;
-        } else { // PC et autres grandes tailles d'écran
-            maxPosition = 100;
-            console.log("PC");
-        }
+        // if (windowWidth <= 480) { // Mobiles
+        //     maxPosition = 50;
+        // } else if (windowWidth <= 768) { // Tablettes
+        //     maxPosition = 80;
+        // } else { // PC et autres grandes tailles d'écran
+        //     maxPosition = 100;
+        //     console.log("PC");
+        // }
 
-        const newPosition = this.currentRatio * maxPosition;
-        const loadingShark = document.querySelector(".loading-shark");
-        loadingShark.style.left = `${newPosition}vw`;
+        // const newPosition = this.currentRatio * maxPosition;
+        // loadingShark.style.left = `${newPosition}vw`;
+
 
     }
 }

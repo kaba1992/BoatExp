@@ -30,7 +30,7 @@ export default [
     {
         name: 'revealTexture',
         type: 'texture',
-        path: 'textures/revealTest1.jpg'
+        path: 'textures/revealTexture.jpg'
     },
 
     {

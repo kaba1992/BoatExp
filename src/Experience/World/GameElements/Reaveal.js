@@ -9,17 +9,19 @@ export default class Reveal {
     constructor(params) {
         this.experience = new Experience()
         this.scene = this.experience.scene
-        this.ressources = this.experience.ressources
+        this.resources = this.experience.resources
         this.renderTexture = this.experience.renderer.renderTexture
-        console.log(this.ressources);
-        this.revealTexture = this.ressources.items.revealTexture
+
+ 
+        this.addListeners()
 
     }
 
 
 
     setReveal() {
-
+        this.revealTexture = this.resources.items.revealTexture
+console.log(this.revealTexture);
         const loader = new THREE.TextureLoader();
         const revealTexture = this.revealTexture;
         const uniforms = {
@@ -54,5 +56,11 @@ export default class Reveal {
             window.dispatchEvent(revealEndEvent)
         })
 
+    }
+
+    addListeners() {
+        window.addEventListener('resourcesReady', () => {
+            this.setReveal()
+        })
     }
 }
