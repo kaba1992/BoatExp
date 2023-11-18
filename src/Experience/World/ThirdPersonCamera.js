@@ -34,13 +34,15 @@ export default class ThirdPersonCamera {
     }
     calculateIdealOffset() {
     // Convertir la rotation de la cible de Euler en Quaternion
-    const targetQuaternion = this.target.body.quaternion;
+    const targetRotation = new THREE.Quaternion();
+    const camRot = new THREE.Euler(0, this.target.rotation.y, 0);
+    targetRotation.setFromEuler(camRot);
 
     // Créer le vecteur de décalage idéal
     const idealOffset = new THREE.Vector3(this.idealOffsetPos.x, this.idealOffsetPos.y, this.idealOffsetPos.z);
     
     // Appliquer la rotation de la cible au décalage
-    idealOffset.applyQuaternion(targetQuaternion);
+    idealOffset.applyQuaternion(targetRotation);
 
     // Ajouter la position de la cible au décalage pour obtenir la position finale
     idealOffset.add(this.target.position);
@@ -48,12 +50,11 @@ export default class ThirdPersonCamera {
     return idealOffset;
 }
     calculateIdealLookAt() {
-        // convert target rotation from euler to quaternion
         const targetRotation = new THREE.Quaternion();
-        // const camRot = new THREE.Euler(0, this.target.rotation.y, 0);
-        // targetRotation.setFromEuler(camRot);
+        const camRot = new THREE.Euler(0, this.target.rotation.y, 0);
+        targetRotation.setFromEuler(camRot);
         const idealLookAt = new THREE.Vector3(0, 3, 0);
-        idealLookAt.applyQuaternion(this.target.body.quaternion);
+        idealLookAt.applyQuaternion(targetRotation);
         idealLookAt.add(this.target.body.position);
         return idealLookAt;
     }
@@ -63,7 +64,7 @@ export default class ThirdPersonCamera {
         const delta = this.clock.getDelta();
         const elapsedTime = this.clock.getElapsedTime();
         // const lerpPow = 3.0 * delta;
-        const lerpPow = 1.0 - Math.pow(0.05, delta);
+        const lerpPow = 1.0 - Math.pow(0.01, delta);
         const idealOffset = this.calculateIdealOffset();
         const idealLookAt = this.calculateIdealLookAt();
         // fill these in

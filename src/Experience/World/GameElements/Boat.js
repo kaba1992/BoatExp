@@ -57,6 +57,7 @@ export default class Boat {
     this.velocity = 200
     this.rotVelocity = 0.8
     this.voileAudioPlayed = false;
+    
 
     //Camera
 
@@ -112,7 +113,7 @@ export default class Boat {
         this.boatWheel = child
       }
     })
-
+  
     const alpha = 0.5;
     const beta = 0.5;
     const gamma = 0.5;
@@ -173,9 +174,12 @@ export default class Boat {
 
     this.model.scale.set(0.5, 0.5, 0.5)
 
+
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
-    this.model.rotation.y = Math.PI;
+    this.model.rotation.y = -Math.PI / 4;
+   
+   
     this.scene.add(this.model)
 
 
@@ -294,8 +298,8 @@ export default class Boat {
 
   updateSpeed() {
     if (this.model) {
-      this.model.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 1, 0), this.rotation)
-      this.model.body.velocity.z = this.distance * Math.sin(this.model.rotation.y)
+      this.model.rotation.y += this.rotation
+      // this.model.body.velocity.z = this.distance * Math.sin(this.model.rotation.y)
 
     }
   }
@@ -323,15 +327,17 @@ export default class Boat {
       if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
 
         torque = new CANNON.Vec3(0, forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-        this.model.body.applyTorque(torque);
+        // this.model.body.applyTorque(torque);
+        this.rotation = this.rotVelocity * this.delta
         this.boatWheel.rotation.z += this.delta * rotationSpeed
 
 
       }
       if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
         torque = new CANNON.Vec3(0, -forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-        this.model.body.applyTorque(torque);
+        // this.model.body.applyTorque(torque);
         this.boatWheel.rotation.z -= this.delta * rotationSpeed
+        this.rotation = -this.rotVelocity * this.delta
 
       }
       if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
@@ -384,7 +390,7 @@ export default class Boat {
 
   update() {
 
-    // this.updateSpeed()
+    this.updateSpeed()
     this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
     const delta = this.clock.getDelta()
@@ -401,13 +407,14 @@ export default class Boat {
 
       }
       this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
-      this.model.body.quaternion.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.008;
+      this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
       if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
 
       }
       this.model.position.copy(this.model.body.position)
-      this.model.quaternion.copy(this.model.body.quaternion)
+      // this.model.quaternion.copy(this.model.body.quaternion)
+      this.model.body.quaternion.copy(this.model.quaternion)
 
     }
 
@@ -427,7 +434,7 @@ export default class Boat {
 
     this.velocity = 200
     this.boost = 100
-    this.rotVelocity = 0.8
+    this.rotVelocity = 2
     this.voileAudioPlayed = false;
     this.isKeyUp = true;
 

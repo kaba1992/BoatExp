@@ -18,7 +18,7 @@ export default class Sharks {
         this.aggroAudio.volume = 0.5;
         this.Sharks = [];
         this.pursuerNumber = 0;
-        this.speed = 1.2;
+        this.speed = 1.3;
         this.setShark();
         this.canUpdate = params.canUpdate;
         this.time = this.experience.time;
@@ -88,6 +88,7 @@ export default class Sharks {
             clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
             clonedShark.notChasing = true;
             clonedShark.aggoSoundPlayed = false;
+            clonedShark.speed = 1.3;
 
             this.Sharks.push(clonedShark);
             this.scene.add(clonedShark);
@@ -124,14 +125,16 @@ export default class Sharks {
                 this.uiManager.fadeIn('.pursuer-info', 0.5);
                 shark.plane.visible = true;
                 shark.aggoSoundPlayed = true;
+                shark.speed = 1.5;
                 await new Promise(r => setTimeout(r, 2000));
                 shark.plane.visible = false;
             }
 
-        } else if (distance > 20) {
+        } else if (distance > 8) {
             shark.notChasing = true;
             if (shark.aggoSoundPlayed) {
                 this.pursuerNumber--;
+                shark.speed = 1.3;
                 if (this.pursuerNumber <= 0) {
                     this.uiManager.fadeOut('.pursuer-info', 0.5);
                 }
@@ -148,7 +151,7 @@ export default class Sharks {
             let sharkDirection = shark.notChasing ? shark.randomDirection : this.boat.position.clone().sub(shark.position).normalize();
 
             const shift = new Vector3();
-            shift.copy(sharkDirection).multiplyScalar(this.speed * deltaTime * 0.003);
+            shift.copy(sharkDirection).multiplyScalar(shark.speed * deltaTime * 0.003);
 
             const targetDirection = shark.position.clone().add(sharkDirection);
             const targetQuaternion = new Quaternion().setFromRotationMatrix(
@@ -178,7 +181,6 @@ export default class Sharks {
         this.aggroAudio.volume = 0.5;
        
         this.pursuerNumber = 0;
-        this.speed = 1.2;
         this.canUpdate = params.canUpdate;
         // reset sharks
         this.Sharks.forEach(shark => {
@@ -191,6 +193,7 @@ export default class Sharks {
             let x = Math.cos(angle) * distance;
             let z = Math.sin(angle) * distance;
             shark.position.set(x, 0, z);
+            shark.speed = 1.3;
             
             let randomAngle = Math.random() * 2 * Math.PI;
             shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();

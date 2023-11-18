@@ -42,7 +42,7 @@ export default class Experience {
         this.renderer = new RendererWater()
         this.physic = new InitCannon()
         this.world = new World()
-        this.timer = new Timer(1000, document.querySelector('.timer-text'));
+        this.timer = new Timer(60, document.querySelector('.timer-text'));
         this.reveal = new Reveal();
         // create a new Stats object
         this.stats = new Stats({

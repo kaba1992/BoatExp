@@ -52,9 +52,9 @@ export default class Crate {
                 // child.scale.set(0.5, 0.5, 0.5);
             }
         });
-     
 
-        const crateNumb = 100;
+
+        // const crateNumb = 100;
         const crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
         const crateNormal = new THREE.TextureLoader().load('/textures/Crate/crateNormal.png');
         const crateMaterialParams = new THREE.TextureLoader().load('/textures/Crate/crateMaterialParams.png');
@@ -81,19 +81,28 @@ export default class Crate {
         crateNormal.flipY = false;
         crateMaterialParams.flipY = false;
 
-
+        const gridSize = 10; // 10x10 grille
+        const crateInterval = 30; // Espace de 2 unités entre chaque caisse
+        const crateNumb = gridSize * gridSize; // Nombre total de caisses
+        const randomOffset = 10;
         for (let i = 0; i < crateNumb; i++) {
 
             const crate = new THREE.Mesh(crateGeometry, crateMaterial);
             crate.scale.set(0.05, 0.05, 0.05);
-            const angle = Math.random() * Math.PI * 2;
+            // const angle = Math.random() * Math.PI * 2;
 
-            // set distance between crates
-            const distanceBetweenEachCratesAngle = 2 * TwoPI;
-            const radius = 10 + Math.random() * 200;
-            const x = Math.sin(angle) * radius;
-            const z = Math.cos(angle) * radius;
-            const y = Math.random() * Math.PI * 2;
+            // // set distance between crates
+            // const distanceBetweenEachCratesAngle = 2 * TwoPI;
+            // const radius = 10 + Math.random() * 200;
+            // const x = Math.sin(angle) * radius;
+            // const z = Math.cos(angle) * radius;
+            // Calcul des positions X et Z basées sur la grille
+            const row = Math.floor(i / gridSize);
+            const col = i % gridSize;
+            const x = col * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
+            const z = row * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
+    
+
 
             crate.position.set(x, -0.2, z);
             crate.userData.initFloating = Math.random() * Math.PI * 2;
@@ -147,7 +156,7 @@ export default class Crate {
             crate.position.copy(crateSlots[index].position);
             crate.scale.set(0.08, 0.08, 0.08);
             if (index > crateSlots.length - 1) {
-              this.scene.remove(crate);
+                this.scene.remove(crate);
             }
         })
     }
@@ -204,11 +213,11 @@ export default class Crate {
             crateSlot.remove(crateSlot.children[0]);
         });
         this.score = 0;
-        this.slotIndex = 0; 
+        this.slotIndex = 0;
         this.counter = 0;
-        this.crateArr = []; 
+        this.crateArr = [];
         this.crateSlots = [];
         this.setCrate();
-       
+
     }
 }

@@ -10,6 +10,7 @@ export default class Reveal {
         this.experience = new Experience()
         this.scene = this.experience.scene
         this.resources = this.experience.resources
+        this.camera = this.experience.camera.instance
         this.renderTexture = this.experience.renderer.renderTexture
 
  
@@ -21,7 +22,7 @@ export default class Reveal {
 
     setReveal() {
         this.revealTexture = this.resources.items.revealTexture
-console.log(this.revealTexture);
+
         const loader = new THREE.TextureLoader();
         const revealTexture = this.revealTexture;
         const uniforms = {
@@ -35,15 +36,20 @@ console.log(this.revealTexture);
             vertexShader: revealVertex,
             fragmentShader: revealFragment,
             uniforms,
+            // wireframe: true,
 
         });
+        const revealPlane = new THREE.PlaneGeometry(2, 2, 1, 1);
+
        
 
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material);
+        const mesh = new THREE.Mesh(revealPlane, this.material);
         // change mesh render order to render after the boat
         // mesh.renderOrder = -10
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
+        console.log(this.camera);
+        
         gsapTimeline.to(this.material.uniforms.uTime, {
             duration: 3,
             value: 1,

@@ -139,20 +139,7 @@ export default class Resources extends EventEmitter {
     update() {
         this.currentRatio += (this.targetRatio - this.currentRatio) * 0.05;
 
-        // const windowWidth = window.innerWidth;
-        // let maxPosition;
-
-        // if (windowWidth <= 480) { // Mobiles
-        //     maxPosition = 50;
-        // } else if (windowWidth <= 768) { // Tablettes
-        //     maxPosition = 80;
-        // } else { // PC et autres grandes tailles d'écran
-        //     maxPosition = 100;
-        //     console.log("PC");
-        // }
-
-        // const newPosition = this.currentRatio * maxPosition;
-        // loadingShark.style.left = `${newPosition}vw`;
+  
 
 
     }

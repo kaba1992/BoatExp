@@ -36,7 +36,7 @@ export default class Environment {
     setEnvironmentMap() {
         const textureLoader = new TextureLoader()
         // this.environmentMap.texture = this.resources.items.environmentMapTexture
-        this.environmentMap = textureLoader.load('/textures/environmentMap/EnvMap.jpg')
+        this.environmentMap = textureLoader.load('/textures/environmentMap/EnvMap3.jpg')
         this.environmentMap.intensity = 0.4
         this.environmentMap.colorSpace = SRGBColorSpace
         this.environmentMap.mapping = EquirectangularReflectionMapping;
