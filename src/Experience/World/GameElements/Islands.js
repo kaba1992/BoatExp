@@ -49,7 +49,7 @@ export default class Island {
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
         this.miniIsland = this.resource.scene
         this.bigIsland = this.bigIslandResource.scene
-        console.log(this.bigIsland);
+    
         this.emptysParent = this.emptysResource.scene
 
         this.emptysParent.traverse((child) => {

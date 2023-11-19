@@ -2,7 +2,7 @@ import Experience from "../../Experience";
 import * as THREE from "three";
 import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer,MeshStandardMaterial } from "three";
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
-import UiManager from "../../../UI/UiManager";
+
 
 export default class Sharks {
     constructor(params) {
@@ -11,7 +11,7 @@ export default class Sharks {
         this.resources = this.experience.resources;
         this.resource = this.resources.items.sharkModel;
         this.camera = this.experience.camera.instance;
-        this.uiManager = new UiManager();
+        this.uiManager = this.experience.uiManager;
         this.boat = params.boat;
         this.aggroAudio = new Audio('/Audios/Sharks/AggroSound.mp3');
         this.uiManager.hide('.pursuer-info');

@@ -3925,10 +3925,15 @@
   dependencies:
     "@types/three" ">=0.142.0"
 
-"three@^0.154.0", "three@>=0.122.0 <1.0.0", "three@>=0.125.x", "three@>=0.130.2", "three@0.x":
-  "integrity" "sha512-Uzz8C/5GesJzv8i+Y2prEMYUwodwZySPcNhuJUdsVMH2Yn4Nm8qlbQe6qRN5fOhg55XB0WiLfTPBxVHxpE60ug=="
-  "resolved" "https://registry.npmjs.org/three/-/three-0.154.0.tgz"
-  "version" "0.154.0"
+"three.quarks@^0.11.2":
+  "integrity" "sha512-u2VhKFxMx39YFssoRN0S2i82EdA1JTl5XJiF11W80jXNnIuK7IpZKB94g0GTqaYYYa24jJlc7+19lpoOWEwsrA=="
+  "resolved" "https://registry.npmjs.org/three.quarks/-/three.quarks-0.11.2.tgz"
+  "version" "0.11.2"
+
+"three@^0.158.0", "three@>=0.122.0 <1.0.0", "three@>=0.125.x", "three@>=0.130.2", "three@>=0.157.0", "three@0.x":
+  "integrity" "sha512-TALj4EOpdDPF1henk2Q+s17K61uEAAWQ7TJB68nr7FKxqwyDr3msOt5IWdbGm4TaWKjrtWS8DJJWe9JnvsWOhQ=="
+  "resolved" "https://registry.npmjs.org/three/-/three-0.158.0.tgz"
+  "version" "0.158.0"
 
 "thunky@^1.0.2":
   "integrity" "sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA=="

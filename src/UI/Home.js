@@ -1,7 +1,7 @@
 import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
-import UiManager from './UiManager';
+
 
 
 const dialogues = [
@@ -15,7 +15,7 @@ export default class Home extends EventEmitter {
     constructor() {
         super();
         this.experience = new Experience();
-        this.uiManager = new UiManager();
+        this.uiManager = this.experience.uiManager;
         this.timer = this.experience.timer;
 
         this.homeClicked = new Event('homeClicked');

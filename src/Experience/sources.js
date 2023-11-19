@@ -68,6 +68,11 @@ export default [
         type: 'dracoLoader',
         path: 'models/Fish/Whale.glb'
     },
+    {
+        name: 'krakenModel',
+        type: 'dracoLoader',
+        path: 'models/Fish/krakenSama.glb'
+    },
 
 
     {

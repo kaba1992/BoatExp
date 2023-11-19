@@ -9,6 +9,7 @@ import World from './World/World.js'
 import Resources from './Utils/Resources.js'
 import InitCannon from './Utils/InitCannon.js'
 import Timer from '../UI/Timer.js'
+import UiManager from '../UI/UiManager.js'
 import Reveal from './World/GameElements/Reaveal.js'
 
 import Stats from "stats-gl";
@@ -44,6 +45,7 @@ export default class Experience {
         this.world = new World()
         this.timer = new Timer(60, document.querySelector('.timer-text'));
         this.reveal = new Reveal();
+        this.uiManager = new UiManager();
         // create a new Stats object
         this.stats = new Stats({
             logsPerSecond: 20,

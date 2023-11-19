@@ -9,10 +9,10 @@ import Shark from './Sharks.js';
 import Island from './islands.js';
 import Crate from './Crates.js';
 import { lerp } from 'three/src/math/MathUtils.js';
-import UiManager from '../../../UI/UiManager.js';
 import * as CANNON from 'cannon-es'
 import { log } from 'three-nebula';
 import { threeToCannon, ShapeType } from 'three-to-cannon';
+import Trail from './Trail.js';
 
 import Fishs from './Fishs.js'
 
@@ -32,11 +32,12 @@ export default class Boat {
     this.camera = this.experience.camera.instance
     this.size = this.experience.sizes
     this.keyboard = new THREEx.KeyboardState()
-    this.uiManager = new UiManager();
+    this.uiManager = this.experience.uiManager
     this.uiManager.hide('.boost');
     this.physic = this.experience.physic
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
+    
 
     this.clock = new THREE.Clock()
     this.resource = this.resources.items.boatModel
@@ -44,6 +45,7 @@ export default class Boat {
     this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
     this.boost = 100
     this.canUpdate = false
+    this.isMoving = false
     this.boostBar.style.width = `${this.boost}%`
     this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
@@ -76,7 +78,7 @@ export default class Boat {
   getListener() {
    
     window.addEventListener('ready', () => {
-      this.model.body.wakeUp()
+
       this.canUpdate = true
       this.uiManager.fadeIn('.boost', 1);
 
@@ -141,16 +143,17 @@ export default class Boat {
 
     this.model.body = new CANNON.Body({
       // sphereShape
-      mass: 40,
-      // fixedRotation: true,
+      mass: 25,
+      fixedRotation: true,
       linearDamping: 0.85,
-      angularDamping: 0.85,
+      // angularDamping: 0.85,
+      shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
 
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
-    this.model.body.addShape(shape, offset, quaternion);
+    // this.model.body.addShape(shape, offset, quaternion);
     // this.model.body.position.set(0, 0, 0)
-    this.model.body.sleep()
+    
 
     this.experience.physic.world.addBody(this.model.body)
 
@@ -216,6 +219,15 @@ export default class Boat {
       }
     )
 
+    this.trail = new Trail(
+      {
+        boat: this.model,
+      }
+      )
+
+      this.trail.particleGroup.visible = false;
+
+
 
 
   }
@@ -236,6 +248,7 @@ export default class Boat {
       this.stop()
       // lerp volume to 0
       this.isKeyUp = true;
+      this.isMoving = false;
 
 
       if (event.key === 'Shift') {
@@ -243,7 +256,7 @@ export default class Boat {
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         this.model.body.angularVelocity.set(0, 0, 0); // Cela va arrêter toute rotation sur tous les axes
-
+        this.trail.particleGroup.visible = false;
         // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
       }
       else if (event.key === 'ArrowLeft' || event.key === 'q') {
@@ -349,6 +362,7 @@ export default class Boat {
         // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
         this.model.body.applyImpulse(impulse, topPoint);
         this.isKeyUp = false;
+        this.isMoving = true;
         this.sailingTraceAudio.play();
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
       }
@@ -358,6 +372,7 @@ export default class Boat {
         // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
         this.model.body.applyImpulse(impulse, topPoint);
         this.isKeyUp = false;
+        this.isMoving = true;
         this.sailingTraceAudio.play();
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
       }
@@ -369,6 +384,7 @@ export default class Boat {
           if (!this.voileAudioPlayed) {
             this.voileAudio.play();
             this.voileAudioPlayed = true;
+            this.trail.particleGroup.visible = true;
           }
 
           gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
@@ -401,13 +417,16 @@ export default class Boat {
       this.Fishs.update(this.time.delta)
       if (this.canUpdate) {
 
-        this.Shark.update(this.time.delta)
+        // this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
+        this.trail.update(this.time.delta)
 
       }
+     if(!this.isMoving){
       this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
       this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
+     }
       if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
 
@@ -434,9 +453,11 @@ export default class Boat {
 
     this.velocity = 200
     this.boost = 100
-    this.rotVelocity = 2
+    this.rotVelocity = 0.8
     this.voileAudioPlayed = false;
+    this.trail.particleGroup.visible = false;
     this.isKeyUp = true;
+    this.isMoving = false;
 
     //Camera
 

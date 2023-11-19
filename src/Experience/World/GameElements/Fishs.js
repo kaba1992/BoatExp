@@ -5,13 +5,16 @@ import * as YUKA from 'yuka';
 import * as THREE from 'three';
 import Experience from "../../Experience";
 
-export default class Fishs {
+
+export default class Fishs  {
     constructor(params) {
+       
         this.experience = new Experience();
         this.scene = this.experience.scene;
         this.resources = this.experience.resources;
         this.resource = this.resources.items.fishModel;
         this.whaleResource = this.resources.items.whaleModel;
+        this.krakenResource = this.resources.items.krakenModel;
         this.time = this.experience.time;
         this.camera = this.experience.camera.instance;
         this.entityManager = new YUKA.EntityManager();
@@ -20,6 +23,7 @@ export default class Fishs {
         this.fishs = [];
         this.setFishs();
         // this.setWhales();
+        this.setKraken();
 
     }
 
@@ -33,7 +37,7 @@ export default class Fishs {
        
      
         const clips = this.resource.animations;
-        console.log(clips);
+    
         const fishes = new THREE.AnimationObjectGroup();
         this.fishMixer = new THREE.AnimationMixer(this.fish);
         const clip = THREE.AnimationClip.findByName(clips, "Take 01");
@@ -59,7 +63,7 @@ export default class Fishs {
         this.whale.position.set(0, -0.8, 0);
 
         const clips = this.whaleResource.animations;
-        console.log(clips);
+    
         const whales = new THREE.AnimationObjectGroup();
         this.whaleMixer = new THREE.AnimationMixer(this.whale);
         const clip = THREE.AnimationClip.findByName(clips, "Swimming");
@@ -68,10 +72,27 @@ export default class Fishs {
 
     }
 
+    setKraken() {
+        this.kraken = this.krakenResource.scene.children[0];
+        this.kraken.position.set(0,1, 0);
+        this.kraken.scale.multiplyScalar(10);
+        this.scene.add(this.kraken);
+
+        const clips = this.krakenResource.animations;  
+        console.log(clips); 
+        const kraken = new THREE.AnimationObjectGroup();
+        this.krakenMixer = new THREE.AnimationMixer(this.kraken);
+        const clip = THREE.AnimationClip.findByName(clips, "Take 001");
+        const action = this.krakenMixer.clipAction(clip);
+        action.play();
+
+    }
+
     update(delta){
-        if(this.fishMixer){
+        if(this.fishMixer && this.krakenMixer){
             this.fishMixer.update(delta *0.001);
             // this.whaleMixer.update(delta *0.001);
+            this.krakenMixer.update(delta *0.001);
         }
         // this.entityManager.update(this.yukaTime.update().getDelta());
     }
