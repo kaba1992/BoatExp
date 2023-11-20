@@ -20,14 +20,14 @@ export default class Environment {
     
 
     setSunLight() {
-        this.sunLight = new DirectionalLight('#ffffff', 1)
+        this.sunLight = new DirectionalLight('#ffffff', 0.3)
         this.sunLight.castShadow = true
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
         this.sunLight.position.set(4, 4, 4);
         this.scene.add(this.sunLight)
-        const ambientLight = new AmbientLight("#ffffff", 1);
+        const ambientLight = new AmbientLight("#ffffff", 0.5);
 
         this.scene.add(ambientLight);
         // const helper = new DirectionalLightHelper(this.sunLight, 1000);
@@ -51,9 +51,9 @@ export default class Environment {
         this.environmentMap.updateMaterials = () => {
             this.scene.traverse((child) => {
                 if (child instanceof Mesh && child.material instanceof MeshStandardMaterial) {
-                    child.material.envMap = this.environmentMap.texture
-                    child.material.envMapIntensity = this.environmentMap.intensity
-                    child.material.needsUpdate = true
+                    // child.material.envMap = this.environmentMap.texture
+                    // child.material.envMapIntensity = this.environmentMap.intensity
+                    // child.material.needsUpdate = true
                 }
             })
         }

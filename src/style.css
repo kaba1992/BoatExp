@@ -1,4 +1,15 @@
 /* Styles communs (pour toutes les tailles d'écran) */
+
+@font-face {
+    font-family: 'eraserregular';
+    src: url('../static/Font/eraser-webfont.woff2') format('woff2'),
+         url('../static/Font/eraser-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
 * {
 	margin: 0;
 	padding: 0;
@@ -9,6 +20,8 @@ body {
 	overflow: hidden;
 	height: 100%;
 	width: 100%;
+    font-family: 'eraserregular';
+
 }
 
 .webgl {
@@ -23,8 +36,8 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: space-around;
-	top: 5%;
-	left: 2%;
+	top: 2rem;
+	left: 2rem;
 	font-size: 2rem;
 	z-index: 5;
 }

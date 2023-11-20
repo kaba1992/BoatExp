@@ -24,42 +24,42 @@ export default class Boat {
 
   constructor() {
     this.experience = new Experience()
-    this.home = this.experience.home
     this.scene = this.experience.scene
     this.resources = this.experience.resources
-    this.renderer = this.experience.renderer.instance;
     this.time = this.experience.time
     this.camera = this.experience.camera.instance
-    this.size = this.experience.sizes
-    this.keyboard = new THREEx.KeyboardState()
     this.uiManager = this.experience.uiManager
-    this.uiManager.hide('.boost');
     this.physic = this.experience.physic
+    this.keyboard = new THREEx.KeyboardState()
+    this.uiManager.hide('.boost');
+
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
-    
-
-    this.clock = new THREE.Clock()
-    this.resource = this.resources.items.boatModel
-    this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
-    this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
-    this.boost = 100
-    this.canUpdate = false
-    this.isMoving = false
     this.boostBar.style.width = `${this.boost}%`
     this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
+    this.resource = this.resources.items.boatModel
+
+    this.clock = new THREE.Clock()
+
+    this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
+    this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
     this.sailingTraceAudio.volume = 0.2;
     this.voileAudio.volume = 0.5;
-    // Resource
 
+    this.boost = 100
+    this.velocity = 200
+    this.rotVelocity = 0.8
+
+    this.canUpdate = false
+    this.isMoving = false
+    this.voileAudioPlayed = false;
     this.distance = null
     this.rotation = null
 
-    this.velocity = 200
-    this.rotVelocity = 0.8
-    this.voileAudioPlayed = false;
-    
+    // Resource
+
+
 
     //Camera
 
@@ -76,7 +76,7 @@ export default class Boat {
 
 
   getListener() {
-   
+
     window.addEventListener('ready', () => {
 
       this.canUpdate = true
@@ -115,7 +115,7 @@ export default class Boat {
         this.boatWheel = child
       }
     })
-  
+
     const alpha = 0.5;
     const beta = 0.5;
     const gamma = 0.5;
@@ -153,7 +153,7 @@ export default class Boat {
     });
     // this.model.body.addShape(shape, offset, quaternion);
     // this.model.body.position.set(0, 0, 0)
-    
+
 
     this.experience.physic.world.addBody(this.model.body)
 
@@ -166,6 +166,7 @@ export default class Boat {
         this.childs.push(child)
         textures.push(child.material.map)
         child.material = material
+        console.log(child.material.map);
 
       }
     })
@@ -181,8 +182,8 @@ export default class Boat {
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
     this.model.rotation.y = -Math.PI / 4;
-   
-   
+
+
     this.scene.add(this.model)
 
 
@@ -223,9 +224,9 @@ export default class Boat {
       {
         boat: this.model,
       }
-      )
+    )
 
-      this.trail.particleGroup.visible = false;
+    this.trail.particleGroup.visible = false;
 
 
 
@@ -423,10 +424,10 @@ export default class Boat {
         this.trail.update(this.time.delta)
 
       }
-     if(!this.isMoving){
-      this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
-      this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
-     }
+      if (!this.isMoving) {
+        this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
+        this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
+      }
       if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
 
