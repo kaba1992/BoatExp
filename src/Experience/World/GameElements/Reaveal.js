@@ -22,7 +22,7 @@ export default class Reveal {
 
     setReveal() {
         this.revealTexture = this.resources.items.revealTexture
-
+       
         const loader = new THREE.TextureLoader();
         const revealTexture = this.revealTexture;
         const uniforms = {
@@ -46,9 +46,11 @@ export default class Reveal {
         const mesh = new THREE.Mesh(revealPlane, this.material);
         // change mesh render order to render after the boat
         // mesh.renderOrder = -10
+        mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
         console.log(this.camera);
+     
         
         gsapTimeline.to(this.material.uniforms.uTime, {
             duration: 3,

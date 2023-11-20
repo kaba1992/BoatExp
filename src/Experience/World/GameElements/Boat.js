@@ -118,7 +118,7 @@ export default class Boat {
 
     const alpha = 0.5;
     const beta = 0.5;
-    const gamma = 0.5;
+    const gamma = 10;
 
     const colors = new Uint8Array(2);
 
@@ -126,7 +126,9 @@ export default class Boat {
     colors[0] = (0 / colors.length) * 256;
     colors[1] = (1 / colors.length) * 256;
     const format = THREE.RedFormat;
-    const gradientMap = new THREE.DataTexture(colors, colors.length, 1, format);
+    const gradientMap = new THREE.TextureLoader().load('../../../../static/textures/GradientMap/fiveTone.jpg')
+    gradientMap.minFilter = THREE.NearestFilter;
+    gradientMap.magFilter = THREE.NearestFilter;
     gradientMap.needsUpdate = true;
 
     // basic monochromatic energy preservation
@@ -134,7 +136,8 @@ export default class Boat {
 
     const material = new THREE.MeshToonMaterial({
       color: diffuseColor,
-      gradientMap: gradientMap
+      gradientMap: gradientMap,
+
     });
 
     const result = threeToCannon(this.model, { type: ShapeType.BOX });

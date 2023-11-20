@@ -74,6 +74,17 @@ export default class Fishs  {
 
     setKraken() {
         this.kraken = this.krakenResource.scene.children[0];
+        this.radar = this.kraken.getObjectByName("radar");
+        // change render order to render after the boat
+        this.kraken.renderOrder = 10;
+        this.kraken.layers.set(1);
+        this.radar.material = new THREE.MeshBasicMaterial({
+            color: 0xff0000,
+            transparent: true,
+            opacity: 0.1,
+            
+        });
+        console.log(this.radar);
         this.kraken.position.set(0,1, 0);
         this.kraken.scale.multiplyScalar(10);
         this.scene.add(this.kraken);
