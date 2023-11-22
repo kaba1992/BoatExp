@@ -46,7 +46,7 @@ export default class Reveal {
         const mesh = new THREE.Mesh(revealPlane, this.material);
         // change mesh render order to render after the boat
         // mesh.renderOrder = -10
-        mesh.visible = false
+        // mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
         console.log(this.camera);

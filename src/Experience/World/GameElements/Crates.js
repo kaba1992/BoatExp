@@ -27,7 +27,7 @@ export default class Crate {
         this.crates = [];
         this.crateArr = [];
         this.crateSlots = [];
-        this.score = 0;
+        window.score = 0;
         this.crateModel = this.resources.items.crateModel
         this.crateSlotModel = this.resources.items.crateSlotModel
         this.physic = this.experience.physic;
@@ -177,7 +177,7 @@ export default class Crate {
             // console.log(boatWorldPosition );
             if (boatWorldPosition.distanceTo(crate.position) <= 3) {
                 crate.rotation.set(0, 0, 0);
-                this.score += 1;
+                window.score += 1;
                 this.animateCrateToBoat(crate, this.slotIndex % this.crateSlots.length);
                 this.slotIndex++;
                 // remove in array
@@ -188,7 +188,7 @@ export default class Crate {
             }
         })
 
-        scoreDisplay.innerHTML = `X ${this.score}`;
+        scoreDisplay.innerHTML = `X ${window.score}`;
     }
 
     update() {
@@ -212,7 +212,7 @@ export default class Crate {
         this.crateSlots.forEach((crateSlot) => {
             crateSlot.remove(crateSlot.children[0]);
         });
-        this.score = 0;
+        window.score = 0;
         this.slotIndex = 0;
         this.counter = 0;
         this.crateArr = [];

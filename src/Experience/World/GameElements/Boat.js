@@ -126,10 +126,12 @@ export default class Boat {
     colors[0] = (0 / colors.length) * 256;
     colors[1] = (1 / colors.length) * 256;
     const format = THREE.RedFormat;
-    const gradientMap = new THREE.TextureLoader().load('../../../../static/textures/GradientMap/fiveTone.jpg')
+    const textureLoader = new THREE.TextureLoader();
+    const gradientMap = textureLoader.load('textures/GradientMap/threeTone.jpg')
     gradientMap.minFilter = THREE.NearestFilter;
     gradientMap.magFilter = THREE.NearestFilter;
-    gradientMap.needsUpdate = true;
+    
+    
 
     // basic monochromatic energy preservation
     const diffuseColor = new THREE.Color().setHSL(alpha, 0.5, gamma * 0.5 + 0.1).multiplyScalar(1 - beta * 0.2);
@@ -428,8 +430,8 @@ export default class Boat {
 
       }
       if (!this.isMoving) {
-        this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.06;
-        this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
+        this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.04;
+        this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.03;
       }
       if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
