@@ -13,6 +13,7 @@ import * as CANNON from 'cannon-es'
 import { log } from 'three-nebula';
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 import Trail from './Trail.js';
+import bodyTypes from '../../Utils/BodyTypes.js';
 
 import Fishs from './Fishs.js'
 
@@ -151,8 +152,12 @@ export default class Boat {
       mass: 25,
       fixedRotation: true,
       linearDamping: 0.85,
-      // angularDamping: 0.85,
+      angularDamping: 0.85,
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
+      // collisionFilterGroup: bodyTypes.Boat,
+      // collisionFilterMask: bodyTypes.Kraken | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
+      angularFactor: new CANNON.Vec3(0,0,0),
+      isTrigger: true,
 
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });

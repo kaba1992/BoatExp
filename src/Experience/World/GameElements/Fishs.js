@@ -8,6 +8,7 @@ import radarVertex from "./../../../../static/shaders/Boat/radarVertex.glsl";
 import radarFragment from "./../../../../static/shaders/Boat/radarFragment.glsl";
 import { gsap } from "gsap";
 import * as CANNON from 'cannon-es'
+import bodyTypes from '../../Utils/BodyTypes';
 
 export default class Fishs {
     constructor(params) {
@@ -24,12 +25,19 @@ export default class Fishs {
         this.camera = this.experience.camera.instance;
         this.entityManager = new YUKA.EntityManager();
         this.yukaTime = new YUKA.Time();
-        this.isKrakenPop = false;
 
         this.fishs = [];
-        this.setFishs();
+        this.isKrakenPop = false;
+        this.canRemoveBody = false;
+        this.isGameOver = false;
+        this.krakenInterval = null;
         // this.setWhales();
+        this.setFishs();
         this.setKraken();
+        window.addEventListener('reset', () => {
+            this.reset()
+        })
+  
 
     }
 
@@ -79,10 +87,7 @@ export default class Fishs {
     }
 
     setKraken() {
-        const group1 = 1
-        const group2 = 2
-        this.boat.body.collisionFilterGroup = group1;
-        // this.boat.body.collisionFilterMask = group2;
+
         this.kraken = this.krakenResource.scene.children[0];
         const radarMaterial = new THREE.MeshBasicMaterial({
             color: 0xff0000,
@@ -91,9 +96,9 @@ export default class Fishs {
         });
         this.krakenMaterial = new THREE.MeshBasicMaterial({
             transparent: true,
-            opacity: 0,
-            depthTest: false,
+         
         });
+        this.krakenMaterial.depthTest = false;
         this.kraken.traverse((child) => {
             if (child.isMesh) {
                 child.material = this.krakenMaterial;
@@ -102,24 +107,29 @@ export default class Fishs {
         });
         // make kraken material fade 
 
-        gsap.set(this.kraken.material, { opacity: 0 });
         this.radar = new THREE.Mesh(new THREE.CircleGeometry(20, 32), radarMaterial);
         this.radar.rotation.x = - Math.PI * 0.5
         this.radar.position.set(0, 0.001, 0);
         this.radar.layers.set(1);
         this.kraken.body = new CANNON.Body({
+            mass: 1,
             shape: new CANNON.Cylinder(20, 20, 5, 32),
-            collisionFilterGroup: group1,
-            // collisionFilterMask: group2,
+            // collisionFilterGroup: bodyTypes.Kraken,
+            // collisionFilterMask: bodyTypes.Boat  | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
+            fixedRotation: true,
+            type: CANNON.Body.DYNAMIC,
+            isTrigger: true,
 
         });
         this.physic.world.addBody(this.kraken.body);
-        gsap.set(this.radar.material, {opacity: 0});
-        gsap.set(this.radar.scale, {x: 0.1, y: 0.1, z: 0.1});
+        gsap.set(this.krakenMaterial, { opacity: 0 });
+        gsap.set(this.radar.material, { opacity: 0 });
+        gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
         this.kraken.body.position.set(0, 1, 0);
         this.kraken.scale.multiplyScalar(10);
         this.scene.add(this.kraken);
         this.scene.add(this.radar);
+
 
         const clips = this.krakenResource.animations;
         const kraken = new THREE.AnimationObjectGroup();
@@ -128,6 +138,7 @@ export default class Fishs {
         const action = this.krakenMixer.clipAction(clip);
         action.play();
     }
+    
 
     attack() {
         let boatPos = new THREE.Vector3(this.boat.position.x, this.radar.position.y, this.boat.position.z);
@@ -137,10 +148,17 @@ export default class Fishs {
             gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
             this.krakenMaterial.depthTest = true;
             gsap.to(this.krakenMaterial, { opacity: 1, duration: 1 });
-            this.kraken.body.position.set(boatPos.x -4, this.kraken.body.position.y, boatPos.z -2);
+            this.kraken.body.position.set(boatPos.x - 4, this.kraken.body.position.y, boatPos.z - 2);
             this.kraken.body.addEventListener("collide", (e) => {
-                console.log(e);
+                if (e.body === this.boat.body) {
+                    this.isGameOver = true;
+                    const event = new Event('gameOver');
+                    window.dispatchEvent(event);
+    
+                }
             });
+            console.log("ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+        
         };
         gsap.to(this.radar.scale, { x: 1, y: 1, z: 1, duration: 3, onComplete: OnScaleComplete });
         this.radar.position.set(boatPos.x, boatPos.y, boatPos.z);
@@ -148,7 +166,7 @@ export default class Fishs {
 
     async releaseKraken() {
         this.attack();
-        setInterval(() => {
+        this.krakenInterval = setInterval(() => {
             this.attack();
         }, 10000);
 
@@ -173,8 +191,25 @@ export default class Fishs {
         }
         this.kraken.position.copy(this.kraken.body.position);
         // this.kraken.quaternion.copy(this.kraken.body.quaternion);zzz
+        if (this.isGameOver) {
+            clearInterval(this.krakenInterval);
+            this.isGameOver = false;
+        }
 
         // this.entityManager.update(this.yukaTime.update().getDelta());
+    }
+
+    reset() {
+        this.isKrakenPop = false;
+        this.canRemoveBody = false;
+        this.isGameOver = false;
+        this.krakenInterval = null;
+        gsap.set(this.krakenMaterial, { opacity: 0 });
+        gsap.set(this.radar.material, { opacity: 0 });
+        gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
+        this.kraken.body.position.set(0, 1, 0);
+        // this.krakenMaterial.depthTest = false;
+       
     }
 
 }
