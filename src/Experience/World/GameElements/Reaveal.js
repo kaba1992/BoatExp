@@ -49,7 +49,6 @@ export default class Reveal {
         // mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
-        console.log(this.camera);
      
         
         gsapTimeline.to(this.material.uniforms.uTime, {

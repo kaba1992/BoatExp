@@ -34,10 +34,7 @@ export default class Boat {
     this.keyboard = new THREEx.KeyboardState()
     this.uiManager.hide('.boost');
 
-    this.boostBar = document.querySelector('.boostBar')
-    this.boostProgress = document.querySelector('.boostProgress')
-    this.boostBar.style.width = `${this.boost}%`
-    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
+
 
     this.resource = this.resources.items.boatModel
 
@@ -51,6 +48,11 @@ export default class Boat {
     this.boost = 100
     this.velocity = 200
     this.rotVelocity = 0.8
+
+    this.boostBar = document.querySelector('.boostBar')
+    this.boostProgress = document.querySelector('.boostProgress')
+    this.boostBar.style.width = `${this.boost}%`
+    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
     this.canUpdate = false
     this.isMoving = false
@@ -176,8 +178,7 @@ export default class Boat {
         this.childs.push(child)
         textures.push(child.material.map)
         child.material = material
-        console.log(child.material.map);
-
+      
       }
     })
 

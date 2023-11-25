@@ -19,6 +19,7 @@ export default class Resources extends EventEmitter {
         this.currentRatio = 0;
         this.targetRatio = 0;
 
+        this.soundDom = document.querySelector(".sound")
 
         this.setLoaders()
         this.startLoading()
@@ -28,7 +29,6 @@ export default class Resources extends EventEmitter {
 
     setLoaders() {
         const loading = document.querySelector(".loading-bar")
-        const loadingShark = document.querySelector(".loading-shark")
         this.loadingManager = new THREE.LoadingManager(
             // Loaded
             () => {
@@ -117,20 +117,28 @@ export default class Resources extends EventEmitter {
         if (this.loaded === this.toLoad) {
 
             const loadingShark = document.querySelector(".loading-shark");
-           
-       
-            gsap.to(loadingShark, {
-                duration: 3, left: "98%", ease: "power2.inOut", onComplete: () => {
-        
-                    this.loadingParent.style.display = "none"
-                    this.trigger('ready')
-                    const resourcesReadyEvent = new Event('resourcesReady')
 
-                    window.dispatchEvent(resourcesReadyEvent)
-                   
+
+            gsap.to(loadingShark, {
+                duration: 3, left: "100%", ease: "power2.inOut", onComplete: () => {
+                    gsap.to(this.soundDom, {
+                        duration: 1, opacity: 1, ease: "power2.inOut", onComplete: () => {
+                            setTimeout(() => {
+                                // this.loadingParent.style.display = "none"
+                                gsap.to(this.loadingParent, { duration: 1, opacity: 0, ease: "power2.inOut" })
+                                const resourcesReadyEvent = new Event('resourcesReady')
+        
+                                window.dispatchEvent(resourcesReadyEvent)
+
+
+                            }, 2000);
+                        }
+                    })
+
                 }
             })
-        
+            this.trigger('ready')
+
 
             this.isAllLoaded = true
         }
@@ -139,7 +147,7 @@ export default class Resources extends EventEmitter {
     update() {
         this.currentRatio += (this.targetRatio - this.currentRatio) * 0.05;
 
-  
+
 
 
     }

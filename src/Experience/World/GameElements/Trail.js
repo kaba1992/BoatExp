@@ -71,7 +71,6 @@ export default class Trail {
 
         this.model.add(this.particleGroup)
         // this.scene.add(this.particleGroup)
-        console.log(this.model);
         // if (this.debug.active && this.model) {
         //   this.debugFolder = this.debug.ui.addFolder("particleGroup")
         //   this.debugFolder.add(this.particleGroup.position, 'y').min(-100).max(300).step(0.0001).name('positionY')

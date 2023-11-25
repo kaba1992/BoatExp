@@ -36,7 +36,7 @@ export default class Sharks {
 
     }
 
-    setShark() {
+   async setShark() {
         this.sharkMaterial = new MeshStandardMaterial({ color: new THREE.Color(0x000000) });
         const sharkPlaneGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
         const exclamationMarkMap = this.resources.items.exclamationMark;
@@ -56,53 +56,60 @@ export default class Sharks {
             // alphaTest: 1,
             flipY: false,
         });
-
+        let sharkCreationPromises = [];
 
         for (let i = 0; i < 40; i++) {
-            let clonedShark = SkeletonUtils.clone(this.resource.scene);
-            clonedShark.traverse((child) => {
-                if (child.name === "planeShark") {
-                    child.layers.set(1);
-                    child.material = sharkPlaneMaterial;
-                    child.position.y = 1.5;
-                    // child.lookAt(this.camera.position);
-                    clonedShark.plane = child;
-                    child.visible = false;
-
-                }
-            });
-            clonedShark.material = this.sharkMaterial;
-          
-            clonedShark.mixer = new AnimationMixer(clonedShark);
-            clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
-            clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
-            clonedShark.action.play();
-            let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
-            let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
-            // Convertit la distance et l'angle en coordonnées x et z
-            let x = Math.cos(angle) * distance;
-            let z = Math.sin(angle) * distance;
-            clonedShark.position.set(x, 0, z);
-            clonedShark.scale.set(1.5, 1.5, 1.5);
-            let randomAngle = Math.random() * 2 * Math.PI;
-            clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-            clonedShark.notChasing = true;
-            clonedShark.aggoSoundPlayed = false;
-            clonedShark.speed = 1.3;
-
-            this.Sharks.push(clonedShark);
-            this.scene.add(clonedShark);
-            // clonedShark.add(clonedShark.plane);
-            // get random Delay between 5000 and 10000
-            const randomDelay = Math.random() * (10000 - 5000) + 5000;
-
-
-
-            setInterval(() => {
+            let promise = new Promise((resolve, reject) => {
+                let clonedShark = SkeletonUtils.clone(this.resource.scene);
+                clonedShark.traverse((child) => {
+                    if (child.name === "planeShark") {
+                        child.layers.set(1);
+                        child.material = sharkPlaneMaterial;
+                        child.position.y = 1.5;
+                        // child.lookAt(this.camera.position);
+                        clonedShark.plane = child;
+                        child.visible = false;
+    
+                    }
+                });
+                clonedShark.material = this.sharkMaterial;
+              
+                clonedShark.mixer = new AnimationMixer(clonedShark);
+                clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
+                clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
+                clonedShark.action.play();
+                let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
+                let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+                // Convertit la distance et l'angle en coordonnées x et z
+                let x = Math.cos(angle) * distance;
+                let z = Math.sin(angle) * distance;
+                clonedShark.position.set(x, 0, z);
+                clonedShark.scale.set(1.5, 1.5, 1.5);
                 let randomAngle = Math.random() * 2 * Math.PI;
                 clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-            }, randomDelay);
+                clonedShark.notChasing = true;
+                clonedShark.aggoSoundPlayed = false;
+                clonedShark.speed = 1.3;
+    
+                this.Sharks.push(clonedShark);
+                this.scene.add(clonedShark);
+                // clonedShark.add(clonedShark.plane);
+                // get random Delay between 5000 and 10000
+                const randomDelay = Math.random() * (10000 - 5000) + 5000;
+    
+    
+    
+                setInterval(() => {
+                    let randomAngle = Math.random() * 2 * Math.PI;
+                    clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+                }, randomDelay);
+                resolve(clonedShark);
+            });
+            sharkCreationPromises.push(promise);
+           
         }
+        await Promise.all(sharkCreationPromises);
+        console.log("all sharks loaded");
     }
 
     async checkDistance(shark) {

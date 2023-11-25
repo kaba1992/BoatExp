@@ -41,7 +41,7 @@ export default class Island {
     }
 
 
-    setMiniIslands() {
+    async setMiniIslands() {
         const textureLoader = new THREE.TextureLoader()
         const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew.jpg')
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
@@ -49,7 +49,7 @@ export default class Island {
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
         this.miniIsland = this.resource.scene
         this.bigIsland = this.bigIslandResource.scene
-    
+
         this.emptysParent = this.emptysResource.scene
 
         this.emptysParent.traverse((child) => {
@@ -64,71 +64,81 @@ export default class Island {
         const bigIslandMesh = this.bigIsland.children.find(child => child.isMesh);
         let minScale = 3;
 
+        let promises = []
         for (let i = 0; i < this.miniIslandEmpty.length; i++) {
             // create 25 island with 1 miniIslandMesh
 
 
             // set the miniIsland position to the miniIslandEmpty position
-            if (this.miniIslandEmpty[i].name.startsWith('Island')) {
-                const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
-                this.miniIslands.push(miniIsland)
+            let miniIslandPromise = new Promise((resolve, reject) => {
+                if (this.miniIslandEmpty[i].name.startsWith('Island')) {
+                    const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
+                    this.miniIslands.push(miniIsland)
 
-                // get rando float between 1 and 3
-                const scale = Math.random() * (6 - minScale) + minScale;
-                
-                let y = scale < 1.5 ? 0.8 : 1.3;
-                miniIsland.scale.multiplyScalar(scale)
-                // get miniIsland radius depending on boundingSphere radius
-                const radius = miniIslandMesh.geometry.boundingSphere.radius * scale
-                
-                const result = threeToCannon(miniIsland, { type: ShapeType.BOX });
-                
-                const { shape, offset, quaternion } = result;
-                
-                miniIsland.body = new CANNON.Body({
-                    // sphereShape
-                    mass: 0,
-                    
-                    type: CANNON.Body.STATIC,
-                    // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
-                    
-                });
-                miniIsland.body.addShape(shape, offset, quaternion);
-                miniIsland.body.position.copy(this.miniIslandEmpty[i].position)
-                miniIsland.body.position.y = y
-                this.experience.physic.world.addBody(miniIsland.body)
-                this.group.add(miniIsland)
+                    // get rando float between 1 and 3
+                    const scale = Math.random() * (6 - minScale) + minScale;
 
-            }
-            if (this.miniIslandEmpty[i].name.startsWith('BigIsland')) {
-                const bigIsland = this.bigIsland.clone()
-            
-                bigIsland.scale.multiplyScalar(0.2)
+                    let y = scale < 1.5 ? 0.8 : 1.3;
+                    miniIsland.scale.multiplyScalar(scale)
+                    // get miniIsland radius depending on boundingSphere radius
+                    const radius = miniIslandMesh.geometry.boundingSphere.radius * scale
 
-                this.miniIslands.push(bigIsland)
-                const radius = bigIslandMesh.geometry.boundingSphere.radius * 0.2
-                const result = threeToCannon(bigIsland, { type: ShapeType.BOX });
-                
-                const { shape, offset, quaternion } = result;
-                
-                bigIsland.body = new CANNON.Body({
-                    // sphereShape
-                    mass: 0,
-                    
-                    type: CANNON.Body.STATIC,
-                    // position: new CANNON.Vec3(bigIsland.position.x, bigIsland.position.y, bigIsland.position.z)
-                    
-                });
-                bigIsland.body.addShape(shape, offset, quaternion);
-                bigIsland.body.position.copy(this.miniIslandEmpty[i].position)
-                bigIsland.body.position.y = -2.4
-                bigIsland.body.wakeUp()
-                this.experience.physic.world.addBody(bigIsland.body)
-                this.group.add(bigIsland)
+                    const result = threeToCannon(miniIsland, { type: ShapeType.BOX });
 
-            }
+                    const { shape, offset, quaternion } = result;
+
+                    miniIsland.body = new CANNON.Body({
+                        // sphereShape
+                        mass: 0,
+
+                        type: CANNON.Body.STATIC,
+                        // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
+
+                    });
+                    miniIsland.body.addShape(shape, offset, quaternion);
+                    miniIsland.body.position.copy(this.miniIslandEmpty[i].position)
+                    miniIsland.body.position.y = y
+                    this.experience.physic.world.addBody(miniIsland.body)
+                    this.group.add(miniIsland)
+                    resolve(miniIsland)
+                }
+            })
+            promises.push(miniIslandPromise)
+
+            let bigIslandPromise = new Promise((resolve, reject) => {
+                if (this.miniIslandEmpty[i].name.startsWith('BigIsland')) {
+                    const bigIsland = this.bigIsland.clone()
+
+                    bigIsland.scale.multiplyScalar(0.2)
+
+                    this.miniIslands.push(bigIsland)
+                    const radius = bigIslandMesh.geometry.boundingSphere.radius * 0.2
+                    const result = threeToCannon(bigIsland, { type: ShapeType.BOX });
+
+                    const { shape, offset, quaternion } = result;
+
+                    bigIsland.body = new CANNON.Body({
+                        // sphereShape
+                        mass: 0,
+
+                        type: CANNON.Body.STATIC,
+                        // position: new CANNON.Vec3(bigIsland.position.x, bigIsland.position.y, bigIsland.position.z)
+
+                    });
+                    bigIsland.body.addShape(shape, offset, quaternion);
+                    bigIsland.body.position.copy(this.miniIslandEmpty[i].position)
+                    bigIsland.body.position.y = -2.4
+                    bigIsland.body.wakeUp()
+                    this.experience.physic.world.addBody(bigIsland.body)
+                    this.group.add(bigIsland)
+
+                    resolve(bigIsland)
+                }
+            })
+            promises.push(bigIslandPromise)
         }
-
+        await Promise.all(promises)
+        console.log("all islands loaded");
 
     }
 

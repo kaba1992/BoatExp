@@ -25,6 +25,7 @@ export default class Fishs {
         this.camera = this.experience.camera.instance;
         this.entityManager = new YUKA.EntityManager();
         this.yukaTime = new YUKA.Time();
+        this.boaPosition = new THREE.Vector3()
 
         this.fishs = [];
         this.isKrakenPop = false;
@@ -37,7 +38,7 @@ export default class Fishs {
         window.addEventListener('reset', () => {
             this.reset()
         })
-  
+
 
     }
 
@@ -96,7 +97,7 @@ export default class Fishs {
         });
         this.krakenMaterial = new THREE.MeshBasicMaterial({
             transparent: true,
-         
+
         });
         this.krakenMaterial.depthTest = false;
         this.kraken.traverse((child) => {
@@ -111,21 +112,21 @@ export default class Fishs {
         this.radar.rotation.x = - Math.PI * 0.5
         this.radar.position.set(0, 0.001, 0);
         this.radar.layers.set(1);
-        this.kraken.body = new CANNON.Body({
+        this.radar.body = new CANNON.Body({
             mass: 1,
             shape: new CANNON.Cylinder(20, 20, 5, 32),
             // collisionFilterGroup: bodyTypes.Kraken,
             // collisionFilterMask: bodyTypes.Boat  | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
             fixedRotation: true,
             type: CANNON.Body.DYNAMIC,
-            isTrigger: true,
+            isTrigger: false,
 
         });
-        this.physic.world.addBody(this.kraken.body);
+        this.physic.world.addBody(this.radar.body);
         gsap.set(this.krakenMaterial, { opacity: 0 });
         gsap.set(this.radar.material, { opacity: 0 });
         gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
-        this.kraken.body.position.set(0, 1, 0);
+        this.radar.body.position.set(0, -5, 0);
         this.kraken.scale.multiplyScalar(10);
         this.scene.add(this.kraken);
         this.scene.add(this.radar);
@@ -138,30 +139,39 @@ export default class Fishs {
         const action = this.krakenMixer.clipAction(clip);
         action.play();
     }
-    
+
 
     attack() {
-        let boatPos = new THREE.Vector3(this.boat.position.x, this.radar.position.y, this.boat.position.z);
         gsap.to(this.radar.material, { opacity: 0.5, duration: 3 });
+        let boatPosbeforeAttack = new THREE.Vector3(this.boat.position.x, this.radar.position.y, this.boat.position.z);
+        this.radar.body.isTrigger = false;
+      
         const OnScaleComplete = () => {
+
             gsap.to(this.radar.material, { opacity: 0, duration: 1 });
             gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
             this.krakenMaterial.depthTest = true;
             gsap.to(this.krakenMaterial, { opacity: 1, duration: 1 });
-            this.kraken.body.position.set(boatPos.x - 4, this.kraken.body.position.y, boatPos.z - 2);
-            this.kraken.body.addEventListener("collide", (e) => {
-                if (e.body === this.boat.body) {
-                    this.isGameOver = true;
-                    const event = new Event('gameOver');
-                    window.dispatchEvent(event);
-    
-                }
-            });
-            console.log("ahhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-        
+            this.radar.body.isTrigger = true;
+
+
+            this.radar.body.position.set(boatPosbeforeAttack.x, boatPosbeforeAttack.y, boatPosbeforeAttack.z);
         };
         gsap.to(this.radar.scale, { x: 1, y: 1, z: 1, duration: 3, onComplete: OnScaleComplete });
-        this.radar.position.set(boatPos.x, boatPos.y, boatPos.z);
+        this.radar.position.set(boatPosbeforeAttack.x, boatPosbeforeAttack.y, boatPosbeforeAttack.z);
+        this.radar.body.addEventListener("collide", (e) => {
+            if (e.body === this.boat.body) {
+                this.kraken.position.set(this.boaPosition.x - 4, 1, this.boaPosition.z - 2);
+
+
+                this.isGameOver = true;
+                const event = new Event('gameOver');
+                window.dispatchEvent(event);
+
+
+            }
+        });
+
     }
 
     async releaseKraken() {
@@ -189,14 +199,16 @@ export default class Fishs {
             console.log("pop kraken");
             this.isKrakenPop = true;
         }
-        this.kraken.position.copy(this.kraken.body.position);
-        // this.kraken.quaternion.copy(this.kraken.body.quaternion);zzz
+       
         if (this.isGameOver) {
-            clearInterval(this.krakenInterval);
-            this.isGameOver = false;
-        }
 
-        // this.entityManager.update(this.yukaTime.update().getDelta());
+            setTimeout(() => {
+                clearInterval(this.krakenInterval);
+                this.isGameOver = false;
+
+            }, 1000);
+        }
+        this.boaPosition = this.boat.position;
     }
 
     reset() {
@@ -207,9 +219,10 @@ export default class Fishs {
         gsap.set(this.krakenMaterial, { opacity: 0 });
         gsap.set(this.radar.material, { opacity: 0 });
         gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
-        this.kraken.body.position.set(0, 1, 0);
+        this.radar.body.position.set(0, -5, 0);
+        this.radar.body.isTrigger = true;
         // this.krakenMaterial.depthTest = false;
-       
+
     }
 
 }

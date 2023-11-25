@@ -43,8 +43,14 @@ export default class Crate {
 
     }
 
+    loadTextureAsync(path) {
+        return new Promise((resolve, reject) => {
+            new THREE.TextureLoader().load(path, resolve, undefined, reject);
+        });
+    }
 
-    setCrate() {
+
+    async setCrate() {
         this.crate = this.crateModel.scene;
         this.boat.traverse((child) => {
             if (child.name.startsWith('crateSlot')) {
@@ -85,35 +91,29 @@ export default class Crate {
         const crateInterval = 30; // Espace de 2 unités entre chaque caisse
         const crateNumb = gridSize * gridSize; // Nombre total de caisses
         const randomOffset = 10;
+        let crateCreationPromises = [];
         for (let i = 0; i < crateNumb; i++) {
+            let promise = new Promise((resolve, reject) => {
+                const crate = new THREE.Mesh(crateGeometry, crateMaterial);
+                crate.scale.set(0.05, 0.05, 0.05);
 
-            const crate = new THREE.Mesh(crateGeometry, crateMaterial);
-            crate.scale.set(0.05, 0.05, 0.05);
-            // const angle = Math.random() * Math.PI * 2;
+                const row = Math.floor(i / gridSize);
+                const col = i % gridSize;
+                const x = col * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
+                const z = row * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
 
-            // // set distance between crates
-            // const distanceBetweenEachCratesAngle = 2 * TwoPI;
-            // const radius = 10 + Math.random() * 200;
-            // const x = Math.sin(angle) * radius;
-            // const z = Math.cos(angle) * radius;
-            // Calcul des positions X et Z basées sur la grille
-            const row = Math.floor(i / gridSize);
-            const col = i % gridSize;
-            const x = col * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
-            const z = row * crateInterval - (gridSize * crateInterval) / 2 + (Math.random() - 0.5) * randomOffset;
-    
-
-
-            crate.position.set(x, -0.2, z);
-            crate.userData.initFloating = Math.random() * Math.PI * 2;
-            this.crateArr.push(crate);
-            this.crates.push(crate);
-            this.scene.add(crate);
-            // console.log(crate.position);
-            // octree.add(crate)
+                crate.position.set(x, -0.2, z);
+                crate.userData.initFloating = Math.random() * Math.PI * 2;
+                this.crateArr.push(crate);
+                this.crates.push(crate);
+                this.scene.add(crate);
+                resolve(crate);
+            });
+            crateCreationPromises.push(promise);
         }
-
-
+        await Promise.all(crateCreationPromises);
+        console.log("all crates loaded");
+     
     }
 
     animateCrateToBoat(crate, index) {
