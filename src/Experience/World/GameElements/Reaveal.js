@@ -11,8 +11,7 @@ export default class Reveal {
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.camera = this.experience.camera.instance
-        this.renderTexture = this.experience.renderer.renderTexture
-
+        this.material = null
  
         this.addListeners()
 
@@ -26,16 +25,18 @@ export default class Reveal {
         const loader = new THREE.TextureLoader();
         const revealTexture = this.revealTexture;
         const uniforms = {
-            uTime: { value: -1 },
-            uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-            renderTexture: { value: this.renderTexture.texture },
-            revealNoise: { value: revealTexture }
+         
         };
 
         this.material = new THREE.ShaderMaterial({
             vertexShader: revealVertex,
             fragmentShader: revealFragment,
-            uniforms,
+            uniforms:{
+                uTime: { value: -1 },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                renderTexture: { value: null},
+                revealNoise: { value: revealTexture }
+            }
             // wireframe: true,
 
         });
@@ -69,5 +70,13 @@ export default class Reveal {
         window.addEventListener('resourcesReady', () => {
             this.setReveal()
         })
+    }
+
+    update() {
+        this.renderTexture = this.experience.renderer.renderTexture
+        if(this.material){
+            this.material.uniforms.renderTexture.value = this.renderTexture.texture
+        }
+   
     }
 }

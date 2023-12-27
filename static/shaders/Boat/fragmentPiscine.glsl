@@ -15,7 +15,7 @@ vec3 _FoamColor = vec3(1.0, 1.0, 1.0);
       // blue waterColor
         //vec3 waterColor = vec3(0.0, 0.0, 1.0);
 
-float _DepthMaxDistance = 1.0;
+float _DepthMaxDistance = 1.2;
 float _FoamDistance = 0.4;
 float _FoamMaxDistance = 0.4;
 float _FoamMinDistance = 0.04;

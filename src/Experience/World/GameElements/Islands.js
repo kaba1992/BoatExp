@@ -163,7 +163,7 @@ export default class Island {
     }
 
     update(deltaTime) {
-        this.CannonDebugger.update()
+        // this.CannonDebugger.update()
         this.miniIslands.forEach(miniIsland => {
             miniIsland.position.copy(miniIsland.body.position)
             miniIsland.quaternion.copy(miniIsland.body.quaternion)

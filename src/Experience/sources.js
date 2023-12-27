@@ -56,7 +56,7 @@ export default [
     {
         name: 'sharkModel',
         type: 'dracoLoader',
-        path: 'models/Boat/SharkNew.glb'
+        path: 'models/Boat/newShark.glb'
     },
     {
         name: 'fishModel',

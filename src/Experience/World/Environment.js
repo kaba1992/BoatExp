@@ -20,12 +20,12 @@ export default class Environment {
     
 
     setSunLight() {
-        this.sunLight = new DirectionalLight('#ffffff', 0.5)
+        this.sunLight = new DirectionalLight('#ffffff', 1)
         this.sunLight.castShadow = true
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set(4, 4, 4);
+        this.sunLight.position.set( 5, 10, 7.5 );
         this.scene.add(this.sunLight)
         const ambientLight = new AmbientLight("#ffffff", 1);
 

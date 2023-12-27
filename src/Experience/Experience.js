@@ -11,6 +11,8 @@ import InitCannon from './Utils/InitCannon.js'
 import Timer from '../UI/Timer.js'
 import UiManager from '../UI/UiManager.js'
 import Reveal from './World/GameElements/Reaveal.js'
+import Ranking from './World/GameElements/Ranking.js'
+
 
 import Stats from "stats-gl";
 
@@ -37,15 +39,20 @@ export default class Experience {
         this.sizes = new Sizes()
         this.time = new Time()
         this.scene = new THREE.Scene()
+        this.scene.background = new THREE.Color(0xffffff).convertSRGBToLinear();
         this.orthoScene = new THREE.Scene()
         this.resources = new Resources(sources)
         this.camera = new Camera()
-        this.renderer = new RendererWater()
         this.physic = new InitCannon()
+        this.renderer = new RendererWater()
+       
         this.world = new World()
         this.timer = new Timer(60, document.querySelector('.timer-text'));
         this.reveal = new Reveal();
         this.uiManager = new UiManager();
+        this.ranking = new Ranking();
+ 
+
         // create a new Stats object
         this.stats = new Stats({
             logsPerSecond: 20,
@@ -56,14 +63,14 @@ export default class Experience {
             minimal: false,
             mode: 2
         });
-        // document.body.appendChild( this.stats.container );
-        // this.stats.init( this.renderer.instance.domElement );
+        document.body.appendChild(this.stats.container);
+        this.stats.init(this.renderer.instance.domElement);
         this.scene.onBeforeRender = () => {
-            // this.stats.begin();
+            this.stats.begin();
         }
 
         this.scene.onAfterRender = () => {
-            // this.stats.end();
+            this.stats.end();
         }
 
 
@@ -72,8 +79,8 @@ export default class Experience {
         this.sizes.on('resize', () => {
             this.resize()
         })
-        // this.stats = Stats()
-        // document.body.appendChild(this.stats.dom)
+
+
 
         // Time tick event
         this.time.on('tick', () => {
@@ -91,14 +98,17 @@ export default class Experience {
     }
 
     update() {
-        // this.stats.begin();
+        this.stats.begin();
         this.camera.update()
         this.world.update()
         this.renderer.update()
         this.resources.update()
         this.physic.update()
         this.timer.update();
-        // this.stats.end();
+        this.reveal.update();
+        this.ranking.update();
+
+        this.stats.end();
         // this.stats.update()
     }
 
@@ -124,7 +134,7 @@ export default class Experience {
             }
         })
 
-       
+
         this.renderer.instance.dispose()
 
         if (this.debug.active)

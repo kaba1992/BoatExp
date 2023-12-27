@@ -39,6 +39,9 @@ export default class Timer {
         let minutes = Math.floor(this.timer.lapsed / 60000),
             seconds = Math.floor((this.timer.lapsed % 60000) / 1000),
             milliseconds = this.timer.lapsed % 1000;
+        if (minutes < 10) {
+            minutes = `0${minutes}`;
+        }
 
         if (seconds < 10) {
             seconds = `0${seconds}`;
@@ -46,7 +49,7 @@ export default class Timer {
         if (milliseconds < 100) {
             milliseconds = `0${milliseconds}`;
         }
-        this.time.textContent = `${minutes}:${seconds}:${milliseconds.toString().substr(0, 2)}`;
+        this.time.innerHTML = `${minutes}:${seconds}:${milliseconds.toString().substr(0, 2)}`;
 
     }
 
@@ -101,6 +104,9 @@ export default class Timer {
         })
     }
 
+    stopDecrementation() {
+        gsap.killTweensOf(this.timer);
+    }
    
 
     setListeners() {
@@ -115,6 +121,8 @@ export default class Timer {
         
     }
 }
+
+
 
 const myStartCallback = () => {
     console.log('ran start callback')

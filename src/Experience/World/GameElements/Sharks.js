@@ -57,11 +57,13 @@ export default class Sharks {
             flipY: false,
         });
         let sharkCreationPromises = [];
-
+console.log(this.resource.scene);
         for (let i = 0; i < 40; i++) {
             let promise = new Promise((resolve, reject) => {
-                let clonedShark = SkeletonUtils.clone(this.resource.scene);
+                let clonedShark = SkeletonUtils.clone(this.resource.scene.children[0].children[0]);
                 clonedShark.traverse((child) => {
+                   if(child.isMesh){
+                    console.log(child.name);
                     if (child.name === "planeShark") {
                         child.layers.set(1);
                         child.material = sharkPlaneMaterial;
@@ -71,6 +73,7 @@ export default class Sharks {
                         child.visible = false;
     
                     }
+                   }
                 });
                 clonedShark.material = this.sharkMaterial;
               
@@ -84,7 +87,7 @@ export default class Sharks {
                 let x = Math.cos(angle) * distance;
                 let z = Math.sin(angle) * distance;
                 clonedShark.position.set(x, 0, z);
-                clonedShark.scale.set(1.5, 1.5, 1.5);
+                clonedShark.scale.multiplyScalar(0.7);
                 let randomAngle = Math.random() * 2 * Math.PI;
                 clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
                 clonedShark.notChasing = true;

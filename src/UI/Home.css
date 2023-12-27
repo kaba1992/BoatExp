@@ -1,6 +1,9 @@
 * {
 	margin: 0;
 	padding: 0;
+	list-style: none;
+	text-decoration: none;
+	box-sizing: border-box;
 }
 
 html,
@@ -63,10 +66,11 @@ body {
 }
 
 .gameOverContainer {
-	position: absolute;
+	position: relative;
 	width: 100%;
 	height: 100%;
 	background: rgba(0, 0, 0, 0.5);
+	z-index: 10;
 }
 
 .gameOverText {
@@ -141,16 +145,56 @@ body {
 
 .timer {
 	position: absolute;
-	width: 12rem;
-	text-align: right;
-	top: 2rem;
-	right: 2rem;
+	width: 16vw;
+	text-align: center;
+	top: 1vh;
+	right: 4vw;
+	font-size: 1.5rem;
 }
 .timer h1 {
-	width: 100%;
 	padding: 1rem;
-	font-size: 4rem;
-	white-space: nowrap;
+	margin-right: 1rem;
+	width: 3rem;
+}
+
+#ranking {
+	position: absolute;
+	top: 20%;
+	left: 75%;
+	/* transform: translate(-50%, -50%); */
+	width: 340px;
+	height: auto;
+	z-index: 20;
+	font-size: 2rem;
+	border-radius: 2.75rem;
+	background: #667db6; /* fallback for old browsers */
+	background: -webkit-linear-gradient(
+		to right,
+		#667db6,
+		#0082c8,
+		#0082c8,
+		#667db6
+	); /* Chrome 10-25, Safari 5.1-6 */
+	background: linear-gradient(
+		to right,
+		#667db6,
+		#0082c8,
+		#0082c8,
+		#667db6
+	); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+#ranking p {
+	font-size: 2rem;
+}
+
+.listParent {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 1rem;
+}
+
+#top10List {
 }
 
 /* Media queries pour tablettes */

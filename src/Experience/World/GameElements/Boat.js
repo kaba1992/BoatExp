@@ -14,7 +14,12 @@ import { log } from 'three-nebula';
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 import Trail from './Trail.js';
 import bodyTypes from '../../Utils/BodyTypes.js';
+import {Pass,FullScreenQuad} from 'three/addons/postprocessing/Pass.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { RadialBlurPassGen } from 'three-radial-blur'
 
+import radialBlurVertex from './../../../../static/shaders//Boat/radialBlurVertex.glsl'
+import radialBlurFragment from './../../../../static/shaders//Boat/radialBlurFragment.glsl'
 import Fishs from './Fishs.js'
 
 
@@ -29,11 +34,13 @@ export default class Boat {
     this.resources = this.experience.resources
     this.time = this.experience.time
     this.camera = this.experience.camera.instance
+    this.renderer = this.experience.renderer.instance
+    this.composer = this.experience.renderer.composer
     this.uiManager = this.experience.uiManager
     this.physic = this.experience.physic
     this.keyboard = new THREEx.KeyboardState()
     this.uiManager.hide('.boost');
-
+  
 
 
     this.resource = this.resources.items.boatModel
@@ -60,7 +67,6 @@ export default class Boat {
     this.distance = null
     this.rotation = null
 
-    // Resource
 
 
 
@@ -74,6 +80,7 @@ export default class Boat {
     this.setModel()
     this.setKeyUp()
     this.getListener()
+    // this.activeBlur()
   }
 
 
@@ -98,9 +105,24 @@ export default class Boat {
 
   }
 
-  remap(value, low1, high1, low2, high2) {
-    return low2 + (high2 - low2) * (value - low1) / (high1 - low1);
+  activeBlur() {
+   
+
+    const RadialBlurPass = RadialBlurPassGen({ THREE, Pass, FullScreenQuad })
+      
+    this.radialBlur = new RadialBlurPass({
+      intensity:0.0, // normalize blur distance; 0. to 1.
+      iterations: 7, // total steps along blur distance
+      maxIterations: 100, // max. iterations ( immutable after creation ) 
+      radialCenter: new THREE.Vector2() // radial center; -1. to 1.
+    })
+    
+    this.composer.addPass(this.radialBlur);
+    this.radialBlur.renderToScreen = true;
+
+
   }
+
 
 
   setModel() {
@@ -128,14 +150,11 @@ export default class Boat {
 
     colors[0] = (0 / colors.length) * 256;
     colors[1] = (1 / colors.length) * 256;
-    const format = THREE.RedFormat;
+
     const textureLoader = new THREE.TextureLoader();
     const gradientMap = textureLoader.load('textures/GradientMap/threeTone.jpg')
     gradientMap.minFilter = THREE.NearestFilter;
     gradientMap.magFilter = THREE.NearestFilter;
-    
-    
-
     // basic monochromatic energy preservation
     const diffuseColor = new THREE.Color().setHSL(alpha, 0.5, gamma * 0.5 + 0.1).multiplyScalar(1 - beta * 0.2);
 
@@ -151,21 +170,29 @@ export default class Boat {
 
     this.model.body = new CANNON.Body({
       // sphereShape
-      mass: 25,
+      mass: 35,
       fixedRotation: true,
       linearDamping: 0.85,
-      angularDamping: 0.85,
+      // angularDamping: 0.85,
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
       // collisionFilterGroup: bodyTypes.Boat,
       // collisionFilterMask: bodyTypes.Kraken | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
-      angularFactor: new CANNON.Vec3(0,0,0),
-      isTrigger: true,
-
+ 
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
     // this.model.body.addShape(shape, offset, quaternion);
     // this.model.body.position.set(0, 0, 0)
+    const groundMaterial = new CANNON.Material('groundMaterial');
 
+    const groundBody = new CANNON.Body({
+      type: CANNON.Body.STATIC,
+      shape: new CANNON.Plane(),
+    });
+    groundBody.material = groundMaterial;
+    groundMaterial.friction = 0.1;
+    groundBody.quaternion.setFromEuler(new CANNON.Vec3(-Math.PI / 2, 0, 0));
+    groundBody.position.set(0, 1, 0);  
+    this.experience.physic.world.addBody(groundBody);   
 
     this.experience.physic.world.addBody(this.model.body)
 
@@ -178,9 +205,10 @@ export default class Boat {
         this.childs.push(child)
         textures.push(child.material.map)
         child.material = material
-      
+
       }
     })
+
 
     this.model.castShadow = true
 
@@ -265,6 +293,7 @@ export default class Boat {
 
       if (event.key === 'Shift') {
         this.voileAudioPlayed = false;
+        // gsap.to(this.radialBlur, { intensity: 0, duration: 1, ease: "easeOut" })
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         this.model.body.angularVelocity.set(0, 0, 0); // Cela va arrêter toute rotation sur tous les axes
@@ -394,6 +423,7 @@ export default class Boat {
         this.unfillBoost()
         if (this.boost > 0) {
           if (!this.voileAudioPlayed) {
+            // gsap.to(this.radialBlur, { intensity: 0.05, duration: 1, ease: "easeOut" })
             this.voileAudio.play();
             this.voileAudioPlayed = true;
             this.trail.particleGroup.visible = true;
@@ -417,11 +447,12 @@ export default class Boat {
 
 
   update() {
-
+    
     this.updateSpeed()
     this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
     const delta = this.clock.getDelta()
+
     if (this.model) {
 
       this.ThirdPersonCamera.update(this.time.delta)
@@ -429,7 +460,7 @@ export default class Boat {
       this.Fishs.update(this.time.delta)
       if (this.canUpdate) {
 
-        // this.Shark.update(this.time.delta)
+        this.Shark.update(this.time.delta)
         this.island.update(this.time.delta)
         this.crate.update(this.time.delta)
         this.trail.update(this.time.delta)
@@ -448,7 +479,6 @@ export default class Boat {
       this.model.body.quaternion.copy(this.model.quaternion)
 
     }
-
   }
 
   reset() {
@@ -470,6 +500,7 @@ export default class Boat {
     this.trail.particleGroup.visible = false;
     this.isKeyUp = true;
     this.isMoving = false;
+    // this.radialBlur.intensity = 0
 
     //Camera
 
