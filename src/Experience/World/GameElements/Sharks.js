@@ -60,16 +60,19 @@ export default class Sharks {
 console.log(this.resource.scene);
         for (let i = 0; i < 40; i++) {
             let promise = new Promise((resolve, reject) => {
-                let clonedShark = SkeletonUtils.clone(this.resource.scene.children[0].children[0]);
+                let clonedShark = SkeletonUtils.clone(this.resource.scene);
+                console.log(clonedShark);
                 clonedShark.traverse((child) => {
                    if(child.isMesh){
-                    console.log(child.name);
-                    if (child.name === "planeShark") {
+                console.log(child.name);
+                    if (child.name === "PlaneShark") {
+                     
                         child.layers.set(1);
                         child.material = sharkPlaneMaterial;
                         child.position.y = 1.5;
                         // child.lookAt(this.camera.position);
                         clonedShark.plane = child;
+                       
                         child.visible = false;
     
                     }
