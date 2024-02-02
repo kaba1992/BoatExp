@@ -1,4 +1,4 @@
-import { DirectionalLight, DirectionalLightHelper,AmbientLight, EquirectangularReflectionMapping, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader } from 'three';
+import { DirectionalLight,FogExp2, DirectionalLightHelper, AmbientLight, EquirectangularReflectionMapping, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader } from 'three';
 
 import Experience from '../Experience.js'
 
@@ -17,7 +17,7 @@ export default class Environment {
         this.setSunLight()
         this.setEnvironmentMap()
     }
-    
+
 
     setSunLight() {
         this.sunLight = new DirectionalLight('#ffffff', 1)
@@ -25,7 +25,7 @@ export default class Environment {
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set( 5, 10, 7.5 );
+        this.sunLight.position.set(5, 10, 7.5);
         this.scene.add(this.sunLight)
         const ambientLight = new AmbientLight("#ffffff", 1);
 
@@ -33,7 +33,7 @@ export default class Environment {
         // const helper = new DirectionalLightHelper(this.sunLight, 1000);
         // this.scene.add(helper);
 
- 
+
     }
 
     setEnvironmentMap() {
@@ -47,6 +47,9 @@ export default class Environment {
 
         this.scene.environment = this.environmentMap
         this.scene.background = this.environmentMap
+
+        this.scene.fog = new FogExp2(0xDFE9F3, 0.005);
+    
 
         this.environmentMap.updateMaterials = () => {
             this.scene.traverse((child) => {

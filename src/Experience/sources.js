@@ -32,11 +32,16 @@ export default [
         type: 'texture',
         path: 'textures/revealTexture.jpg'
     },
+    {
+        name: 'rippleTexture',
+        type: 'texture',
+        path: 'textures/testAssets/NoiseWaterfall.png'
+    },
 
     {
         name: 'boatModel',
         type: 'dracoLoader',
-        path: 'models/Boat/boatToon.glb'
+        path: 'models/Boat/TestBoatToonScroll.glb'
     },
     {
         name: 'miniIslandModel',

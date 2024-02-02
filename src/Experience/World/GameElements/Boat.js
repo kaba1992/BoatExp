@@ -14,12 +14,14 @@ import { log } from 'three-nebula';
 import { threeToCannon, ShapeType } from 'three-to-cannon';
 import Trail from './Trail.js';
 import bodyTypes from '../../Utils/BodyTypes.js';
-import {Pass,FullScreenQuad} from 'three/addons/postprocessing/Pass.js';
+import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { RadialBlurPassGen } from 'three-radial-blur'
+import { RadialBlurPassGen } from 'three-radial-blur';
+import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonShader.glsl';
+import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
 
-import radialBlurVertex from './../../../../static/shaders//Boat/radialBlurVertex.glsl'
-import radialBlurFragment from './../../../../static/shaders//Boat/radialBlurFragment.glsl'
+
+
 import Fishs from './Fishs.js'
 
 
@@ -40,7 +42,7 @@ export default class Boat {
     this.physic = this.experience.physic
     this.keyboard = new THREEx.KeyboardState()
     this.uiManager.hide('.boost');
-  
+
 
 
     this.resource = this.resources.items.boatModel
@@ -53,8 +55,8 @@ export default class Boat {
     this.voileAudio.volume = 0.5;
 
     this.boost = 100
-    this.velocity = 200
-    this.rotVelocity = 0.8
+    this.velocity = 10
+    this.rotVelocity = 0.00
 
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
@@ -106,17 +108,17 @@ export default class Boat {
   }
 
   activeBlur() {
-   
+
 
     const RadialBlurPass = RadialBlurPassGen({ THREE, Pass, FullScreenQuad })
-      
+
     this.radialBlur = new RadialBlurPass({
-      intensity:0.0, // normalize blur distance; 0. to 1.
+      intensity: 0.0, // normalize blur distance; 0. to 1.
       iterations: 7, // total steps along blur distance
       maxIterations: 100, // max. iterations ( immutable after creation ) 
       radialCenter: new THREE.Vector2() // radial center; -1. to 1.
     })
-    
+
     this.composer.addPass(this.radialBlur);
     this.radialBlur.renderToScreen = true;
 
@@ -158,11 +160,19 @@ export default class Boat {
     // basic monochromatic energy preservation
     const diffuseColor = new THREE.Color().setHSL(alpha, 0.5, gamma * 0.5 + 0.1).multiplyScalar(1 - beta * 0.2);
 
-    const material = new THREE.MeshToonMaterial({
-      color: diffuseColor,
-      gradientMap: gradientMap,
+    // const material = new THREE.MeshToonMaterial({
+    //   color: diffuseColor,
+    //   gradientMap: gradientMap,
 
-    });
+    // });
+
+    const material = new THREE.ShaderMaterial({
+      vertexShader: vertexToonShader,
+      fragmentShader: fragmentToonShader,
+      uniforms: {
+
+      }
+    })
 
     const result = threeToCannon(this.model, { type: ShapeType.BOX });
 
@@ -177,7 +187,7 @@ export default class Boat {
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
       // collisionFilterGroup: bodyTypes.Boat,
       // collisionFilterMask: bodyTypes.Kraken | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
- 
+
       // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
     // this.model.body.addShape(shape, offset, quaternion);
@@ -191,8 +201,8 @@ export default class Boat {
     groundBody.material = groundMaterial;
     groundMaterial.friction = 0.1;
     groundBody.quaternion.setFromEuler(new CANNON.Vec3(-Math.PI / 2, 0, 0));
-    groundBody.position.set(0, 1, 0);  
-    this.experience.physic.world.addBody(groundBody);   
+    groundBody.position.set(0, 1, 0);
+    this.experience.physic.world.addBody(groundBody);
 
     this.experience.physic.world.addBody(this.model.body)
 
@@ -220,57 +230,24 @@ export default class Boat {
 
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
-    this.model.rotation.y = -Math.PI / 4;
-
+    // this.model.rotation.y = -Math.PI / 4;
 
     this.scene.add(this.model)
+    this.setupAdditionalComponents()
+  }
 
+  setupAdditionalComponents() {
 
-
-    this.ThirdPersonCamera = new ThirdPersonCamera(
-      {
-        camera: this.camera,
-        target: this.model,
-      }
-
-    )
-    this.Shark = new Shark(
-      {
-        boat: this.model,
-        canUpdate: this.canUpdate,
-
-      }
-    )
-    this.island = new Island(
-      {
-        boat: this.model,
-      }
-    )
-
-    this.crate = new Crate(
-      {
-        boat: this.model,
-      }
-    )
-
-    this.Fishs = new Fishs(
-      {
-        boat: this.model,
-      }
-    )
-
-    this.trail = new Trail(
-      {
-        boat: this.model,
-      }
-    )
-
+    this.ThirdPersonCamera = new ThirdPersonCamera({ camera: this.camera, target: this.model })
+    this.Shark = new Shark({ boat: this.model, canUpdate: this.canUpdate })
+    this.island = new Island({ boat: this.model })
+    this.crate = new Crate({ boat: this.model })
+    this.Fishs = new Fishs({ boat: this.model })
+    this.trail = new Trail({ boat: this.model })
     this.trail.particleGroup.visible = false;
 
-
-
-
   }
+
   stop() {
     if (this.model) {
       this.distance = 0
@@ -378,21 +355,14 @@ export default class Boat {
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion).normalize();
     let impulse = new CANNON.Vec3(forward.x, forward.y, forward.z);
     if (this.canUpdate) {
-      if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
 
-        torque = new CANNON.Vec3(0, forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-        // this.model.body.applyTorque(torque);
-        this.rotation = this.rotVelocity * this.delta
+      if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
+        this.model.body.angularVelocity.set(0, 1 * 0.05 * this.time.delta, 0);
         this.boatWheel.rotation.z += this.delta * rotationSpeed
 
-
-      }
-      if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
-        torque = new CANNON.Vec3(0, -forceMagnitude, 0); // Modifier la direction et la magnitude du couple selon vos besoins
-        // this.model.body.applyTorque(torque);
+      } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
+        this.model.body.angularVelocity.set(0, -1 * 0.05 * this.time.delta, 0);
         this.boatWheel.rotation.z -= this.delta * rotationSpeed
-        this.rotation = -this.rotVelocity * this.delta
-
       }
       if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
 
@@ -447,7 +417,7 @@ export default class Boat {
 
 
   update() {
-    
+
     this.updateSpeed()
     this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
@@ -455,17 +425,9 @@ export default class Boat {
 
     if (this.model) {
 
-      this.ThirdPersonCamera.update(this.time.delta)
 
-      this.Fishs.update(this.time.delta)
-      if (this.canUpdate) {
+      this.updateAdditionalComponents()
 
-        this.Shark.update(this.time.delta)
-        this.island.update(this.time.delta)
-        this.crate.update(this.time.delta)
-        this.trail.update(this.time.delta)
-
-      }
       if (!this.isMoving) {
         this.model.body.position.y = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.04;
         this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.03;
@@ -475,9 +437,22 @@ export default class Boat {
 
       }
       this.model.position.copy(this.model.body.position)
-      // this.model.quaternion.copy(this.model.body.quaternion)
-      this.model.body.quaternion.copy(this.model.quaternion)
+      this.model.quaternion.copy(this.model.body.quaternion)
 
+    }
+  }
+
+
+
+  updateAdditionalComponents() {
+    this.ThirdPersonCamera.update(this.time.delta)
+
+    this.Fishs.update(this.time.delta)
+    if (this.canUpdate) {
+      // this.Shark.update(this.time.delta)
+      this.island.update(this.time.delta)
+      this.crate.update(this.time.delta)
+      this.trail.update(this.time.delta)
     }
   }
 
@@ -525,4 +500,3 @@ export default class Boat {
 
   }
 }
-

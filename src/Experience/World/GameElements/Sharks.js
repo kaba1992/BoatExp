@@ -57,14 +57,14 @@ export default class Sharks {
             flipY: false,
         });
         let sharkCreationPromises = [];
-console.log(this.resource.scene);
+
         for (let i = 0; i < 40; i++) {
             let promise = new Promise((resolve, reject) => {
                 let clonedShark = SkeletonUtils.clone(this.resource.scene);
-                console.log(clonedShark);
+               
                 clonedShark.traverse((child) => {
                    if(child.isMesh){
-                console.log(child.name);
+              
                     if (child.name === "PlaneShark") {
                      
                         child.layers.set(1);
@@ -81,7 +81,9 @@ console.log(this.resource.scene);
                 clonedShark.material = this.sharkMaterial;
               
                 clonedShark.mixer = new AnimationMixer(clonedShark);
-                clonedShark.action = clonedShark.mixer.clipAction(this.resource.animations[0]);
+                clonedShark.clips = this.resource.animations;
+                clonedShark.clip = THREE.AnimationClip.findByName(clonedShark.clips, "Action");
+                clonedShark.action = clonedShark.mixer.clipAction(clonedShark.clip);    
                 clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
                 clonedShark.action.play();
                 let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
@@ -90,7 +92,7 @@ console.log(this.resource.scene);
                 let x = Math.cos(angle) * distance;
                 let z = Math.sin(angle) * distance;
                 clonedShark.position.set(x, 0, z);
-                clonedShark.scale.multiplyScalar(0.7);
+                clonedShark.scale.multiplyScalar(1.4);
                 let randomAngle = Math.random() * 2 * Math.PI;
                 clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
                 clonedShark.notChasing = true;
@@ -122,7 +124,7 @@ console.log(this.resource.scene);
         const gameOverEvent = new Event('gameOver');
 
         let distance = this.boat.position.distanceTo(shark.position);
-        if (distance < 1) {
+        if (distance <= 4) {
 
 
             window.dispatchEvent(gameOverEvent);
@@ -172,10 +174,10 @@ console.log(this.resource.scene);
             );
 
             shark.position.add(shift);
-            shark.quaternion.slerp(targetQuaternion, deltaTime * 0.001);
+            shark.quaternion.slerp(targetQuaternion, deltaTime * 0.002);
 
             if (shark.mixer) {
-                shark.mixer.update(this.time.delta * 0.001);
+                shark.mixer.update(this.time.delta * 0.003);
             }
 
             if (shark && this.boat) {

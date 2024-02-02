@@ -9,6 +9,10 @@ import { log } from "three-nebula";
 import * as CANNON from 'cannon-es'
 import CannonDebugger from "cannon-es-debugger";
 import { threeToCannon, ShapeType } from 'three-to-cannon';
+import fragmentToonShaderIslands from './../../../../static/shaders/Boat/fragmentToonShaderIslands.glsl';
+import vertexToonShaderIslands from './../../../../static/shaders/Boat/vertexToonShaderIslands.glsl';
+
+
 
 export default class Island {
     constructor(params) {
@@ -47,6 +51,15 @@ export default class Island {
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
+        // const miniIslandMaterial = new THREE.ShaderMaterial({
+
+        //     vertexShader: vertexToonShaderIslands,
+        //     fragmentShader: fragmentToonShaderIslands,
+        //     uniforms:{
+        //         uTexture: { value: miniIslandTexture },
+        //     }
+        // }) 
+        console.log(miniIslandMaterial);
         this.miniIsland = this.resource.scene
         this.bigIsland = this.bigIslandResource.scene
 
@@ -72,6 +85,7 @@ export default class Island {
             // set the miniIsland position to the miniIslandEmpty position
             let miniIslandPromise = new Promise((resolve, reject) => {
                 if (this.miniIslandEmpty[i].name.startsWith('Island')) {
+                    
                     const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
                     this.miniIslands.push(miniIsland)
 

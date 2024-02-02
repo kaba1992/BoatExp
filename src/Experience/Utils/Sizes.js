@@ -22,3 +22,4 @@ export default class Sizes extends EventEmitter
         })
     }
 }
+

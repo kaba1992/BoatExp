@@ -71,6 +71,7 @@ export default class Timer {
         // this.endCallback()
        const event = new Event('gameOver');
          window.dispatchEvent(event);
+         this.resetTimer();
     }
 
     resetTimer() {
