@@ -185,10 +185,8 @@ export default class Boat {
       linearDamping: 0.85,
       // angularDamping: 0.85,
       shape: new CANNON.Box(new CANNON.Vec3(1, 1, 2)),
-      // collisionFilterGroup: bodyTypes.Boat,
-      // collisionFilterMask: bodyTypes.Kraken | bodyTypes.OBSTACLES | bodyTypes.OTHERS,
+      type: CANNON.Body.DYNAMIC,
 
-      // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
     });
     // this.model.body.addShape(shape, offset, quaternion);
     // this.model.body.position.set(0, 0, 0)
@@ -314,7 +312,7 @@ export default class Boat {
 
     if (this.boost <= 0) {
       // this.ThirdPersonCamera.speed = 0.04
-      this.velocity = 200
+      this.velocity = 20
       // gsap.to(this.particleGroup.scale, { x: 0, y: 0, z: 0, duration: 3, ease: "easeOut" })
       gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
       gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
@@ -323,7 +321,7 @@ export default class Boat {
     }
     else {
       // this.ThirdPersonCamera.speed = 0.2
-      this.velocity = 500
+      this.velocity = 40
     }
   }
 
@@ -337,51 +335,43 @@ export default class Boat {
 
 
   boatControls() {
-    this.delta = this.clock.getDelta()
 
+    // Définition des variables de point supérieur et de vitesse de rotation
+    let topPoint = new THREE.Vector3(0, 0, 0);
+    let rotationSpeed = 0.002;
 
-
-
-    let topPoint = new THREE.Vector3(0, 0, 0)
-
-    let forceMagnitude = 200;
-    let torque;
-    let rotationSpeed = 0.6;
-
-    // Obtenir l'orientation actuelle du bateau en THREE.js
+    // Copie l'orientation actuelle du modèle du bateau en tant que quaternion
     const quaternion = new THREE.Quaternion().copy(this.model.body.quaternion);
 
-    // Obtenir la direction avant du bateau basée sur son orientation
+    // Calcule la direction avant du bateau basée sur son orientation
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion).normalize();
-    let impulse = new CANNON.Vec3(forward.x, forward.y, forward.z);
+
+    // Convertit la direction avant en vecteur compatible avec CANNON.js
+    let force = new CANNON.Vec3(forward.x, forward.y, forward.z);
+
     if (this.canUpdate) {
 
       if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
         this.model.body.angularVelocity.set(0, 1 * 0.05 * this.time.delta, 0);
-        this.boatWheel.rotation.z += this.delta * rotationSpeed
+        this.boatWheel.rotation.z += this.time.delta * rotationSpeed
 
       } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
         this.model.body.angularVelocity.set(0, -1 * 0.05 * this.time.delta, 0);
-        this.boatWheel.rotation.z -= this.delta * rotationSpeed
+        this.boatWheel.rotation.z -= this.time.delta * rotationSpeed
       }
       if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
 
-        this.distance = this.velocity * this.delta
+        this.distance = this.velocity * this.time.delta
 
-        impulse.scale(this.distance, impulse);
-
-        // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
-        this.model.body.applyImpulse(impulse, topPoint);
+        this.model.body.applyForce(force.scale(this.distance), force)
         this.isKeyUp = false;
         this.isMoving = true;
         this.sailingTraceAudio.play();
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
       }
       if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
-        this.distance = -this.velocity * this.delta
-        impulse.scale(this.distance / 2, impulse);
-        // Appliquer l'impulsion à partir du point supérieur pour faire avancer le bateau
-        this.model.body.applyImpulse(impulse, topPoint);
+        this.distance = -this.velocity * this.time.delta
+        this.model.body.applyForce(force.scale(this.distance / 2))
         this.isKeyUp = false;
         this.isMoving = true;
         this.sailingTraceAudio.play();
@@ -408,7 +398,7 @@ export default class Boat {
         // console.log("shift pressed");
 
       } else {
-        this.velocity = 200
+        this.velocity = 20
         this.fillBoost()
       }
 
@@ -468,7 +458,7 @@ export default class Boat {
     this.distance = null
     this.rotation = null
 
-    this.velocity = 200
+    this.velocity = 20
     this.boost = 100
     this.rotVelocity = 0.8
     this.voileAudioPlayed = false;

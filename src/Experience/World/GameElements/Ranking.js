@@ -19,14 +19,14 @@ export default class Ranking {
         this.username = this.getUsernameFromLocalStorage();
         this.usernameInput = document.querySelector('.getUserName-text-input');
         this.rankings = new Map();
-        this.top10 = new Map();
+        this.top5 = new Map();
      
 
         this.initializeFirebase();
         this.setListeners();
         // this.getCurrentUserLastScore();
         this.bestScore = null;
-        this.getRankingAndTop10();
+        this.getRankingAndTop5();
         this.getCurrentUserLastScore();
         this.getUserBestScore();
 
@@ -34,7 +34,7 @@ export default class Ranking {
     }
 
     setListeners() {
-        this.top10.forEach((value, key) => {
+        this.top5.forEach((value, key) => {
             console.log(key, value);
         });
         const submitUsernameButton = document.querySelector('.getUserName-text-button');
@@ -171,7 +171,7 @@ export default class Ranking {
             this.rankings.set(doc.id, doc.data().score);
         });
         this.rankings = new Map([...this.rankings.entries()].sort((a, b) => b[1] - a[1]));
-        this.top10 = new Map([...this.rankings].slice(0, 10));
+        this.top5 = new Map([...this.rankings].slice(0, 5));
     }
     async getUserBestScore() {
         const userBestScoresRef = collection(this.db, "userBestScores");
@@ -184,19 +184,19 @@ export default class Ranking {
 
 
 
-    displayTop10() {
+    displayTop5() {
 
-        const top10ListElement = document.getElementById('ranking');
-        top10ListElement.innerHTML = '';
-        if (!top10ListElement) return;
+        const top5ListElement = document.getElementById('ranking');
+        top5ListElement.innerHTML = '';
+        if (!top5ListElement) return;
 
-        console.log(this.top10);
+        console.log(this.top5);
 
-        this.top10.forEach((score, username) => {
+        this.top5.forEach((score, username) => {
 
             const listParent = document.createElement('div');
             listParent.className = 'listParent';
-            top10ListElement.appendChild(listParent);
+            top5ListElement.appendChild(listParent);
             const listItemUsername = document.createElement('li');
             listItemUsername.className = 'listItemUsername';
             listItemUsername.textContent = username;
@@ -208,13 +208,13 @@ export default class Ranking {
         });
     }
 
-    async getRankingAndTop10() {
+    async getRankingAndTop5() {
         await this.getRanking();
-        this.displayTop10();
+        this.displayTop5();
     }
 
     reset () {
-        this.getRankingAndTop10();
+        this.getRankingAndTop5();
         this.getCurrentUserLastScore();
         this.getUserBestScore();
     }

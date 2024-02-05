@@ -260,12 +260,11 @@ body {
 }
 .getUserName-text-input {
 	width: 18%;
-    height: 5%;
-    font-size: 2rem;
-    text-align: left;
+	height: 5%;
+	font-size: 2rem;
+	text-align: left;
 	margin: 2rem;
 	font-family: "eraserregular";
-
 }
 .getUserName-text-input:focus {
 	outline: none;
@@ -273,7 +272,6 @@ body {
 .getUserName-text-input::placeholder {
 	color: #000000;
 }
-
 
 .getUserName-text-button {
 	background-color: #76aff8;
@@ -317,7 +315,6 @@ body {
 	bottom: 2px;
 	left: 2px;
 }
-
 
 /* Media queries  */
 
