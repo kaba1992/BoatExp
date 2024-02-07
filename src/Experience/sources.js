@@ -37,6 +37,16 @@ export default [
         type: 'texture',
         path: 'textures/testAssets/NoiseWaterfall.png'
     },
+    {
+        name: 'textureFlare0',
+        type: 'texture',
+        path: 'textures/testAssets/lensflare0.png'
+    },
+    {
+        name: 'textureFlare3',
+        type: 'texture',
+        path: 'textures/testAssets/lensflare3.png'
+    },
 
     {
         name: 'boatModel',

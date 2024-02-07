@@ -1,5 +1,5 @@
-import { DirectionalLight,FogExp2, DirectionalLightHelper, AmbientLight, EquirectangularReflectionMapping, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader } from 'three';
-
+import { DirectionalLight, FogExp2, DirectionalLightHelper, AmbientLight, EquirectangularReflectionMapping,PointLight, Mesh, MeshStandardMaterial, SRGBColorSpace, TextureLoader } from 'three';
+import { Lensflare, LensflareElement } from 'three/addons/objects/Lensflare.js';
 import Experience from '../Experience.js'
 
 export default class Environment {
@@ -25,14 +25,24 @@ export default class Environment {
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set(5, 10, 7.5);
+        this.sunLight.position.set(5, 50, 7.5);
         this.scene.add(this.sunLight)
         const ambientLight = new AmbientLight("#ffffff", 1);
 
-        this.scene.add(ambientLight);
-        // const helper = new DirectionalLightHelper(this.sunLight, 1000);
-        // this.scene.add(helper);
+        const pointLight = new PointLight(0xffffff, 1.5, 2000, 0);
+        pointLight.color.setHSL(0.08, 0.8, 0.5);
+        pointLight.position.set(0, 150, -1000);
+        this.scene.add(pointLight);
+     
 
+        this.scene.add(ambientLight);
+        this.lensFlare = new Lensflare();
+        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare0, 700, 0, pointLight.color));
+        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 60, 0.6));
+        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 70, 0.7));
+        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 120, 0.9));
+        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 70, 1));
+        pointLight.add(this.lensFlare);
 
     }
 
@@ -49,7 +59,7 @@ export default class Environment {
         this.scene.background = this.environmentMap
 
         this.scene.fog = new FogExp2(0xDFE9F3, 0.005);
-    
+
 
         this.environmentMap.updateMaterials = () => {
             this.scene.traverse((child) => {
