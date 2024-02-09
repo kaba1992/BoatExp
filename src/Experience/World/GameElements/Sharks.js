@@ -1,6 +1,6 @@
 import Experience from "../../Experience";
 import * as THREE from "three";
-import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer,MeshStandardMaterial } from "three";
+import { MeshBasicMaterial, Vector3, Quaternion, Matrix4, AnimationMixer, MeshStandardMaterial } from "three";
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 
 
@@ -36,54 +36,47 @@ export default class Sharks {
 
     }
 
-   async setShark() {
+    async setShark() {
         this.sharkMaterial = new MeshStandardMaterial({ color: new THREE.Color(0x000000) });
         const sharkPlaneGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
         const exclamationMarkMap = this.resources.items.exclamationMark;
+       
         exclamationMarkMap.wrapS = THREE.RepeatWrapping;
         exclamationMarkMap.wrapT = THREE.RepeatWrapping;
-        exclamationMarkMap.flipY = false;
         exclamationMarkMap.repeat.set(1, 1);
         exclamationMarkMap.minFilter = THREE.LinearFilter;
         exclamationMarkMap.magFilter = THREE.LinearFilter;
         //mipmaping
 
         const sharkPlaneMaterial = new THREE.MeshBasicMaterial({
-            // color: 0x0ffff00,
             side: THREE.DoubleSide,
             map: exclamationMarkMap,
             transparent: true,
-            // alphaTest: 1,
-            flipY: false,
+            transparent: true,
+            depthTest: false,
+           
         });
         let sharkCreationPromises = [];
 
         for (let i = 0; i < 40; i++) {
             let promise = new Promise((resolve, reject) => {
                 let clonedShark = SkeletonUtils.clone(this.resource.scene);
-               
-                clonedShark.traverse((child) => {
-                   if(child.isMesh){
-              
-                    if (child.name === "PlaneShark") {
-                     
-                        child.layers.set(1);
-                        child.material = sharkPlaneMaterial;
-                        child.position.y = 1.5;
-                        // child.lookAt(this.camera.position);
-                        clonedShark.plane = child;
-                       
-                        child.visible = false;
-    
-                    }
-                   }
-                });
+                const sharkPlane = new THREE.Mesh(sharkPlaneGeometry, sharkPlaneMaterial);
+                sharkPlane.layers.enable(1);
+                sharkPlane.layers.disable(0);
+                
+
+                sharkPlane.position.y = 1.5;
+                sharkPlane.visible = false;
+                clonedShark.add(sharkPlane);
+                clonedShark.plane = sharkPlane;
+
                 clonedShark.material = this.sharkMaterial;
-              
+
                 clonedShark.mixer = new AnimationMixer(clonedShark);
                 clonedShark.clips = this.resource.animations;
                 clonedShark.clip = THREE.AnimationClip.findByName(clonedShark.clips, "Action");
-                clonedShark.action = clonedShark.mixer.clipAction(clonedShark.clip);    
+                clonedShark.action = clonedShark.mixer.clipAction(clonedShark.clip);
                 clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
                 clonedShark.action.play();
                 let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
@@ -98,15 +91,15 @@ export default class Sharks {
                 clonedShark.notChasing = true;
                 clonedShark.aggoSoundPlayed = false;
                 clonedShark.speed = 1.3;
-    
+
                 this.Sharks.push(clonedShark);
                 this.scene.add(clonedShark);
                 // clonedShark.add(clonedShark.plane);
                 // get random Delay between 5000 and 10000
                 const randomDelay = Math.random() * (10000 - 5000) + 5000;
-    
-    
-    
+
+
+
                 setInterval(() => {
                     let randomAngle = Math.random() * 2 * Math.PI;
                     clonedShark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
@@ -114,7 +107,7 @@ export default class Sharks {
                 resolve(clonedShark);
             });
             sharkCreationPromises.push(promise);
-           
+
         }
         await Promise.all(sharkCreationPromises);
         console.log("all sharks loaded");
@@ -192,9 +185,9 @@ export default class Sharks {
     }
 
     reset(params) {
-       
+
         this.aggroAudio.volume = 0.5;
-       
+
         this.pursuerNumber = 0;
         this.canUpdate = params.canUpdate;
         // reset sharks
@@ -209,10 +202,10 @@ export default class Sharks {
             let z = Math.sin(angle) * distance;
             shark.position.set(x, 0, z);
             shark.speed = 1.3;
-            
+
             let randomAngle = Math.random() * 2 * Math.PI;
             shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-     
+
         });
     }
 }

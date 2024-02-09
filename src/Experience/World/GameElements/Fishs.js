@@ -80,7 +80,7 @@ export default class Fishs {
         this.whale = this.whaleResource.scene.children[0];
         // this.scene.add(this.whale);
         this.whale.position.set(0, -0.8, 0);
-   
+
 
         const clips = this.whaleResource.animations;
 
@@ -156,8 +156,6 @@ export default class Fishs {
             setTimeout(() => {
                 if (!this.isPlayerInRadar) {
 
-              
-                    // this.radar.body.isTrigger = true;
                     gsap.to(this.radar.material, { opacity: 0, duration: 1 });
                     gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
                     // reset radar body position
@@ -168,15 +166,6 @@ export default class Fishs {
         };
         gsap.to(this.radar.scale, { x: 1, y: 1, z: 1, duration: 4, onComplete: OnScaleComplete });
         this.radar.position.set(boatPosbeforeAttack.x, boatPosbeforeAttack.y, boatPosbeforeAttack.z);
-        this.radar.body.addEventListener("collide", (e) => {
-            if (e.body === this.boat.body) {
-
-
-
-            }
-        });
-
-
 
     }
 
@@ -219,10 +208,10 @@ export default class Fishs {
 
         if (this.radar.body.position.distanceTo(this.boaPosition) <= 22) {
             this.isPlayerInRadar = true;
-        
+
         }
 
-        if(this.isPlayerInRadar ){
+        if (this.isPlayerInRadar) {
             this.isPlayerInRadar = false;
             this.kraken.position.set(this.boaPosition.x - 4, 1, this.boaPosition.z - 2);
             this.krakenMaterial.depthTest = true;

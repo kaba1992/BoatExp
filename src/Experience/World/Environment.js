@@ -41,7 +41,8 @@ export default class Environment {
         this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 60, 0.6));
         this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 70, 0.7));
         this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 120, 0.9));
-        this.lensFlare.addElement(new LensflareElement(this.resources.items.textureFlare3, 70, 1));
+        this.lensFlare.layers.enable(1);
+        this.lensFlare.layers.set(1);
         pointLight.add(this.lensFlare);
 
     }

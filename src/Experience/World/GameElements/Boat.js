@@ -171,7 +171,8 @@ export default class Boat {
       fragmentShader: fragmentToonShader,
       uniforms: {
 
-      }
+      },
+      
     })
 
     const result = threeToCannon(this.model, { type: ShapeType.BOX });
@@ -439,7 +440,7 @@ export default class Boat {
 
     this.Fishs.update(this.time.delta)
     if (this.canUpdate) {
-      // this.Shark.update(this.time.delta)
+      this.Shark.update(this.time.delta)
       this.island.update(this.time.delta)
       this.crate.update(this.time.delta)
       this.trail.update(this.time.delta)
