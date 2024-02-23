@@ -29,6 +29,7 @@ export default class Home extends EventEmitter {
         this.uiManager.hide(".movement-hint");
         this.uiManager.hide(".score");
         this.uiManager.hide(".timer ");
+        this.loopAudio = new Audio('Audios/Ambiance/pirateSound1.mp3');
 
 
         const text1 = document.querySelector('.dialogue-text-container1');
@@ -48,6 +49,7 @@ export default class Home extends EventEmitter {
             window.dispatchEvent(this.homeClicked);
             this.uiManager.show('#root', true);
             this.setDilogues(text1);
+            // this.loopAudio.play();
         });
 
         readyButton.addEventListener('click', () => {
