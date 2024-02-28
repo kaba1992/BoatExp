@@ -49,11 +49,12 @@ export default class Home extends EventEmitter {
             window.dispatchEvent(this.homeClicked);
             this.uiManager.show('#root', true);
             this.setDilogues(text1);
-            // this.loopAudio.play();
+
         });
 
         readyButton.addEventListener('click', () => {
             this.uiManager.fadeOut(".movement-hint", 1);
+            this.loopAudio.play();
             setTimeout(() => {
                 this.timer.startTimer();
                 this.uiManager.show(".score", false, "flex");
@@ -79,7 +80,7 @@ export default class Home extends EventEmitter {
         window.addEventListener('setUserName', () => {
             this.uiManager.show(".gameOverContainer", false);
             this.uiManager.fadeIn(".gameOverContainer", 1);
-           
+
         });
 
         if (resetButton) {
@@ -89,7 +90,7 @@ export default class Home extends EventEmitter {
                 this.uiManager.show(".movement-hint", false);
                 this.uiManager.fadeIn(".movement-hint", 1);
                 this.uiManager.fadeOut(".timer", 1);
-console.log("reset")
+                console.log("reset")
                 this.timer.resetTimer();
             });
 
@@ -124,7 +125,7 @@ console.log("reset")
                         this.uiManager.hide(".dialogue");
 
                     }
-               
+
                 }
             }
 

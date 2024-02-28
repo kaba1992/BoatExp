@@ -20,8 +20,6 @@ export default class Ranking {
         this.usernameInput = document.querySelector('.getUserName-text-input');
         this.rankings = new Map();
         this.top5 = new Map();
-     
-
         this.initializeFirebase();
         this.setListeners();
         // this.getCurrentUserLastScore();
