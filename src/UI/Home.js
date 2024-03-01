@@ -1,7 +1,7 @@
 import '../UI/Home.css'
 import EventEmitter from '../Experience/Utils/EventEmitter.js'
 import Experience from '../Experience/Experience'
-
+import gsap from 'gsap';
 
 
 const dialogues = [
@@ -22,6 +22,7 @@ export default class Home extends EventEmitter {
         this.homeClicked = new Event('homeClicked');
 
         this.uiManager.hide('#root');
+        this.soundDom = document.querySelector(".sound")
         this.uiManager.hide(".dialogue-text-container1");
         this.uiManager.hide(".dialogue-text-container2");
         this.uiManager.hide(".dialogue");
@@ -47,8 +48,10 @@ export default class Home extends EventEmitter {
 
         window.addEventListener('resourcesReady', () => {
             window.dispatchEvent(this.homeClicked);
+
+
             this.uiManager.show('#root', true);
-            this.setDilogues(text1);
+
 
         });
 
@@ -95,42 +98,53 @@ export default class Home extends EventEmitter {
             });
 
         }
+
+        window.addEventListener('revealEnd', async () => {
+            this.uiManager.show('#root', true);
+
+            gsap.to(this.soundDom, {
+                duration: 1, opacity: 1, ease: "power2.inOut", onComplete: () => {
+                    // const text1 = document.querySelector('.dialogue-text-container1');
+                    // this.setDilogues(text1);
+
+                }
+            })
+        });
+
     }
 
     async setDilogues(text1) {
-        window.addEventListener('revealEnd', async () => {
 
-            if (this.ranking.isUserNameStored) {
-                this.uiManager.show(".movement-hint", false);
-                this.uiManager.fadeIn(".movement-hint", 1);
-            } else {
+        if (this.ranking.isUserNameStored) {
+            this.uiManager.show(".movement-hint", false);
+            this.uiManager.fadeIn(".movement-hint", 1);
+        } else {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            this.uiManager.show(".dialogue", false);
+            this.uiManager.fadeIn(".dialogue", 1);
+            await new Promise(resolve => setTimeout(resolve, 4000));
+
+            for (let i = 0; i < dialogues.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 4000 * i));
+                this.uiManager.fadeOut(".dialogue-text-container1", 1);
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                this.uiManager.show(".dialogue", false);
-                this.uiManager.fadeIn(".dialogue", 1);
-                await new Promise(resolve => setTimeout(resolve, 4000));
+                text1.innerHTML = dialogues[i + 1];
+                this.uiManager.fadeIn(".dialogue-text-container1", 1);
+                if (i == dialogues.length - 2) {
+                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    this.uiManager.fadeOut(".dialogue", 1);
 
-                for (let i = 0; i < dialogues.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 4000 * i));
-                    this.uiManager.fadeOut(".dialogue-text-container1", 1);
+                    this.uiManager.show(".movement-hint", false);
+                    this.uiManager.fadeIn(".movement-hint", 1);
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    text1.innerHTML = dialogues[i + 1];
-                    this.uiManager.fadeIn(".dialogue-text-container1", 1);
-                    if (i == dialogues.length - 2) {
-                        await new Promise(resolve => setTimeout(resolve, 4000));
-                        this.uiManager.fadeOut(".dialogue", 1);
-
-                        this.uiManager.show(".movement-hint", false);
-                        this.uiManager.fadeIn(".movement-hint", 1);
-                        await new Promise(resolve => setTimeout(resolve, 1000));
-                        this.uiManager.hide(".dialogue");
-
-                    }
+                    this.uiManager.hide(".dialogue");
 
                 }
+
             }
+        }
 
 
-        });
 
         this.uiManager.show(".dialogue-text-container1", false);
         text1.innerHTML = dialogues[0];

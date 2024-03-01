@@ -19,7 +19,6 @@ export default class Resources extends EventEmitter {
         this.currentRatio = 0;
         this.targetRatio = 0;
 
-        this.soundDom = document.querySelector(".sound")
 
         this.setLoaders()
         this.startLoading()
@@ -121,24 +120,14 @@ export default class Resources extends EventEmitter {
 
             gsap.to(loadingShark, {
                 duration: 3, left: "100%", ease: "power2.inOut", onComplete: () => {
-                    gsap.to(this.soundDom, {
-                        duration: 1, opacity: 1, ease: "power2.inOut", onComplete: () => {
-                            setTimeout(() => {
+                        // this.loadingParent.style.display = "none"
+                        gsap.to(this.loadingParent, {
+                            duration: 1, opacity: 0, ease: "power2.inOut", onComplete: () => {
                                 // this.loadingParent.style.display = "none"
-                                gsap.to(this.loadingParent, {
-                                    duration: 1, opacity: 0, ease: "power2.inOut", onComplete: () => {
-                                        this.loadingParent.style.display = "none"
-                                    }
-                                })
-                                const resourcesReadyEvent = new Event('resourcesReady')
-
-                                window.dispatchEvent(resourcesReadyEvent)
-
-
-                            }, 2000);
-                        }
-                    })
-
+                            }
+                        })
+                        const resourcesReadyEvent = new Event('resourcesReady')
+                        window.dispatchEvent(resourcesReadyEvent)
                 }
             })
             this.trigger('ready')
