@@ -24,16 +24,22 @@ export default class Home extends EventEmitter {
         this.uiManager.hide('#root');
         this.soundDom = document.querySelector(".sound")
         this.uiManager.hide(".dialogue-text-container1");
-        this.uiManager.hide(".dialogue-text-container2");
         this.uiManager.hide(".dialogue");
         this.uiManager.hide(".gameOverContainer");
         this.uiManager.hide(".movement-hint");
         this.uiManager.hide(".score");
         this.uiManager.hide(".timer ");
         this.loopAudio = new Audio('Audios/Ambiance/pirateSound1.mp3');
-
+        this.loopAudio.loop = true;
+        this.loopAudio.volume = 0.2;
+        this.dialogue1AUDIO = new Audio('Audios/Dialogues/Dialogue1Audio.mp3');
+        this.dialogue2AUDIO = new Audio('Audios/Dialogues/Dialogue2Audio.mp3');
+        this.dialogue3AUDIO = new Audio('Audios/Dialogues/Dialogue3Audio.mp3');
+        this.dialogue4AUDIO = new Audio('Audios/Dialogues/Dialogue4Audio.mp3');
+        this.dialogues = [this.dialogue1AUDIO, this.dialogue2AUDIO, this.dialogue3AUDIO, this.dialogue4AUDIO];
 
         const text1 = document.querySelector('.dialogue-text-container1');
+
         this.setListeners(text1);
     }
 
@@ -42,6 +48,7 @@ export default class Home extends EventEmitter {
     setListeners(text1) {
         const readyButton = document.querySelector('.movement-hint-ready');
         const resetButton = document.querySelector('.gameOver-restart');
+        const startExpButton = document.querySelector('.startExp');
         const readyEvent = new Event('ready');
         const resetEvent = new Event('reset');
 
@@ -104,9 +111,19 @@ export default class Home extends EventEmitter {
 
             gsap.to(this.soundDom, {
                 duration: 1, opacity: 1, ease: "power2.inOut", onComplete: () => {
-                    // const text1 = document.querySelector('.dialogue-text-container1');
-                    // this.setDilogues(text1);
 
+
+                }
+            })
+        });
+
+        startExpButton.addEventListener('click', () => {
+            this.loopAudio.play();
+            gsap.to(this.soundDom, {
+                duration: 1, opacity: 0, ease: "power2.inOut", onComplete: () => {
+                    this.soundDom.style.display = "none";
+                    const text1 = document.querySelector('.dialogue-text-container1');
+                    this.setDilogues(text1);
                 }
             })
         });
@@ -119,9 +136,16 @@ export default class Home extends EventEmitter {
             this.uiManager.show(".movement-hint", false);
             this.uiManager.fadeIn(".movement-hint", 1);
         } else {
+
+            this.uiManager.show(".dialogue-text-container1", false);
+            text1.innerHTML = dialogues[0];
+            this.uiManager.fadeIn(".dialogue-text-container1", 1);
+
             await new Promise(resolve => setTimeout(resolve, 1000));
+
             this.uiManager.show(".dialogue", false);
             this.uiManager.fadeIn(".dialogue", 1);
+            this.dialogues[0].play();
             await new Promise(resolve => setTimeout(resolve, 4000));
 
             for (let i = 0; i < dialogues.length; i++) {
@@ -129,6 +153,9 @@ export default class Home extends EventEmitter {
                 this.uiManager.fadeOut(".dialogue-text-container1", 1);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 text1.innerHTML = dialogues[i + 1];
+                if (i < dialogues.length - 1) {
+                    this.dialogues[i + 1].play();
+                }
                 this.uiManager.fadeIn(".dialogue-text-container1", 1);
                 if (i == dialogues.length - 2) {
                     await new Promise(resolve => setTimeout(resolve, 4000));
@@ -146,9 +173,6 @@ export default class Home extends EventEmitter {
 
 
 
-        this.uiManager.show(".dialogue-text-container1", false);
-        text1.innerHTML = dialogues[0];
-        this.uiManager.fadeIn(".dialogue-text-container1", 1);
     }
 
     startTimer() {

@@ -112,9 +112,8 @@ body {
 	position: relative;
 	cursor: pointer;
 	transform: rotate(-2deg);
-	user-select: none;
-	-webkit-user-select: none;
-	touch-action: manipulation;
+	
+
 }
 
 .gameOver-restart:focus {

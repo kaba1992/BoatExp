@@ -123,7 +123,7 @@ export default class Resources extends EventEmitter {
                         // this.loadingParent.style.display = "none"
                         gsap.to(this.loadingParent, {
                             duration: 1, opacity: 0, ease: "power2.inOut", onComplete: () => {
-                                // this.loadingParent.style.display = "none"
+                                this.loadingParent.style.display = "none"
                             }
                         })
                         const resourcesReadyEvent = new Event('resourcesReady')

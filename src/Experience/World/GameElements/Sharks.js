@@ -58,7 +58,7 @@ export default class Sharks {
         });
         let sharkCreationPromises = [];
 
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 25; i++) {
             let promise = new Promise((resolve, reject) => {
                 let clonedShark = SkeletonUtils.clone(this.resource.scene);
                 const sharkPlane = new THREE.Mesh(sharkPlaneGeometry, sharkPlaneMaterial);

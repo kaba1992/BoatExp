@@ -21,12 +21,12 @@ export default class Ranking {
         this.rankings = new Map();
         this.top5 = new Map();
         this.initializeFirebase();
-        this.setListeners();
+        this.getUserBestScore();
         // this.getCurrentUserLastScore();
-        this.bestScore = null;
+        this.bestScore = 0;
         this.getRankingAndTop5();
         this.getCurrentUserLastScore();
-        this.getUserBestScore();
+        this.setListeners();
 
 
     }
@@ -39,7 +39,8 @@ export default class Ranking {
         const setUserNameEvent = new Event('setUserName');
         submitUsernameButton.addEventListener('click', () => {
             if (this.usernameInput.value) {
-                this.setUser(this.usernameInput.value);
+                // lower case the username
+                this.setUser(this.usernameInput.value.toLowerCase());
                 this.storeUserScore(this.usernameInput.value, window.score);
                 this.uiManager.fadeOut('.getUserName', 1);
                 window.dispatchEvent(setUserNameEvent);
@@ -59,6 +60,9 @@ export default class Ranking {
                 this.timer.stopDecrementation();
             } else {
                 this.updateScore(window.score);
+                this.getRankingAndTop5();
+                this.getCurrentUserLastScore();
+                this.getUserBestScore();
             }
 
         });
@@ -103,12 +107,12 @@ export default class Ranking {
 
     async storeUserScore(username, score) {
         try {
-            
+
             localStorage.setItem('bestScore', this.bestScore);
             const userScoreRef = doc(this.db, "userScores", username);
             const userBestScoreRef = doc(this.db, "userBestScores", username);
             await setDoc(userScoreRef, { score: score });
-            if(this.bestScore){
+            if (this.bestScore) {
                 await setDoc(userBestScoreRef, { score: this.bestScore });
             }
             this.isUserNameStored = true;
@@ -127,18 +131,22 @@ export default class Ranking {
 
 
     async updateScore(newScore) {
-        if (this.username) {
+        if (this.username && newScore !== undefined) {
             try {
-                newScore > this.bestScore ? this.bestScore = newScore : null;
-               
+                if (newScore > this.bestScore) {
+                    this.bestScore = newScore;
+                }
 
-                const userScoreRef = doc(this.db, "userScores", this.username);
-                await setDoc(userScoreRef, { score: this.bestScore });
-                const userBestScoreRef = doc(this.db, "userBestScores", this.username);
-               if(this.bestScore){
-                await setDoc(userBestScoreRef, { bestScore: this.bestScore });
-               }
-                console.log("Score enregistré avec succès !");
+                if (this.bestScore !== undefined) {
+                    const userScoreRef = doc(this.db, "userScores", this.username);
+                    await setDoc(userScoreRef, { score: this.bestScore });
+
+                    const userBestScoreRef = doc(this.db, "userBestScores", this.username);
+                    await setDoc(userBestScoreRef, { bestScore: this.bestScore });
+                    console.log("Score enregistré avec succès !");
+                } else {
+                    console.log("Le meilleure score est undefined, mise à jour annulée.");
+                }
             } catch (e) {
                 console.error("Erreur lors de la mise a jour du score : ", e);
             }
@@ -190,17 +198,18 @@ export default class Ranking {
 
         console.log(this.top5);
 
-        this.top5.forEach((score, username) => {
+        this.top5.forEach((bestScore, username) => {
 
             const listParent = document.createElement('div');
             listParent.className = 'listParent';
             top5ListElement.appendChild(listParent);
             const listItemUsername = document.createElement('li');
             listItemUsername.className = 'listItemUsername';
-            listItemUsername.textContent = username;
+            // uppercase the first letter of the username
+            listItemUsername.textContent = username.charAt(0).toUpperCase() + username.slice(1);
             const listItemScore = document.createElement('li');
             listItemScore.className = 'listItemScore';
-            listItemScore.textContent = score;
+            listItemScore.textContent = bestScore;
             listParent.appendChild(listItemUsername);
             listParent.appendChild(listItemScore);
         });
@@ -211,10 +220,8 @@ export default class Ranking {
         this.displayTop5();
     }
 
-    reset () {
-        this.getRankingAndTop5();
-        this.getCurrentUserLastScore();
-        this.getUserBestScore();
+    reset() {
+  
     }
 
     update() {
