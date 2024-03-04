@@ -172,7 +172,7 @@ export default class Boat {
       uniforms: {
 
       },
-      
+
     })
 
     const result = threeToCannon(this.model, { type: ShapeType.BOX });
@@ -336,13 +336,15 @@ export default class Boat {
 
 
   boatControls() {
-
     // Définition des variables de point supérieur et de vitesse de rotation
     let topPoint = new THREE.Vector3(0, 0, 0);
-    let rotationSpeed = 0.002;
+    let rotationSpeed = 0.02;
+    let forceMagnitude = 170; // Force appliquée pour le mouvement vers l'avant ou l'arrière
+    let boostMultiplier = 2; // Multiplicateur de vitesse lorsque le boost est activé
 
     // Copie l'orientation actuelle du modèle du bateau en tant que quaternion
     const quaternion = new THREE.Quaternion().copy(this.model.body.quaternion);
+    const direction = new CANNON.Vec3();
 
     // Calcule la direction avant du bateau basée sur son orientation
     const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(quaternion).normalize();
@@ -351,61 +353,49 @@ export default class Boat {
     let force = new CANNON.Vec3(forward.x, forward.y, forward.z);
 
     if (this.canUpdate) {
-
-      if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
-        this.model.body.angularVelocity.set(0, 1 * 0.05 * this.time.delta, 0);
-        this.boatWheel.rotation.z += this.time.delta * rotationSpeed
-
-      } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
-        this.model.body.angularVelocity.set(0, -1 * 0.05 * this.time.delta, 0);
-        this.boatWheel.rotation.z -= this.time.delta * rotationSpeed
-      }
-      if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
-
-        this.distance = this.velocity * this.time.delta
-
-        this.model.body.applyForce(force.scale(this.distance), force)
-        this.isKeyUp = false;
-        this.isMoving = true;
-        this.sailingTraceAudio.play();
-        this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
-      }
-      if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
-        this.distance = -this.velocity * this.time.delta
-        this.model.body.applyForce(force.scale(this.distance / 2))
-        this.isKeyUp = false;
-        this.isMoving = true;
-        this.sailingTraceAudio.play();
-        this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
-      }
-
-      if (this.keyboard.pressed('shift')) {
-        this.boostManager()
-        this.unfillBoost()
-        if (this.boost > 0) {
-          if (!this.voileAudioPlayed) {
-            // gsap.to(this.radialBlur, { intensity: 0.05, duration: 1, ease: "easeOut" })
-            this.voileAudio.play();
-            this.voileAudioPlayed = true;
-            this.trail.particleGroup.visible = true;
-          }
-
-          gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
-          gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" })
-          // gsap.to(this.particleGroup.scale, { x: 2, y: 3.5, z: 8, duration: 3, ease: "easeOut" })
-
+        // Rotation du bateau
+        if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
+            this.model.body.angularVelocity.y = rotationSpeed * this.time.delta;
+            this.boatWheel.rotation.z += this.time.delta * rotationSpeed;
+        } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
+            this.model.body.angularVelocity.y = -rotationSpeed * this.time.delta;
+            this.boatWheel.rotation.z -= this.time.delta * rotationSpeed;
         }
 
-        // console.log("shift pressed");
+        // Mouvement avant et arrière
+        if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
+            this.model.body.applyForce(force.scale(forceMagnitude), this.model.body.position);
+            this.isMoving = true;
+            this.sailingTraceAudio.play();
+            this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
+        } else if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
+            this.model.body.applyForce(force.scale(-forceMagnitude / 2), this.model.body.position);
+            this.isMoving = true;
+            this.sailingTraceAudio.play();
+            this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
+        }
 
-      } else {
-        this.velocity = 20
-        this.fillBoost()
-      }
+        // Gestion du boost
+        if (this.keyboard.pressed('shift') && this.boost > 0) {
+            // Application d'une force supplémentaire pour le boost
+            this.model.body.applyForce(force.scale(forceMagnitude * boostMultiplier), this.model.body.position);
+            this.boostManager();
+            this.unfillBoost();
 
+            // Effets visuels et sonores pour le boost
+            if (!this.voileAudioPlayed) {
+                this.voileAudio.play();
+                this.voileAudioPlayed = true;
+                this.trail.particleGroup.visible = true;
+            }
+            gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
+            gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
+        } else {
+            this.velocity = 20;
+            this.fillBoost();
+        }
     }
-  }
-
+}
 
   update() {
 
