@@ -8,12 +8,7 @@ import { gsap } from "gsap";
 import Shark from './Sharks.js';
 import Island from './islands.js';
 import Crate from './Crates.js';
-import { lerp } from 'three/src/math/MathUtils.js';
-import * as CANNON from 'cannon-es'
-import { log } from 'three-nebula';
-import { threeToCannon, ShapeType } from 'three-to-cannon';
 import Trail from './Trail.js';
-
 import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { RadialBlurPassGen } from 'three-radial-blur';

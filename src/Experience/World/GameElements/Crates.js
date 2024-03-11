@@ -1,14 +1,7 @@
 import Experience from "../../Experience";
 import * as THREE from "three";
-import * as dat from 'lil-gui'
-import { Sine } from "gsap/all";
 
 import { gsap } from "gsap";
-
-import Boat from "./Boat";
-import { log } from "three-nebula";
-
-const TwoPI = Math.PI * 2;
 const scoreDisplay = document.querySelector(".score_display");
 
 

@@ -3,15 +3,6 @@
 
 import Experience from "../../Experience"
 import * as THREE from "three"
-import { gsap } from "gsap";
-import { Sine } from "gsap/all";
-import { log } from "three-nebula";
-import * as CANNON from 'cannon-es'
-import CannonDebugger from "cannon-es-debugger";
-import { threeToCannon, ShapeType } from 'three-to-cannon';
-import fragmentToonShaderIslands from './../../../../static/shaders/Boat/fragmentToonShaderIslands.glsl';
-import vertexToonShaderIslands from './../../../../static/shaders/Boat/vertexToonShaderIslands.glsl';
-
 
 
 export default class Island {
@@ -32,7 +23,6 @@ export default class Island {
         this.miniIslandEmpty = []
         this.bigIslands = []
         this.setMiniIslands()
-        this.CannonDebugger = new CannonDebugger(this.scene, this.experience.physic.world)
         this.scene.add(this.group)
         this.miniIslands.forEach(miniIsland => {
 

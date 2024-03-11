@@ -7,7 +7,6 @@ import Camera from './Camera.js'
 import RendererWater from './RendererWater.js'
 import World from './World/World.js'
 import Resources from './Utils/Resources.js'
-import InitCannon from './Utils/InitCannon.js'
 import Timer from '../UI/Timer.js'
 import UiManager from '../UI/UiManager.js'
 import Reveal from './World/GameElements/Reaveal.js'
@@ -43,7 +42,6 @@ export default class Experience {
         this.orthoScene = new THREE.Scene()
         this.resources = new Resources(sources)
         this.camera = new Camera()
-        this.physic = new InitCannon()
         this.renderer = new RendererWater()
        
         this.world = new World()
@@ -103,7 +101,6 @@ export default class Experience {
         this.world.update()
         this.renderer.update()
         this.resources.update()
-        this.physic.update()
         this.timer.update();
         this.reveal.update();
         this.ranking.update();

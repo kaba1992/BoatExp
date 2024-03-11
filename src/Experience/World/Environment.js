@@ -58,6 +58,7 @@ export default class Environment {
 
         this.scene.environment = this.environmentMap
         this.scene.background = this.environmentMap
+        this.scene.background.rotation.y = Math.PI / 2;
 
         this.scene.fog = new FogExp2(0xDFE9F3, 0.005);
 
@@ -72,16 +73,6 @@ export default class Environment {
             })
         }
 
-        // Debug
-        if (this.debug.active) {
-            // this.debugFolder
-            //     .add(this.environmentMap, 'intensity')
-            //     .name('envMapIntensity')
-            //     .min(0)
-            //     .max(4)
-            //     .step(0.001)
-            //     .onChange(this.environmentMap.updateMaterials)
-        }
     }
 
     update() {
