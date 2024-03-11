@@ -13,8 +13,6 @@ export default class Crate {
         this.resources = this.experience.resources;
         this.timer = this.experience.timer;
         this.params = params;
-        // this.gui = new dat.GUI();
-        // this.cameraUi = this.gui.addFolder('camera')
         this.clock = new THREE.Clock();
         this.crate = null
         this.crates = [];
@@ -28,6 +26,10 @@ export default class Crate {
         this.counter = 0;
         this.slotIndex = 0;
         this.crateSlot = this.crateSlotModel.scene;
+        this.pickAudio= new Audio('/Audios/Boat/PickCool1.wav');
+        this.pickAudio.volume = 0.5;
+        this.onBoatAudio= new Audio('/Audios/Boat/Pick2.wav');
+        this.onBoatAudio.volume = 0.5;
         this.setCrate();
 
         window.addEventListener('reset', () => {
@@ -144,10 +146,12 @@ export default class Crate {
             const newPos = curve.getPoint(progress);
             crate.position.copy(newPos);
         })
+        const self = this;
         gsapTimeline.eventCallback("onComplete", function () {
             crateSlots[index].add(crate);
             crate.position.copy(crateSlots[index].position);
             crate.scale.set(0.08, 0.08, 0.08);
+            self.onBoatAudio.play();
             if (index > crateSlots.length - 1) {
                 this.scene.remove(crate);
             }
@@ -168,10 +172,11 @@ export default class Crate {
             const boatWorldPosition = new THREE.Vector3();
             this.boat.getWorldPosition(boatWorldPosition);
             // console.log(boatWorldPosition );
-            if (boatWorldPosition.distanceTo(crate.position) <= 3) {
+            if (boatWorldPosition.distanceTo(crate.position) <= 2) {
                 crate.rotation.set(0, 0, 0);
                 window.score += 1;
                 this.animateCrateToBoat(crate, this.slotIndex % this.crateSlots.length);
+                this.pickAudio.play();
                 this.slotIndex++;
                 // remove in array
                 this.crateArr.splice(index, 1);

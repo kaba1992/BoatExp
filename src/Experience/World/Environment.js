@@ -58,7 +58,6 @@ export default class Environment {
 
         this.scene.environment = this.environmentMap
         this.scene.background = this.environmentMap
-        this.scene.background.rotation.y = Math.PI / 2;
 
         this.scene.fog = new FogExp2(0xDFE9F3, 0.005);
 

@@ -19,6 +19,9 @@ export default class Sharks {
         this.Sharks = [];
         this.pursuerNumber = 0;
         this.speed = 1.3;
+        this.onAggroSoundLoop = new Audio('/Audios/Ambiance/241_Pirates.mp3');
+        this.onAggroSoundLoop.volume = 0.5;
+        this.canPlaLoopAggro = true;
         this.setShark();
         this.canUpdate = params.canUpdate;
         this.time = this.experience.time;
@@ -34,13 +37,18 @@ export default class Sharks {
             this.reset(params);
         });
 
+        window.addEventListener('gameOver', () => {
+            this.canPlaLoopAggro = false;
+            this.onAggroSoundLoop.pause();
+        });
+
     }
 
     async setShark() {
         this.sharkMaterial = new MeshStandardMaterial({ color: new THREE.Color(0x000000) });
         const sharkPlaneGeometry = new THREE.PlaneGeometry(1, 1, 1, 1);
         const exclamationMarkMap = this.resources.items.exclamationMark;
-       
+
         exclamationMarkMap.wrapS = THREE.RepeatWrapping;
         exclamationMarkMap.wrapT = THREE.RepeatWrapping;
         exclamationMarkMap.repeat.set(1, 1);
@@ -54,7 +62,7 @@ export default class Sharks {
             transparent: true,
             transparent: true,
             depthTest: false,
-           
+
         });
         let sharkCreationPromises = [];
 
@@ -64,7 +72,7 @@ export default class Sharks {
                 const sharkPlane = new THREE.Mesh(sharkPlaneGeometry, sharkPlaneMaterial);
                 sharkPlane.layers.enable(1);
                 sharkPlane.layers.disable(0);
-                
+
 
                 sharkPlane.position.y = 1.5;
                 sharkPlane.visible = false;
@@ -182,30 +190,39 @@ export default class Sharks {
 
             }
         });
-    }
+        if (this.pursuerNumber >= 1 && this.canPlaLoopAggro) {
+            this.onAggroSoundLoop.play();
+        } else {
+            this.onAggroSoundLoop.pause();
+            this.onAggroSoundLoop.currentTime = 0;
+        }
+    
+}
 
-    reset(params) {
+reset(params) {
 
-        this.aggroAudio.volume = 0.5;
+    this.aggroAudio.volume = 0.5;
+    this.onAggroSoundLoop.currentTime = 0;
+    this.canPlaLoopAggro = true;
 
-        this.pursuerNumber = 0;
-        this.canUpdate = params.canUpdate;
-        // reset sharks
-        this.Sharks.forEach(shark => {
-            shark.plane.visible = false;
-            shark.notChasing = true;
-            shark.aggoSoundPlayed = false;
-            let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
-            let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
-            // Convertit la distance et l'angle en coordonnées x et z
-            let x = Math.cos(angle) * distance;
-            let z = Math.sin(angle) * distance;
-            shark.position.set(x, 0, z);
-            shark.speed = 1.3;
+    this.pursuerNumber = 0;
+    this.canUpdate = params.canUpdate;
+    // reset sharks
+    this.Sharks.forEach(shark => {
+        shark.plane.visible = false;
+        shark.notChasing = true;
+        shark.aggoSoundPlayed = false;
+        let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
+        let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+        // Convertit la distance et l'angle en coordonnées x et z
+        let x = Math.cos(angle) * distance;
+        let z = Math.sin(angle) * distance;
+        shark.position.set(x, 0, z);
+        shark.speed = 1.3;
 
-            let randomAngle = Math.random() * 2 * Math.PI;
-            shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+        let randomAngle = Math.random() * 2 * Math.PI;
+        shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
 
-        });
-    }
+    });
+}
 }
