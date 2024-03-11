@@ -21,7 +21,7 @@ export default class Sharks {
         this.speed = 1.3;
         this.onAggroSoundLoop = new Audio('/Audios/Ambiance/241_Pirates.mp3');
         this.onAggroSoundLoop.volume = 0.5;
-        this.canPlaLoopAggro = true;
+        this.canPlayLoopAggro = true;
         this.setShark();
         this.canUpdate = params.canUpdate;
         this.time = this.experience.time;
@@ -38,7 +38,8 @@ export default class Sharks {
         });
 
         window.addEventListener('gameOver', () => {
-            this.canPlaLoopAggro = false;
+            this.canPlayLoopAggro = false;
+            this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(0.5, 0, 0.05);
             this.onAggroSoundLoop.pause();
         });
 
@@ -190,20 +191,21 @@ export default class Sharks {
 
             }
         });
-        if (this.pursuerNumber >= 1 && this.canPlaLoopAggro) {
+        if (this.pursuerNumber >= 1 && this.canPlayLoopAggro) {
+            console.log("play loop aggro");
             this.onAggroSoundLoop.play();
+            this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0.5, 0.05);
         } else {
-            this.onAggroSoundLoop.pause();
-            this.onAggroSoundLoop.currentTime = 0;
+            this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0, 0.05);
         }
-    
+    console.log(this.onAggroSoundLoop.volume);
 }
 
 reset(params) {
 
     this.aggroAudio.volume = 0.5;
     this.onAggroSoundLoop.currentTime = 0;
-    this.canPlaLoopAggro = true;
+    this.canPlayLoopAggro = true;
 
     this.pursuerNumber = 0;
     this.canUpdate = params.canUpdate;
