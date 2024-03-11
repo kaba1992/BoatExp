@@ -4,6 +4,11 @@ import { gsap } from "gsap";
 import { Sine } from "gsap/all";
 import revealVertex from "./../../../../static/shaders/Boat/revealVertex.glsl"
 import revealFragment from "./../../../../static/shaders/Boat/revealFragment.glsl"
+import twirlTransitionVertex from './../../../../static/shaders//Boat/twirlTransitionVertex.glsl'
+import twirlTransitionFragment from './../../../../static/shaders//Boat/twirlTransitionFragment.glsl'
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 export default class Reveal {
     constructor(params) {
@@ -11,8 +16,14 @@ export default class Reveal {
         this.scene = this.experience.scene
         this.resources = this.experience.resources
         this.camera = this.experience.camera.instance
+        this.renderer = this.experience.renderer.instance
         this.material = null
- 
+        this.composer = new EffectComposer(this.renderer)
+        this.composer.addPass(new RenderPass(this.scene, this.camera))
+        
+        this.renderTexture = null;
+
+
         this.addListeners()
 
     }
@@ -21,20 +32,20 @@ export default class Reveal {
 
     setReveal() {
         this.revealTexture = this.resources.items.revealTexture
-       
+
         const loader = new THREE.TextureLoader();
         const revealTexture = this.revealTexture;
         const uniforms = {
-         
+
         };
 
         this.material = new THREE.ShaderMaterial({
             vertexShader: revealVertex,
             fragmentShader: revealFragment,
-            uniforms:{
+            uniforms: {
                 uTime: { value: -1 },
                 uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                renderTexture: { value: null},
+                renderTexture: { value: null },
                 revealNoise: { value: revealTexture }
             }
             // wireframe: true,
@@ -42,7 +53,7 @@ export default class Reveal {
         });
         const revealPlane = new THREE.PlaneGeometry(2, 2, 1, 1);
 
-       
+
 
         const mesh = new THREE.Mesh(revealPlane, this.material);
         // change mesh render order to render after the boat
@@ -50,8 +61,8 @@ export default class Reveal {
         // mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
-     
-        
+
+
         gsapTimeline.to(this.material.uniforms.uTime, {
             duration: 3,
             value: 1,
@@ -66,17 +77,42 @@ export default class Reveal {
 
     }
 
+    setTwirlTransition() {
+        this.revealTexture = this.resources.items.revealTexture
+        if (this.renderTexture) {
+            this.twirlShader = {
+                uniforms: {
+                    uTexture: { value: this.renderTexture.texture },
+                    uEffectRadius: { value: 0.5 },
+                    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+                },
+                vertexShader: twirlTransitionVertex,
+                fragmentShader: twirlTransitionFragment
+            }
+            this.composer.addPass(new ShaderPass(this.twirlShader))
+            console.log("got renderTexture");
+        }
+
+console.log("transitionStarted");
+    }
+
     addListeners() {
         window.addEventListener('resourcesReady', () => {
             this.setReveal()
+        })
+
+        window.addEventListener('startExp', () => {
+            this.setTwirlTransition()
+
         })
     }
 
     update() {
         this.renderTexture = this.experience.renderer.renderTexture
-        if(this.material){
+        if (this.material) {
             this.material.uniforms.renderTexture.value = this.renderTexture.texture
         }
-   
+        // this.composer.render()
+
     }
 }

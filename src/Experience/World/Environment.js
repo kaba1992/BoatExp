@@ -25,13 +25,13 @@ export default class Environment {
         this.sunLight.shadow.camera.far = 15
         this.sunLight.shadow.mapSize.set(4096, 4096)
         this.sunLight.shadow.normalBias = 0.05
-        this.sunLight.position.set(5, 50, 7.5);
+        this.sunLight.position.set(0, 150, 1000);
         this.scene.add(this.sunLight)
         const ambientLight = new AmbientLight("#ffffff", 1);
 
         const pointLight = new PointLight(0xffffff, 1.5, 2000, 0);
         pointLight.color.setHSL(0.08, 0.8, 0.5);
-        pointLight.position.set(0, 150, -1000);
+        pointLight.position.set(0, 150, 1000);
         this.scene.add(pointLight);
      
 

@@ -35,13 +35,8 @@ export default class Island {
         this.CannonDebugger = new CannonDebugger(this.scene, this.experience.physic.world)
         this.scene.add(this.group)
         this.miniIslands.forEach(miniIsland => {
-            miniIsland.position.copy(miniIsland.body.position)
-            miniIsland.quaternion.copy(miniIsland.body.quaternion)
-
 
         })
-
-
     }
 
 
@@ -51,17 +46,10 @@ export default class Island {
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })
-        // const miniIslandMaterial = new THREE.ShaderMaterial({
 
-        //     vertexShader: vertexToonShaderIslands,
-        //     fragmentShader: fragmentToonShaderIslands,
-        //     uniforms:{
-        //         uTexture: { value: miniIslandTexture },
-        //     }
-        // }) 
-        console.log(miniIslandMaterial);
         this.miniIsland = this.resource.scene
-        this.bigIsland = this.bigIslandResource.scene
+        this.bigIsland = this.bigIslandResource.scene.children[0]
+     
 
         this.emptysParent = this.emptysResource.scene
 
@@ -80,39 +68,21 @@ export default class Island {
         let promises = []
         for (let i = 0; i < this.miniIslandEmpty.length; i++) {
             // create 25 island with 1 miniIslandMesh
-
-
             // set the miniIsland position to the miniIslandEmpty position
             let miniIslandPromise = new Promise((resolve, reject) => {
                 if (this.miniIslandEmpty[i].name.startsWith('Island')) {
-                    
-                    const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
-                    this.miniIslands.push(miniIsland)
 
+                    const miniIsland = new THREE.Mesh(miniIslandMesh.geometry, miniIslandMaterial);
+                    miniIsland.geometry.computeBoundingBox();
+                    this.miniIslands.push(miniIsland)
+                    miniIsland.position.copy(this.miniIslandEmpty[i].position)
                     // get rando float between 1 and 3
                     const scale = Math.random() * (6 - minScale) + minScale;
 
                     let y = scale < 1.5 ? 0.8 : 1.3;
                     miniIsland.scale.multiplyScalar(scale)
-                    // get miniIsland radius depending on boundingSphere radius
-                    const radius = miniIslandMesh.geometry.boundingSphere.radius * scale
+                    miniIsland.position.y = y
 
-                    const result = threeToCannon(miniIsland, { type: ShapeType.BOX });
-
-                    const { shape, offset, quaternion } = result;
-
-                    miniIsland.body = new CANNON.Body({
-                        // sphereShape
-                        mass: 0,
-
-                        type: CANNON.Body.STATIC,
-                        // position: new CANNON.Vec3(miniIsland.position.x, miniIsland.position.y, miniIsland.position.z)
-
-                    });
-                    miniIsland.body.addShape(shape, offset, quaternion);
-                    miniIsland.body.position.copy(this.miniIslandEmpty[i].position)
-                    miniIsland.body.position.y = y
-                    this.experience.physic.world.addBody(miniIsland.body)
                     this.group.add(miniIsland)
                     resolve(miniIsland)
                 }
@@ -122,28 +92,17 @@ export default class Island {
             let bigIslandPromise = new Promise((resolve, reject) => {
                 if (this.miniIslandEmpty[i].name.startsWith('BigIsland')) {
                     const bigIsland = this.bigIsland.clone()
-
+                  
+                  
+                  
+                     const bigIslandMesh = bigIsland.children[5]
+               
                     bigIsland.scale.multiplyScalar(0.2)
+                    bigIsland.position.copy(this.miniIslandEmpty[i].position)
+                    bigIsland.position.y = -2.4
+                    bigIslandMesh.geometry.computeBoundingBox();
+                    this.miniIslands.push(bigIslandMesh)
 
-                    this.miniIslands.push(bigIsland)
-                    const radius = bigIslandMesh.geometry.boundingSphere.radius * 0.2
-                    const result = threeToCannon(bigIsland, { type: ShapeType.BOX });
-
-                    const { shape, offset, quaternion } = result;
-
-                    bigIsland.body = new CANNON.Body({
-                        // sphereShape
-                        mass: 0,
-
-                        type: CANNON.Body.STATIC,
-                        // position: new CANNON.Vec3(bigIsland.position.x, bigIsland.position.y, bigIsland.position.z)
-
-                    });
-                    bigIsland.body.addShape(shape, offset, quaternion);
-                    bigIsland.body.position.copy(this.miniIslandEmpty[i].position)
-                    bigIsland.body.position.y = -2.4
-                    bigIsland.body.wakeUp()
-                    this.experience.physic.world.addBody(bigIsland.body)
                     this.group.add(bigIsland)
 
                     resolve(bigIsland)
@@ -156,33 +115,47 @@ export default class Island {
 
     }
 
-    setCollider() {
-        this.staticGenerator = new StaticGeometryGenerator(this.group);
-        this.staticGenerator.attributes = ['position'];
-        const mergedGeometry = this.staticGenerator.generate();
-        mergedGeometry.boundsTree = new MeshBVH(mergedGeometry);
+    detectCollision(boat, islands) {
+        boat.userData.currentPosition = boat.position.clone();
+        for (let i = 0; i < islands.length; i++) {
 
-        this.collider = new THREE.Mesh(mergedGeometry);
-        this.collider.material.wireframe = true;
-        this.collider.material.opacity = 0.5;
-        this.collider.material.transparent = true;
+            if (boat != islands[i]) {
 
-        this.visualizer = new MeshBVHVisualizer(this.collider, 1);
+                let firstObject = boat;
 
-        this.scene.add(this.visualizer)
-        this.scene.add(this.collider);
-        this.scene.add(this.group)
+                let secondObject = islands[i];
 
+                let firstBB = new THREE.Box3()
+                let secondBB = new THREE.Box3()
+         
+                firstBB.copy(firstObject.children[4].geometry.boundingBox).applyMatrix4(firstObject.matrixWorld);
+       
+                secondBB.copy(secondObject.geometry.boundingBox).applyMatrix4(secondObject.matrixWorld);
 
+                let collision = firstBB.intersectsBox(secondBB);
+
+                if (collision) {
+
+                   // Calcul de la direction de la poussée pour repousser le bateau hors de l'île
+                   let direction = new THREE.Vector3().subVectors(boat.position, islands[i].position).normalize();
+                
+                   direction.y = 0;
+                   
+                   boat.position.add(direction.multiplyScalar(0.05)); 
+
+                   boat.position.y = boat.userData.currentPosition.y; 
+
+                   console.log("collision detected, boat repelled");
+                }
+
+            }
+
+        }
     }
 
+
     update(deltaTime) {
-        // this.CannonDebugger.update()
-        this.miniIslands.forEach(miniIsland => {
-            miniIsland.position.copy(miniIsland.body.position)
-            miniIsland.quaternion.copy(miniIsland.body.quaternion)
-
-
-        })
+    
+        this.detectCollision(this.boat, this.miniIslands)
     }
 }

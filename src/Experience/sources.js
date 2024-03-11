@@ -76,17 +76,24 @@ export default [
     {
         name: 'fishModel',
         type: 'dracoLoader',
-        path: 'models/Fish/the_fish_particle.glb'
+        path: 'models/Animals/the_fish_particle.glb'
     },
     {
         name: 'whaleModel',
         type: 'dracoLoader',
-        path: 'models/Fish/Whale.glb'
+        path: 'models/Animals/Whale.glb'
     },
     {
         name: 'krakenModel',
         type: 'dracoLoader',
-        path: 'models/Fish/krakenSama.glb'
+        path: 'models/Animals/krakenSama.glb'
+    },
+
+    {
+        name: 'birdsModel',
+        type: 'dracoLoader',
+        path: 'models/Animals/birds.glb'
+
     },
 
 

@@ -1,8 +1,7 @@
 import Experience from "../../Experience"
 import * as THREE from "three"
 import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color, Force, log } from "three-nebula"
-import rippleVertex from './../../../../static/shaders//Boat/rippleVertex.glsl'
-import rippleFragment from './../../../../static/shaders//Boat/rippleFragment.glsl'
+
 
 export default class Trail {
     constructor(params) {
@@ -16,7 +15,7 @@ export default class Trail {
         this.setParticle()
         this.disk = this.model.getObjectByName("Circle")
         this.disk.visible = false
-        // this.setRipples()
+
 
     }
 
@@ -78,45 +77,11 @@ export default class Trail {
 
     }
 
-    setRipples() {
-
-        
-        this.disk = this.model.getObjectByName("Circle")
-        // this.disk.position.set(0, 1.75,0)
-        // // this.disk.rotation.set(-Math.PI / 2, 0, 0)
-        // this.disk.scale.x = 2
-        // this.model.add(this.disk)
-        this.disk.layers.set(1)
-        const rippleText = this.resources.items.rippleTexture
-        // rippleText.wrapS = rippleText.wrapT = THREE.RepeatWrapping;
-        // rippleText.repeat.set(1, 1);
-        
-
-        // console.log(this.disk);
-        this.rippleMaterial = new THREE.ShaderMaterial({
-            vertexShader: rippleVertex,
-            fragmentShader: rippleFragment,
-            // transparent: true,
-            // depthWrite: false,
-            // depthTest: true,
-            uniforms: {
-                time: { value: 0 },
-                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                uNoiseTexture: { value: rippleText},
-
-            }
-        })
-        this.disk.material = this.rippleMaterial
-        console.log(this.disk);
-    }
-
+  
     update(delta) {
         const deltaTime = this.clock.getDelta()
         this.system.update(deltaTime)
-        // this.rippleMaterial.uniforms.time.value += deltaTime
-       
-       
-
+  
     }
 
 }

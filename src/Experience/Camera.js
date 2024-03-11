@@ -17,6 +17,9 @@ export default class Camera {
      
 
         });
+        window.addEventListener('startExp', () => {
+   
+          })
         // this.setControls()
     }
 

@@ -32,9 +32,7 @@ export default class Ranking {
     }
 
     setListeners() {
-        this.top5.forEach((value, key) => {
-            console.log(key, value);
-        });
+      
         const submitUsernameButton = document.querySelector('.getUserName-text-button');
         const setUserNameEvent = new Event('setUserName');
         submitUsernameButton.addEventListener('click', () => {
@@ -195,8 +193,6 @@ export default class Ranking {
         const top5ListElement = document.getElementById('ranking');
         top5ListElement.innerHTML = '';
         if (!top5ListElement) return;
-
-        console.log(this.top5);
 
         this.top5.forEach((bestScore, username) => {
 

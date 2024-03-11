@@ -7,7 +7,7 @@ import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 
 
 export default class RendererWater {
-    constructor() {
+    constructor(reveal) {
         this.experience = new Experience()
         this.canvas = this.experience.canvas
         this.composer = this.experience.composer
@@ -19,7 +19,8 @@ export default class RendererWater {
         this.camera = this.experience.camera
         this.cameraOrtho = this.experience.camera.instanceOrtho
         this.clock = new THREE.Clock()
-
+        console.log(reveal);
+        // this.revealComposer = this.experience.reveal.composer
 
 
         if (this.debug.active) {

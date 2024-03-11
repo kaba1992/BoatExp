@@ -51,6 +51,7 @@ export default class Home extends EventEmitter {
         const startExpButton = document.querySelector('.startExp');
         const readyEvent = new Event('ready');
         const resetEvent = new Event('reset');
+        const startExpEvent = new Event('startExp');
 
 
         window.addEventListener('resourcesReady', () => {
@@ -118,6 +119,7 @@ export default class Home extends EventEmitter {
         });
 
         startExpButton.addEventListener('click', () => {
+            window.dispatchEvent(startExpEvent);
             this.loopAudio.play();
             gsap.to(this.soundDom, {
                 duration: 1, opacity: 0, ease: "power2.inOut", onComplete: () => {
