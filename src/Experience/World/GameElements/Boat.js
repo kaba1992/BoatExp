@@ -53,7 +53,7 @@ export default class Boat {
     this.rotVelocity = 0.0006
     this.velocity = 0.004
     this.rotation = null
-    this.boostMultiplier = 3;
+    this.boostMultiplier = 2;
 
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
@@ -264,7 +264,7 @@ export default class Boat {
   fillBoost() {
 
     if (this.boost >= 100) return
-    this.boost += 0.025
+    this.boost += 0.045
 
     this.boostBar.style.width = `${this.boost}%`
     this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
@@ -294,7 +294,7 @@ export default class Boat {
     }
     else {
       // this.ThirdPersonCamera.speed = 0.2
-      this.boostMultiplier = 3
+      this.boostMultiplier = 1.8
     }
   }
 

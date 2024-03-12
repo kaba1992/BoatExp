@@ -121,6 +121,7 @@ export default class Animals {
         gsap.set(this.radar.material, { opacity: 0 });
         gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
         this.radar.position.set(0, -50, 0);
+        this.kraken.position.set(0, -50, 0);
         this.kraken.scale.multiplyScalar(10);
         this.scene.add(this.kraken);
         this.scene.add(this.radar);
@@ -142,20 +143,26 @@ export default class Animals {
 
         const OnScaleComplete = () => {
 
-            this.radar.position.set(boatPosbeforeAttack.x, boatPosbeforeAttack.y, boatPosbeforeAttack.z);
+            this.kraken.position.set(boatPosbeforeAttack.x, 1, boatPosbeforeAttack.z);
+            gsap.to(this.krakenMaterial, { opacity: 1, duration: 1 });
+            this.krakenMaterial.depthTest = true;
+
+
             setTimeout(() => {
                 if (!this.isPlayerInRadar) {
-
+                    console.log("kraken position", this.kraken.position);
                     gsap.to(this.radar.material, { opacity: 0, duration: 1 });
                     gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
                     // reset radar body position
-                    this.radar.position.set(0, -50, 0);
+                    // this.radar.position.set(0, -50, 0);
+
+
                 }
             }, 500);
 
         };
         gsap.to(this.radar.scale, { x: 1, y: 1, z: 1, duration: 4, onComplete: OnScaleComplete });
-        this.radar.position.set(boatPosbeforeAttack.x, boatPosbeforeAttack.y, boatPosbeforeAttack.z);
+        this.radar.position.set(boatPosbeforeAttack.x, 0.001, boatPosbeforeAttack.z);
 
     }
 
@@ -175,7 +182,7 @@ export default class Animals {
             }
         });
         this.birdsParent.position.set(0, 9, 0);
-        
+
         this.birds = this.birdsResource.scene.children;
         let randomAngle = Math.random() * 2 * Math.PI;
         this.birdsParent.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
@@ -248,7 +255,7 @@ export default class Animals {
         }
         this.boaPosition = this.boat.position;
 
-        if (this.radar.position.distanceTo(this.boaPosition) <= 22) {
+        if (this.kraken.position.distanceTo(this.boaPosition) <= 22) {
             this.isPlayerInRadar = true;
 
         }
@@ -274,7 +281,7 @@ export default class Animals {
         gsap.set(this.krakenMaterial, { opacity: 0 });
         gsap.set(this.radar.material, { opacity: 0 });
         gsap.set(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1 });
-        this.radar.position.set(0, -50, 0);
+        this.kraken.position.set(0, -50, 0);
         this.isPlayerInRadar = false;
         clearInterval(this.krakenInterval);
 
