@@ -195,7 +195,7 @@ export default class Animals {
             bird.clips = this.birdsResource.animations;
             bird.mixer = new THREE.AnimationMixer(bird);
             bird.clip = THREE.AnimationClip.findByName(bird.clips, "ArmatureAction.006");
-
+            bird.lookAt(this.birdsParent.randomDirection);
             bird.action = bird.mixer.clipAction(bird.clip);
             bird.action.play();
 
