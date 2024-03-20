@@ -4,8 +4,6 @@ import { gsap } from "gsap";
 import { Sine } from "gsap/all";
 import revealVertex from "./../../../../static/shaders/Boat/revealVertex.glsl"
 import revealFragment from "./../../../../static/shaders/Boat/revealFragment.glsl"
-import twirlTransitionVertex from './../../../../static/shaders//Boat/twirlTransitionVertex.glsl'
-import twirlTransitionFragment from './../../../../static/shaders//Boat/twirlTransitionFragment.glsl'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
@@ -77,24 +75,6 @@ export default class Reveal {
 
     }
 
-    setTwirlTransition() {
-        this.revealTexture = this.resources.items.revealTexture
-        if (this.renderTexture) {
-            this.twirlShader = {
-                uniforms: {
-                    uTexture: { value: this.renderTexture.texture },
-                    uEffectRadius: { value: 0.5 },
-                    uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-                },
-                vertexShader: twirlTransitionVertex,
-                fragmentShader: twirlTransitionFragment
-            }
-            this.composer.addPass(new ShaderPass(this.twirlShader))
-            console.log("got renderTexture");
-        }
-
-console.log("transitionStarted");
-    }
 
     addListeners() {
         window.addEventListener('resourcesReady', () => {
@@ -102,7 +82,7 @@ console.log("transitionStarted");
         })
 
         window.addEventListener('startExp', () => {
-            this.setTwirlTransition()
+          
 
         })
     }

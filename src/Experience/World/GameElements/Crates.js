@@ -30,6 +30,21 @@ export default class Crate {
         this.pickAudio.volume = 0.5;
         this.onBoatAudio= new Audio('/Audios/Boat/Pick2.wav');
         this.onBoatAudio.volume = 0.5;
+        this.crate = this.crateModel.scene;
+        this.crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
+        this.crateNormal = new THREE.TextureLoader().load('/textures/Crate/crateNormal.png');
+        this.crateMaterialParams = new THREE.TextureLoader().load('/textures/Crate/crateMaterialParams.png');
+        this.crateGeometry = this.crate.children[0].geometry;
+
+        this.crateMaterial = new THREE.MeshStandardMaterial({
+            map: this.crateBase,
+            normalMap: this.crateNormal,
+            aoMap: this.crateMaterialParams,
+            roughnessMap: this.crateMaterialParams,
+            metalnessMap: this.crateMaterialParams,
+            transparent: true,
+            // opacity: 0.5,
+        });
         this.setCrate();
 
         window.addEventListener('reset', () => {
@@ -46,7 +61,7 @@ export default class Crate {
 
 
     async setCrate() {
-        this.crate = this.crateModel.scene;
+
         this.boat.traverse((child) => {
             if (child.name.startsWith('crateSlot')) {
                 this.crateSlots.push(child);
@@ -56,31 +71,18 @@ export default class Crate {
 
 
         // const crateNumb = 100;
-        const crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
-        const crateNormal = new THREE.TextureLoader().load('/textures/Crate/crateNormal.png');
-        const crateMaterialParams = new THREE.TextureLoader().load('/textures/Crate/crateMaterialParams.png');
-        const crateGeometry = this.crate.children[0].geometry;
-
-        const crateMaterial = new THREE.MeshStandardMaterial({
-            map: crateBase,
-            normalMap: crateNormal,
-            aoMap: crateMaterialParams,
-            roughnessMap: crateMaterialParams,
-            metalnessMap: crateMaterialParams,
-            transparent: true,
-            // opacity: 0.5,
-        });
+    
         /// wrap texture
-        crateBase.wrapS = THREE.RepeatWrapping;
-        crateBase.wrapT = THREE.RepeatWrapping;
-        crateNormal.wrapS = THREE.RepeatWrapping;
-        crateNormal.wrapT = THREE.RepeatWrapping;
-        crateMaterialParams.wrapS = THREE.RepeatWrapping;
-        crateMaterialParams.wrapT = THREE.RepeatWrapping;
+        this.crateBase.wrapS = THREE.RepeatWrapping;
+        this.crateBase.wrapT = THREE.RepeatWrapping;
+        this.crateNormal.wrapS = THREE.RepeatWrapping;
+        this.crateNormal.wrapT = THREE.RepeatWrapping;
+        this.crateMaterialParams.wrapS = THREE.RepeatWrapping;
+        this.crateMaterialParams.wrapT = THREE.RepeatWrapping;
         // flip texture
-        crateBase.flipY = false;
-        crateNormal.flipY = false;
-        crateMaterialParams.flipY = false;
+        this.crateBase.flipY = false;
+        this.crateNormal.flipY = false;
+        this.crateMaterialParams.flipY = false;
 
         const gridSize = 10; // 10x10 grille
         const crateInterval = 30; // Espace de 2 unités entre chaque caisse
@@ -89,7 +91,7 @@ export default class Crate {
         let crateCreationPromises = [];
         for (let i = 0; i < crateNumb; i++) {
             let promise = new Promise((resolve, reject) => {
-                const crate = new THREE.Mesh(crateGeometry, crateMaterial);
+                const crate = new THREE.Mesh(this.crateGeometry, this.crateMaterial);
                 crate.scale.set(0.05, 0.05, 0.05);
 
                 const row = Math.floor(i / gridSize);
@@ -154,8 +156,28 @@ export default class Crate {
             self.onBoatAudio.play();
             if (index > crateSlots.length - 1) {
                 this.scene.remove(crate);
+              
             }
         })
+    }
+
+    createrCrateAfterRemove() {
+     // create new crate after remove and set it randomly on grid 
+    const crate = new THREE.Mesh(this.crateGeometry, this.crateMaterial);
+    crate.scale.set(0.05, 0.05, 0.05);
+    let distance = 5 + Math.random() * 200; // génère une distance entre 50 et 200
+    let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+    // Convertit la distance et l'angle en coordonnées x et z
+    let x = Math.cos(angle) * distance;
+    let z = Math.sin(angle) * distance;
+    crate.position.set(x, -0.2, z);
+   
+    crate.userData.initFloating = Math.random() * Math.PI * 2;
+    this.crateArr.push(crate);
+    this.crates.push(crate);
+    this.scene.add(crate);
+    console.log("crate added");
+
     }
 
     initFloating(objects, time) {
@@ -176,6 +198,7 @@ export default class Crate {
                 crate.rotation.set(0, 0, 0);
                 window.score += 1;
                 this.animateCrateToBoat(crate, this.slotIndex % this.crateSlots.length);
+                this.createrCrateAfterRemove();
                 this.pickAudio.play();
                 this.slotIndex++;
                 // remove in array

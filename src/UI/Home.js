@@ -133,6 +133,7 @@ export default class Home extends EventEmitter {
     }
 
     async setDilogues(text1) {
+        const dialogueContainer = document.querySelector('.dialogue-text-container1');
 
         if (this.ranking.isUserNameStored) {
             this.uiManager.show(".movement-hint", false);
@@ -159,6 +160,8 @@ export default class Home extends EventEmitter {
                     this.dialogues[i + 1].play();
                 }
                 this.uiManager.fadeIn(".dialogue-text-container1", 1);
+                console.log(i + "offset third dialogue");
+
                 if (i == dialogues.length - 2) {
                     await new Promise(resolve => setTimeout(resolve, 4000));
                     this.uiManager.fadeOut(".dialogue", 1);
@@ -168,6 +171,10 @@ export default class Home extends EventEmitter {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     this.uiManager.hide(".dialogue");
 
+                }
+                if(i ===2){
+                    // offset the container to the top
+                    dialogueContainer.style.top = "12%";
                 }
 
             }

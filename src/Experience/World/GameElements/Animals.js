@@ -1,5 +1,4 @@
 //"Clown fish" (https://skfb.ly/PXsC) by rubykamen is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
-//"Blue Whale - Textured" (https://skfb.ly/67RFV) by Bohdan Lvov is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 import * as SkeletonUtils from 'three/examples/jsm/utils/SkeletonUtils.js';
 import * as THREE from 'three';
 import Experience from "../../Experience";
@@ -14,13 +13,16 @@ export default class Animals {
         this.scene = this.experience.scene;
         this.resources = this.experience.resources;
         this.resource = this.resources.items.fishModel;
-        this.whaleResource = this.resources.items.whaleModel;
         this.krakenResource = this.resources.items.krakenModel;
         this.birdsResource = this.resources.items.birdsModel;
         this.birdsParent = null;
         this.boat = params.boat;
         this.time = this.experience.time;
         this.camera = this.experience.camera.instance;
+        this.krakenAlarmAudio = new Audio('/Audios/Animals/krakenPopAlarm.mp3');
+        this.krakenPopAudio = new Audio('/Audios/Animals/krakenPop.mp3');
+        this.krakenPopAudio.volume = 0.5;
+        this.krakenAlarmAudio.volume = 0.5;
         this.boaPosition = new THREE.Vector3()
         this.birdsArray = [];
         this.fishs = [];
@@ -28,7 +30,6 @@ export default class Animals {
         this.canRemoveBody = false;
         this.isGameOver = false;
         this.krakenInterval = null;
-        this.setWhales();
         this.setFishs();
         this.isPlayerInRadar = false;
         this.setKraken();
@@ -73,21 +74,6 @@ export default class Animals {
             let z = Math.sin(angle) * distance;
             fishClone.position.set(x, -2.3, z);
         }
-
-    }
-    setWhales() {
-        this.whale = this.whaleResource.scene.children[0];
-        // this.scene.add(this.whale);
-        this.whale.position.set(0, -0.8, 0);
-
-
-        const clips = this.whaleResource.animations;
-
-        const whales = new THREE.AnimationObjectGroup();
-        this.whaleMixer = new THREE.AnimationMixer(this.whale);
-        const clip = THREE.AnimationClip.findByName(clips, "SWIM-delphinidae");
-        const action = this.whaleMixer.clipAction(clip);
-        action.play();
 
     }
 
@@ -153,24 +139,26 @@ export default class Animals {
                     console.log("kraken position", this.kraken.position);
                     gsap.to(this.radar.material, { opacity: 0, duration: 1 });
                     gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
+                    this.krakenPopAudio.play();
                     // reset radar body position
                     // this.radar.position.set(0, -50, 0);
-
-
                 }
             }, 500);
 
         };
         gsap.to(this.radar.scale, { x: 1, y: 1, z: 1, duration: 4, onComplete: OnScaleComplete });
+        this.krakenAlarmAudio.play();
         this.radar.position.set(boatPosbeforeAttack.x, 0.001, boatPosbeforeAttack.z);
 
     }
 
     async releaseKraken() {
         this.attack();
+       
+        const randomDelay = Math.random() * (30000 - 20000) + 20000;
         this.krakenInterval = setInterval(() => {
             this.attack();
-        }, 10000);
+        }, randomDelay);
 
 
     }
@@ -181,11 +169,12 @@ export default class Animals {
                 this.birdsParent = child;
             }
         });
-        this.birdsParent.position.set(0, 9, 0);
+        this.birdsParent.position.set(0, 5,10);
+        this.birdsParent.rotation.y = -Math.PI *2;
 
         this.birds = this.birdsResource.scene.children;
         let randomAngle = Math.random() * 2 * Math.PI;
-        this.birdsParent.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+      this.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
         console.log(this.birdsResource);
         for (let i = 0; i < this.birds.length; i++) {
             const bird = this.birds[i];
@@ -195,8 +184,8 @@ export default class Animals {
             bird.clips = this.birdsResource.animations;
             bird.mixer = new THREE.AnimationMixer(bird);
             bird.clip = THREE.AnimationClip.findByName(bird.clips, "ArmatureAction.006");
-            bird.lookAt(this.birdsParent.randomDirection);
             bird.action = bird.mixer.clipAction(bird.clip);
+            bird.action.setLoop(THREE.LoopRepeat, Infinity);
             bird.action.play();
 
 
@@ -204,7 +193,7 @@ export default class Animals {
         const randomDelay = Math.random() * (15000 - 10000) + 10000;
         setInterval(() => {
             let randomAngle = Math.random() * 2 * Math.PI;
-            this.birdsParent.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
+          this.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
         }, randomDelay);
     }
     setBirdsAnim() {
@@ -213,33 +202,35 @@ export default class Animals {
             const bird = this.birdsArray[i];
             bird.mixer.update(this.time.delta * 0.001);
 
+            const shift = new THREE.Vector3();
+            shift.copy(this.randomDirection).multiplyScalar(1.5 * this.time.delta * 0.003);
+            const targetDirection = bird.position.clone().add(this.randomDirection);
+            // console.log(targetDirection);
+            const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(
+                new THREE.Matrix4().lookAt(targetDirection, bird.position, bird.up)
+            );
+    
+           if(window.canUpdate){
+            bird.position.add(shift);
+            bird.quaternion.slerp(targetQuaternion, this.time.delta * 0.0002);
+    
+           }
         }
-
-        const shift = new THREE.Vector3();
-        shift.copy(this.birdsParent.randomDirection).multiplyScalar(1.5 * this.time.delta * 0.003);
-        const targetDirection = this.birdsParent.position.clone().add(this.birdsParent.randomDirection);
-        // console.log(targetDirection);
-        const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(
-            new THREE.Matrix4().lookAt(targetDirection, this.birdsParent.position, this.birdsParent.up)
-        );
-
-        this.birdsParent.position.add(shift);
-        this.birdsParent.quaternion.slerp(targetQuaternion, this.time.delta * 0.002);
-
 
     }
 
     update(delta) {
+        console.log(window.canUpdate);
         this.setBirdsAnim();
         if (this.fishMixer && this.krakenMixer) {
             this.fishMixer.update(delta * 0.001);
-            // this.whaleMixer.update(delta *0.0002);
+
             this.krakenMixer.update(delta * 0.001);
         }
         if (this.radar) {
             // this.radar.material.uniforms.uTime.value = delta;
         }
-        if (window.score >= 2 && !this.isKrakenPop) {
+        if (window.score >= 4 && !this.isKrakenPop) {
             this.releaseKraken();
             console.log("pop kraken");
             this.isKrakenPop = true;
