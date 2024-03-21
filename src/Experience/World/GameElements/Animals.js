@@ -53,8 +53,6 @@ export default class Animals {
         this.fish.position.set(0, -2.6, 0);
         this.fish.scale.set(2, 2, 2);
 
-        console.log(this.fish);
-
         const clips = this.resource.animations;
 
         const fishes = new THREE.AnimationObjectGroup();
@@ -136,7 +134,6 @@ export default class Animals {
 
             setTimeout(() => {
                 if (!this.isPlayerInRadar) {
-                    console.log("kraken position", this.kraken.position);
                     gsap.to(this.radar.material, { opacity: 0, duration: 1 });
                     gsap.to(this.radar.scale, { x: 0.1, y: 0.1, z: 0.1, duration: 1 });
                     this.krakenPopAudio.play();
@@ -175,7 +172,6 @@ export default class Animals {
         this.birds = this.birdsResource.scene.children;
         let randomAngle = Math.random() * 2 * Math.PI;
       this.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-        console.log(this.birdsResource);
         for (let i = 0; i < this.birds.length; i++) {
             const bird = this.birds[i];
             this.scene.add(bird);
@@ -220,7 +216,6 @@ export default class Animals {
     }
 
     update(delta) {
-        console.log(window.canUpdate);
         this.setBirdsAnim();
         if (this.fishMixer && this.krakenMixer) {
             this.fishMixer.update(delta * 0.001);
@@ -232,7 +227,6 @@ export default class Animals {
         }
         if (window.score >= 4 && !this.isKrakenPop) {
             this.releaseKraken();
-            console.log("pop kraken");
             this.isKrakenPop = true;
         }
 

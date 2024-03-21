@@ -198,13 +198,11 @@ export default class Sharks {
             }
         });
         if (this.pursuerNumber >= 1 && this.canPlayLoopAggro) {
-            console.log("play loop aggro");
             this.onAggroSoundLoop.play();
             this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0.5, 0.05);
         } else {
             this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0, 0.05);
         }
-        console.log(this.onAggroSoundLoop.volume);
     }
 
     reset(params) {

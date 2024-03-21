@@ -125,12 +125,5 @@ export default class Timer {
 
 
 
-const myStartCallback = () => {
-    console.log('ran start callback')
-}
-
-const myEndCallback = () => {
-    console.log('ran end callback')
-}
 
 //   const timer = new Timer(90, document.querySelector('.timer-container'), myStartCallback, myEndCallback)

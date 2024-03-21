@@ -135,7 +135,6 @@ export default class Island {
 
                    boat.position.y = boat.userData.currentPosition.y; 
 
-                   console.log("collision detected, boat repelled");
                 }
 
             }

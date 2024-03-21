@@ -101,7 +101,6 @@ export default class Home extends EventEmitter {
                 this.uiManager.show(".movement-hint", false);
                 this.uiManager.fadeIn(".movement-hint", 1);
                 this.uiManager.fadeOut(".timer", 1);
-                console.log("reset")
                 this.timer.resetTimer();
             });
 
@@ -160,7 +159,6 @@ export default class Home extends EventEmitter {
                     this.dialogues[i + 1].play();
                 }
                 this.uiManager.fadeIn(".dialogue-text-container1", 1);
-                console.log(i + "offset third dialogue");
 
                 if (i == dialogues.length - 2) {
                     await new Promise(resolve => setTimeout(resolve, 4000));

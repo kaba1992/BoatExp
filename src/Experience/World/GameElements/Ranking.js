@@ -46,7 +46,7 @@ export default class Ranking {
                     this.uiManager.hide('.getUserName');
                 }, 1000);
             } else {
-                console.log("Pas de username défini");
+                this.usernameInput.placeholder = 'Veuillez entrer un pseudo';
             }
         });
 

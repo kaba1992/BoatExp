@@ -176,7 +176,6 @@ export default class Crate {
     this.crateArr.push(crate);
     this.crates.push(crate);
     this.scene.add(crate);
-    console.log("crate added");
 
     }
 
@@ -193,7 +192,6 @@ export default class Crate {
         this.crateArr.forEach((crate, index) => {
             const boatWorldPosition = new THREE.Vector3();
             this.boat.getWorldPosition(boatWorldPosition);
-            // console.log(boatWorldPosition );
             if (boatWorldPosition.distanceTo(crate.position) <= 2) {
                 crate.rotation.set(0, 0, 0);
                 window.score += 1;
