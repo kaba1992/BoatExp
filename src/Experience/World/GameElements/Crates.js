@@ -16,7 +16,6 @@ export default class Crate {
         this.clock = new THREE.Clock();
         this.crate = null
         this.crates = [];
-        this.crateArr = [];
         this.crateSlots = [];
         window.score = 0;
         this.crateModel = this.resources.items.crateModel
@@ -27,9 +26,9 @@ export default class Crate {
         this.slotIndex = 0;
         this.crateSlot = this.crateSlotModel.scene;
         this.pickAudio= new Audio('/Audios/Boat/PickCool1.wav');
-        this.pickAudio.volume = 0.5;
+        this.pickAudio.volume = 0.2;
         this.onBoatAudio= new Audio('/Audios/Boat/Pick2.wav');
-        this.onBoatAudio.volume = 0.5;
+        this.onBoatAudio.volume = 0.3;
         this.crate = this.crateModel.scene;
         this.crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
         this.crateNormal = new THREE.TextureLoader().load('/textures/Crate/crateNormal.png');
@@ -101,7 +100,6 @@ export default class Crate {
 
                 crate.position.set(x, -0.2, z);
                 crate.userData.initFloating = Math.random() * Math.PI * 2;
-                this.crateArr.push(crate);
                 this.crates.push(crate);
                 this.scene.add(crate);
                 resolve(crate);
@@ -173,7 +171,6 @@ export default class Crate {
     crate.position.set(x, -0.2, z);
    
     crate.userData.initFloating = Math.random() * Math.PI * 2;
-    this.crateArr.push(crate);
     this.crates.push(crate);
     this.scene.add(crate);
 
@@ -189,7 +186,7 @@ export default class Crate {
     }
     scoreManager() {
         this.counter++
-        this.crateArr.forEach((crate, index) => {
+        this.crates.forEach((crate, index) => {
             const boatWorldPosition = new THREE.Vector3();
             this.boat.getWorldPosition(boatWorldPosition);
             if (boatWorldPosition.distanceTo(crate.position) <= 2) {
@@ -200,7 +197,7 @@ export default class Crate {
                 this.pickAudio.play();
                 this.slotIndex++;
                 // remove in array
-                this.crateArr.splice(index, 1);
+                this.crates.splice(index, 1);
                 this.timer.incrementTimer(10000);
 
                 this.counter = 0;
@@ -212,7 +209,7 @@ export default class Crate {
 
     update() {
         const elapsedTime = this.clock.getElapsedTime();
-        this.initFloating(this.crateArr, elapsedTime);
+        this.initFloating(this.crates, elapsedTime);
         // log crateslot position
         this.crateSlots.forEach((crateSlot) => {
             const crateSlotWorld = new THREE.Vector3();
@@ -234,7 +231,6 @@ export default class Crate {
         window.score = 0;
         this.slotIndex = 0;
         this.counter = 0;
-        this.crateArr = [];
         this.crateSlots = [];
         this.setCrate();
 

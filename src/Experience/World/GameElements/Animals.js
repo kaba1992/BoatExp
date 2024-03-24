@@ -21,8 +21,8 @@ export default class Animals {
         this.camera = this.experience.camera.instance;
         this.krakenAlarmAudio = new Audio('/Audios/Animals/krakenPopAlarm.mp3');
         this.krakenPopAudio = new Audio('/Audios/Animals/krakenPop.mp3');
-        this.krakenPopAudio.volume = 0.5;
-        this.krakenAlarmAudio.volume = 0.5;
+        this.krakenPopAudio.volume = 0.2;
+        this.krakenAlarmAudio.volume = 0.2;
         this.boaPosition = new THREE.Vector3()
         this.birdsArray = [];
         this.fishs = [];

@@ -14,16 +14,17 @@ export default class Ranking {
         this.analytics = null;
         this.auth = null;
         this.db = null;
+        this.isGameOver = false;
         this.isUserNameStored = false;
         this.uiManager.hide('.getUserName');
         this.username = this.getUsernameFromLocalStorage();
         this.usernameInput = document.querySelector('.getUserName-text-input');
         this.rankings = new Map();
         this.top5 = new Map();
+        this.bestScore = 0;
         this.initializeFirebase();
         this.getUserBestScore();
         // this.getCurrentUserLastScore();
-        this.bestScore = 0;
         this.getRankingAndTop5();
         this.getCurrentUserLastScore();
         this.setListeners();
@@ -57,10 +58,13 @@ export default class Ranking {
                 this.uiManager.fadeIn('.getUserName', 1);
                 this.timer.stopDecrementation();
             } else {
-                this.updateScore(window.score);
-                this.getRankingAndTop5();
-                this.getCurrentUserLastScore();
-                this.getUserBestScore();
+                if(!this.isGameOver && this.bestScore && window.score ){
+                    this.getUserBestScore();
+                    this.getCurrentUserLastScore();
+                    this.updateScore(window.score);
+                    this.getRankingAndTop5();
+                    this.isGameOver = true;
+                }
             }
 
         });
@@ -129,29 +133,29 @@ export default class Ranking {
 
 
     async updateScore(newScore) {
-        if (this.username && newScore !== undefined) {
+        if (this.username && this.bestScore !== undefined ) {
             try {
-                if (newScore > this.bestScore) {
+                if (newScore > this.bestScore ) {
                     this.bestScore = newScore;
                 }
-
-                if (this.bestScore !== undefined) {
-                    const userScoreRef = doc(this.db, "userScores", this.username);
-                    await setDoc(userScoreRef, { score: this.bestScore });
-
-                    const userBestScoreRef = doc(this.db, "userBestScores", this.username);
-                    await setDoc(userBestScoreRef, { bestScore: this.bestScore });
-                    console.log("Score enregistré avec succès !");
-                } else {
-                    console.log("Le meilleure score est undefined, mise à jour annulée.");
-                }
+                const bestScore = this.bestScore;
+                const username = this.username;
+                const userScoreRef = doc(this.db, "userScores", username);
+                const userBestScoreRef = doc(this.db, "userBestScores", username);
+               if(bestScore){
+                console.log("i got bestScore");
+                await setDoc(userScoreRef, { score: bestScore});
+                await setDoc(userBestScoreRef, { bestScore: bestScore });
+               }
+                console.log("Score enregistré avec succès !");
             } catch (e) {
-                console.error("Erreur lors de la mise a jour du score : ", e);
+                console.error("Erreur lors de la mise à jour du score : ", e);
             }
         } else {
             console.log("Pas de username défini");
         }
     }
+
 
     async getCurrentUserLastScore() {
         if (this.username) {
@@ -159,6 +163,7 @@ export default class Ranking {
             const docSnap = await getDocs(collection(this.db, "userScores"));
             docSnap.forEach((doc) => {
                 doc.id === this.username ? this.bestScore = doc.data().score : null;
+                console.log("le meme utilisateur a joué");
             });
 
 
@@ -217,11 +222,12 @@ export default class Ranking {
     }
 
     reset() {
-  
+        this.isGameOver = false;
+
     }
 
     update() {
-
+console.log(this.bestScore);
 
     }
 }

@@ -19,8 +19,8 @@ export default class Sharks {
         this.Sharks = [];
         this.pursuerNumber = 0;
         this.speed = 1.3;
-        this.onAggroSoundLoop = new Audio('/Audios/Ambiance/aggroSound1.mp3');
-        this.onAggroSoundLoop.volume = 0.5;
+        this.onAggroSoundLoop = new Audio('/Audios/Ambiance/aggroSound1_LOOP_V2.wav');
+        this.onAggroSoundLoop.volume = 0.3;
         this.canPlayLoopAggro = true;
         this.setShark();
 
@@ -55,6 +55,7 @@ export default class Sharks {
         exclamationMarkMap.repeat.set(1, 1);
         exclamationMarkMap.minFilter = THREE.LinearFilter;
         exclamationMarkMap.magFilter = THREE.LinearFilter;
+        //mipmaping
 
         const sharkPlaneMaterial = new THREE.MeshBasicMaterial({
             side: THREE.DoubleSide,
@@ -62,32 +63,17 @@ export default class Sharks {
             transparent: true,
             transparent: true,
             depthTest: false,
+
         });
-
         let sharkCreationPromises = [];
-        const gridSize = 6;
-        const sharksInterval = 70;
-        const sharkNumber = gridSize * gridSize;
-        const randomOffset = 20;
-        const minimumDistanceFromCenter = 50; // Distance minimale du centre pour créer un requin
-        for (let i = 0; i < sharkNumber; i++) {
+
+        for (let i = 0; i < 25; i++) {
             let promise = new Promise((resolve, reject) => {
-                const row = Math.floor(i / gridSize);
-                const col = i % gridSize;
-                const x = col * sharksInterval - (gridSize * sharksInterval) / 2 + (Math.random() - 0.5) * randomOffset;
-                const z = row * sharksInterval - (gridSize * sharksInterval) / 2 + (Math.random() - 0.5) * randomOffset;
-
-                // Calcule la distance par rapport au centre (0,0,0)
-                const distanceFromCenter = Math.sqrt(x * x + z * z);
-                if (distanceFromCenter < minimumDistanceFromCenter) {
-                    resolve(null); 
-                    return;
-                }
-
                 let clonedShark = SkeletonUtils.clone(this.resource.scene);
                 const sharkPlane = new THREE.Mesh(sharkPlaneGeometry, sharkPlaneMaterial);
                 sharkPlane.layers.enable(1);
                 sharkPlane.layers.disable(0);
+
 
                 sharkPlane.position.y = 1.5;
                 sharkPlane.visible = false;
@@ -102,7 +88,11 @@ export default class Sharks {
                 clonedShark.action = clonedShark.mixer.clipAction(clonedShark.clip);
                 clonedShark.action.setLoop(THREE.LoopRepeat, Infinity);
                 clonedShark.action.play();
-
+                let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
+                let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+                // Convertit la distance et l'angle en coordonnées x et z
+                let x = Math.cos(angle) * distance;
+                let z = Math.sin(angle) * distance;
                 clonedShark.position.set(x, 0, z);
                 clonedShark.scale.multiplyScalar(1.4);
                 let randomAngle = Math.random() * 2 * Math.PI;
@@ -113,8 +103,11 @@ export default class Sharks {
 
                 this.Sharks.push(clonedShark);
                 this.scene.add(clonedShark);
-                
+                // clonedShark.add(clonedShark.plane);
+                // get random Delay between 5000 and 10000
                 const randomDelay = Math.random() * (10000 - 5000) + 5000;
+
+
 
                 setInterval(() => {
                     let randomAngle = Math.random() * 2 * Math.PI;
@@ -123,6 +116,7 @@ export default class Sharks {
                 resolve(clonedShark);
             });
             sharkCreationPromises.push(promise);
+
         }
         await Promise.all(sharkCreationPromises);
         console.log("all sharks loaded");
@@ -198,37 +192,39 @@ export default class Sharks {
             }
         });
         if (this.pursuerNumber >= 1 && this.canPlayLoopAggro) {
+            console.log("play loop aggro");
             this.onAggroSoundLoop.play();
             this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0.5, 0.05);
         } else {
             this.onAggroSoundLoop.volume = THREE.MathUtils.lerp(this.onAggroSoundLoop.volume, 0, 0.05);
         }
-    }
+    console.log(this.onAggroSoundLoop.volume);
+}
 
-    reset(params) {
+reset(params) {
 
-        this.aggroAudio.volume = 0.5;
-        this.onAggroSoundLoop.currentTime = 0;
-        this.canPlayLoopAggro = true;
+    this.aggroAudio.volume = 0.5;
+    this.onAggroSoundLoop.currentTime = 0;
+    this.canPlayLoopAggro = true;
 
-        this.pursuerNumber = 0;
+    this.pursuerNumber = 0;
+    this.canUpdate = params.canUpdate;
+    // reset sharks
+    this.Sharks.forEach(shark => {
+        shark.plane.visible = false;
+        shark.notChasing = true;
+        shark.aggoSoundPlayed = false;
+        let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
+        let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+        // Convertit la distance et l'angle en coordonnées x et z
+        let x = Math.cos(angle) * distance;
+        let z = Math.sin(angle) * distance;
+        shark.position.set(x, 0, z);
+        shark.speed = 1.3;
 
-        // reset sharks
-        this.Sharks.forEach(shark => {
-            shark.plane.visible = false;
-            shark.notChasing = true;
-            shark.aggoSoundPlayed = false;
-            let distance = 20 + Math.random() * 200; // génère une distance entre 50 et 200
-            let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
-            // Convertit la distance et l'angle en coordonnées x et z
-            let x = Math.cos(angle) * distance;
-            let z = Math.sin(angle) * distance;
-            shark.position.set(x, 0, z);
-            shark.speed = 1.3;
+        let randomAngle = Math.random() * 2 * Math.PI;
+        shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
 
-            let randomAngle = Math.random() * 2 * Math.PI;
-            shark.randomDirection = new Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-
-        });
-    }
+    });
+}
 }

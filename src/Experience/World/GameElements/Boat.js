@@ -47,7 +47,7 @@ export default class Boat {
     this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
     this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
     this.gameOverAudio = new Audio('/Audios/Ambiance/gameOver.mp3');
-    this.gameOverAudio.volume = 0.5;
+    this.gameOverAudio.volume = 0.3;
     this.sailingTraceAudio.volume = 0.2;
     this.voileAudio.volume = 0.5;
 
@@ -271,7 +271,7 @@ export default class Boat {
   fillBoost() {
 
     if (this.boost >= 100) return
-    this.boost += 0.045
+    this.boost += 0.085
 
     this.boostBar.style.width = `${this.boost}%`
     this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
@@ -404,6 +404,8 @@ export default class Boat {
   reset() {
 
     this.boost = 100
+    this.boostBar.style.width = `${this.boost}%`
+    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
     this.canPlayGameOVer = true
 
     window.canUpdate = false
