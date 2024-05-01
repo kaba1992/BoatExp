@@ -1,6 +1,5 @@
 import Experience from "../Experience";
 import * as THREE from "three";
-import * as dat from 'lil-gui'
 import gsap from "gsap";
 
 export default class ThirdPersonCamera {
@@ -14,10 +13,8 @@ export default class ThirdPersonCamera {
         this.camera = params.camera;
         this.target = params.target;
         this.canUpdate = false;
-        this.gui = new dat.GUI();
         this.currentPosition = new THREE.Vector3();
         this.currentLookAt = new THREE.Vector3();
-        this.cameraUi = this.gui.addFolder('camera')
         this.clock = new THREE.Clock();
 
         this.params = {

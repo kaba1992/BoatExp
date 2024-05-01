@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import Experience from './Experience.js'
 import fragmentPiscine from './../../static/shaders/Boat/fragmentPiscine.glsl'
 import vertexPiscine from './../../static/shaders/Boat/vertexPiscine.glsl'
-import GUI from 'lil-gui'
 import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
 
 
@@ -162,7 +161,7 @@ export default class RendererWater {
     }
 
     update() {
-        this.water.visible = false
+       this.water.visible = false
         this.camera.instance.layers.set(0);
         this.camera.instance.layers.enable(0);
         this.camera.instance.layers.disable(1);

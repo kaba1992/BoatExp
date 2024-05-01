@@ -61,14 +61,6 @@ export default [
     },
 
     {
-        name: 'birdsModel',
-        type: 'dracoLoader',
-        path: 'models/Animals/birds.glb'
-
-    },
-
-
-    {
         name: 'crateModel',
         type: 'dracoLoader',
         path: 'models/Crate/crateToon.glb'
@@ -77,5 +69,10 @@ export default [
         name: 'crateSlotModel',
         type: 'gltfModel',
         path: 'models/Crate/crateSlots.glb'
+    },
+    {
+        name: 'birdsPlane',
+        type: 'gltfModel',
+        path: 'models/Animals/flying.glb'
     }
 ]

@@ -9,15 +9,12 @@ import Shark from './Sharks.js';
 import Island from './Islands.js';
 import Crate from './Crates.js';
 import Trail from './Trail.js';
+import BirdMove from './BirdMove.js';
 import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { RadialBlurPassGen } from 'three-radial-blur';
 import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonShader.glsl';
 import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
-
-
-
-import Animals from './Animals.js'
 
 
 export default class Boat {
@@ -41,6 +38,7 @@ export default class Boat {
 
 
     this.resource = this.resources.items.boatModel
+    this.birdsPlane = this.resources.items.birdsPlane
 
     this.clock = new THREE.Clock()
 
@@ -222,8 +220,17 @@ export default class Boat {
     this.Shark = new Shark({ boat: this.model, canUpdate: window.canUpdate })
     this.island = new Island({ boat: this.model })
     this.crate = new Crate({ boat: this.model })
-    this.Animals = new Animals({ boat: this.model, canUpdate: window.canUpdate })
     this.trail = new Trail({ boat: this.model })
+    this.birdMove1 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove1.setPosition(0, 0, 0)
+    this.birdMove2 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove2.setPosition(50, 0, 0)
+    this.birdMove3 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove3.setPosition(-50, 0, 0)
+    this.birdMove4 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove4.setPosition(0, 0, 50)
+    this.birdMove5 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove5.setPosition(0, 0, -50)
     this.trail.particleGroup.visible = false;
 
   }
@@ -391,11 +398,14 @@ export default class Boat {
 
   updateAdditionalComponents() {
     this.ThirdPersonCamera.update(this.time.delta)
-
-    this.Animals.update(this.time.delta)
     this.island.update(this.time.delta)
+    this.birdMove1.update(this.time.delta)
+    this.birdMove2.update(this.time.delta)
+    this.birdMove3.update(this.time.delta)
+    this.birdMove4.update(this.time.delta)
+    this.birdMove5.update(this.time.delta)
     if (window.canUpdate) {
-      this.Shark.update(this.time.delta)
+      // this.Shark.update(this.time.delta)
       this.crate.update(this.time.delta)
       this.trail.update(this.time.delta)
     }

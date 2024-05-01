@@ -163,7 +163,7 @@ export default class Ranking {
             const docSnap = await getDocs(collection(this.db, "userScores"));
             docSnap.forEach((doc) => {
                 doc.id === this.username ? this.bestScore = doc.data().score : null;
-                console.log("le meme utilisateur a joué");
+           
             });
 
 
@@ -227,7 +227,7 @@ export default class Ranking {
     }
 
     update() {
-console.log(this.bestScore);
+
 
     }
 }

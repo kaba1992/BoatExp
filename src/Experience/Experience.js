@@ -52,23 +52,23 @@ export default class Experience {
  
 
         // create a new Stats object
-        this.stats = new Stats({
-            logsPerSecond: 20,
-            samplesLog: 100,
-            samplesGraph: 10,
-            precision: 2,
-            horizontal: true,
-            minimal: false,
-            mode: 2
-        });
-        document.body.appendChild(this.stats.container);
-        this.stats.init(this.renderer.instance.domElement);
+        // this.stats = new Stats({
+        //     logsPerSecond: 20,
+        //     samplesLog: 100,
+        //     samplesGraph: 10,
+        //     precision: 2,
+        //     horizontal: true,
+        //     minimal: false,
+        //     mode: 2
+        // });
+        // document.body.appendChild(this.stats.container);
+        // this.stats.init(this.renderer.instance.domElement);
         this.scene.onBeforeRender = () => {
-            this.stats.begin();
+            // this.stats.begin();
         }
 
         this.scene.onAfterRender = () => {
-            this.stats.end();
+            // this.stats.end();
         }
 
 
@@ -96,7 +96,7 @@ export default class Experience {
     }
 
     update() {
-        this.stats.begin();
+        // this.stats.begin();
         this.camera.update()
         this.world.update()
         this.renderer.update()
@@ -105,7 +105,7 @@ export default class Experience {
         this.reveal.update();
         this.ranking.update();
 
-        this.stats.end();
+        // this.stats.end();
         // this.stats.update()
     }
 
