@@ -23,6 +23,7 @@ export default class Home extends EventEmitter {
 
         this.uiManager.hide('#root');
         this.soundDom = document.querySelector(".sound")
+        this.gameOverScore = document.querySelector(".gameOver-score")
         this.uiManager.hide(".dialogue-text-container1");
         this.uiManager.hide(".dialogue");
         this.uiManager.hide(".gameOverContainer");
@@ -82,6 +83,7 @@ export default class Home extends EventEmitter {
             if (this.ranking.isUserNameStored) {
                 this.uiManager.show(".gameOverContainer", false);
                 this.uiManager.fadeIn(".gameOverContainer", 1);
+                this.gameOverScore.innerHTML =  window.score;
                 this.timer.stopDecrementation()
             }
 

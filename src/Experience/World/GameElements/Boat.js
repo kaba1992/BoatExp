@@ -9,12 +9,13 @@ import Shark from './Sharks.js';
 import Island from './Islands.js';
 import Crate from './Crates.js';
 import Trail from './Trail.js';
-import BirdMove from './BirdMove.js';
 import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { RadialBlurPassGen } from 'three-radial-blur';
 import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonShader.glsl';
 import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
+import BirdMove from './BirdMove.js'
+import Kraken from './Kraken.js'
 
 
 export default class Boat {
@@ -220,7 +221,9 @@ export default class Boat {
     this.Shark = new Shark({ boat: this.model, canUpdate: window.canUpdate })
     this.island = new Island({ boat: this.model })
     this.crate = new Crate({ boat: this.model })
+    this.kraken = new Kraken({ boat: this.model, canUpdate: window.canUpdate })
     this.trail = new Trail({ boat: this.model })
+    this.trail.particleGroup.visible = false;
     this.birdMove1 = new BirdMove(this.scene,this.birdsPlane);
     this.birdMove1.setPosition(0, 0, 0)
     this.birdMove2 = new BirdMove(this.scene,this.birdsPlane);
@@ -231,7 +234,6 @@ export default class Boat {
     this.birdMove4.setPosition(0, 0, 50)
     this.birdMove5 = new BirdMove(this.scene,this.birdsPlane);
     this.birdMove5.setPosition(0, 0, -50)
-    this.trail.particleGroup.visible = false;
 
   }
 
@@ -398,6 +400,8 @@ export default class Boat {
 
   updateAdditionalComponents() {
     this.ThirdPersonCamera.update(this.time.delta)
+
+    this.kraken.update(this.time.delta)
     this.island.update(this.time.delta)
     this.birdMove1.update(this.time.delta)
     this.birdMove2.update(this.time.delta)
@@ -405,7 +409,7 @@ export default class Boat {
     this.birdMove4.update(this.time.delta)
     this.birdMove5.update(this.time.delta)
     if (window.canUpdate) {
-      // this.Shark.update(this.time.delta)
+      this.Shark.update(this.time.delta)
       this.crate.update(this.time.delta)
       this.trail.update(this.time.delta)
     }

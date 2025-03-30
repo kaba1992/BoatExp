@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection } from "firebase/firestore";
-import { doc, setDoc, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDocs, getDoc } from "firebase/firestore";
 
 export default class Ranking {
     constructor() {
@@ -22,25 +22,22 @@ export default class Ranking {
         this.rankings = new Map();
         this.top5 = new Map();
         this.bestScore = 0;
+        this.currentScore = 0;
         this.initializeFirebase();
         this.getUserBestScore();
-        // this.getCurrentUserLastScore();
         this.getRankingAndTop5();
-        this.getCurrentUserLastScore();
         this.setListeners();
-
-
     }
 
     setListeners() {
-      
         const submitUsernameButton = document.querySelector('.getUserName-text-button');
         const setUserNameEvent = new Event('setUserName');
         submitUsernameButton.addEventListener('click', () => {
             if (this.usernameInput.value) {
-                // lower case the username
-                this.setUser(this.usernameInput.value.toLowerCase());
-                this.storeUserScore(this.usernameInput.value, window.score);
+            
+                const username = this.usernameInput.value.toLowerCase();
+                this.setUser(username);
+                this.storeUserScore(username, window.score);
                 this.uiManager.fadeOut('.getUserName', 1);
                 window.dispatchEvent(setUserNameEvent);
                 setTimeout(() => {
@@ -51,22 +48,18 @@ export default class Ranking {
             }
         });
 
-
         window.addEventListener('gameOver', () => {
             if (!this.isUserNameStored) {
                 this.uiManager.show('.getUserName', false, 'flex');
                 this.uiManager.fadeIn('.getUserName', 1);
                 this.timer.stopDecrementation();
             } else {
-                if(!this.isGameOver && this.bestScore && window.score ){
-                    this.getUserBestScore();
-                    this.getCurrentUserLastScore();
-                    this.updateScore(window.score);
-                    this.getRankingAndTop5();
+                if(!this.isGameOver && window.score) {
+                    this.currentScore = window.score;
+                    this.updateScore(this.currentScore);
                     this.isGameOver = true;
                 }
             }
-
         });
 
         window.addEventListener('reset', () => {
@@ -85,13 +78,10 @@ export default class Ranking {
             measurementId: "G-CTXGV8FKHW"
         };
 
-        // Initialize Firebase
         this.firebaseApp = initializeApp(firebaseConfig);
         this.analytics = getAnalytics(this.firebaseApp);
         this.auth = getAuth(this.firebaseApp);
         this.db = getFirestore(this.firebaseApp);
-
-
     }
 
     getUsernameFromLocalStorage() {
@@ -99,7 +89,6 @@ export default class Ranking {
         if (username) {
             this.isUserNameStored = true;
             return username;
-
         } else {
             console.log("Pas de username enregistré dans le localStorage");
             this.isUserNameStored = false;
@@ -109,21 +98,39 @@ export default class Ranking {
 
     async storeUserScore(username, score) {
         try {
-
-            localStorage.setItem('bestScore', this.bestScore);
-            const userScoreRef = doc(this.db, "userScores", username);
+            // Récupérer le meilleur score existant s'il y en a un
             const userBestScoreRef = doc(this.db, "userBestScores", username);
-            await setDoc(userScoreRef, { score: score });
-            if (this.bestScore) {
-                await setDoc(userBestScoreRef, { score: this.bestScore });
+            const docSnap = await getDoc(userBestScoreRef);
+            
+            let bestScore = 0;
+            if (docSnap.exists()) {
+                bestScore = docSnap.data().score || 0;
             }
+            
+            // Mettre à jour le meilleur score si le score actuel est plus élevé
+            if (score > bestScore) {
+                bestScore = score;
+            }
+            
+            this.bestScore = bestScore;
+            localStorage.setItem('bestScore', bestScore);
+            
+            // Enregistrer le score actuel
+            const userScoreRef = doc(this.db, "userScores", username);
+            await setDoc(userScoreRef, { score: score });
+            
+            // Mettre à jour le meilleur score
+            await setDoc(userBestScoreRef, { score: bestScore });
+            
             this.isUserNameStored = true;
             console.log("Score enregistré avec succès !");
-
+            
+            // Mettre à jour le classement
+            this.getRankingAndTop5();
+            
         } catch (e) {
             console.error("Erreur lors de l'enregistrement du score : ", e);
         }
-
     }
 
     setUser(username) {
@@ -131,23 +138,30 @@ export default class Ranking {
         localStorage.setItem('username', username);
     }
 
-
     async updateScore(newScore) {
-        if (this.username && this.bestScore !== undefined ) {
+        if (this.username) {
             try {
-                if (newScore > this.bestScore ) {
+                // Obtenir le meilleur score actuel de l'utilisateur
+                await this.getUserBestScore();
+                
+                // Mettre à jour le meilleur score si nécessaire
+                if (newScore > this.bestScore) {
                     this.bestScore = newScore;
+                    localStorage.setItem('bestScore', this.bestScore);
                 }
-                const bestScore = this.bestScore;
+                
                 const username = this.username;
                 const userScoreRef = doc(this.db, "userScores", username);
                 const userBestScoreRef = doc(this.db, "userBestScores", username);
-               if(bestScore){
-                console.log("i got bestScore");
-                await setDoc(userScoreRef, { score: bestScore});
-                await setDoc(userBestScoreRef, { bestScore: bestScore });
-               }
-                console.log("Score enregistré avec succès !");
+             
+                await setDoc(userScoreRef, { score: newScore });
+               
+                await setDoc(userBestScoreRef, { score: this.bestScore });
+                
+                console.log("Score mis à jour avec succès !");
+            
+                await this.getRankingAndTop5();
+                
             } catch (e) {
                 console.error("Erreur lors de la mise à jour du score : ", e);
             }
@@ -156,63 +170,80 @@ export default class Ranking {
         }
     }
 
-
-    async getCurrentUserLastScore() {
+    async getUserBestScore() {
         if (this.username) {
-            const userScoreRef = doc(this.db, "userScores", this.username);
-            const docSnap = await getDocs(collection(this.db, "userScores"));
-            docSnap.forEach((doc) => {
-                doc.id === this.username ? this.bestScore = doc.data().score : null;
-           
-            });
-
-
+            try {
+                const userBestScoreRef = doc(this.db, "userBestScores", this.username);
+                const docSnap = await getDoc(userBestScoreRef);
+                
+                if (docSnap.exists()) {
+                    this.bestScore = docSnap.data().score || 0;
+                } else {
+                    this.bestScore = 0;
+                }
+                
+                console.log(`Meilleur score pour ${this.username}: ${this.bestScore}`);
+                
+            } catch (e) {
+                console.error("Erreur lors de la récupération du meilleur score : ", e);
+                this.bestScore = 0;
+            }
         } else {
             console.log("Pas de username défini");
+            this.bestScore = 0;
         }
     }
 
-
     async getRanking() {
-        const userScoresRef = collection(this.db, "userScores");
-        const querySnapshot = await getDocs(collection(this.db, "userScores"));
-        querySnapshot.forEach((doc) => {
-            this.rankings.set(doc.id, doc.data().score);
-        });
-        this.rankings = new Map([...this.rankings.entries()].sort((a, b) => b[1] - a[1]));
-        this.top5 = new Map([...this.rankings].slice(0, 5));
+        try {
+            this.rankings.clear();
+            const querySnapshot = await getDocs(collection(this.db, "userBestScores"));
+            
+            querySnapshot.forEach((doc) => {
+                this.rankings.set(doc.id, doc.data().score || 0);
+            });
+            
+            // Trier par score décroissant
+            this.rankings = new Map([...this.rankings.entries()].sort((a, b) => b[1] - a[1]));
+            this.top5 = new Map([...this.rankings].slice(0, 5));
+            
+        } catch (e) {
+            console.error("Erreur lors de la récupération du classement : ", e);
+        }
     }
-    async getUserBestScore() {
-        const userBestScoresRef = collection(this.db, "userBestScores");
-        const querySnapshot = await getDocs(collection(this.db, "userBestScores"));
-        querySnapshot.forEach((doc) => {
-            this.bestScore = doc.data().bestScore;
-        });
-
-    }
-
-
 
     displayTop5() {
-
         const top5ListElement = document.getElementById('ranking');
-        top5ListElement.innerHTML = '';
         if (!top5ListElement) return;
+        
+        top5ListElement.innerHTML = '';
 
         this.top5.forEach((bestScore, username) => {
-
             const listParent = document.createElement('div');
             listParent.className = 'listParent';
+            
+            // Mettre en évidence le joueur actuel
+            if (username === this.username) {
+                listParent.classList.add('currentPlayer');
+            }
+            
             top5ListElement.appendChild(listParent);
+            
+       
+            
             const listItemUsername = document.createElement('li');
             listItemUsername.className = 'listItemUsername';
             // uppercase the first letter of the username
             listItemUsername.textContent = username.charAt(0).toUpperCase() + username.slice(1);
+            
             const listItemScore = document.createElement('li');
             listItemScore.className = 'listItemScore';
             listItemScore.textContent = bestScore;
+          
             listParent.appendChild(listItemUsername);
             listParent.appendChild(listItemScore);
+            
+         
         });
     }
 
@@ -223,11 +254,9 @@ export default class Ranking {
 
     reset() {
         this.isGameOver = false;
-
     }
 
     update() {
-
-
+        // Cette méthode peut être utilisée pour des mises à jour régulières si nécessaire
     }
 }
