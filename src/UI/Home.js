@@ -7,7 +7,7 @@ import gsap from 'gsap';
 const dialogues = [
     "Hello young Rookie, welcome to 'Sea Of Sharks'. I am Captain Flyn, and I need your help!",
     "My cargo was lost at sea and half of my crew was eaten by sharks",
-    "Your job is to bring me back my supplies as fast as possible. You will have to avoid the sharks and Krakensama.",
+    "Your job is to bring me back my supplies.Avoid the sharks and Krakensama.",
     "Be carefull, the sharks are still roaming around us. Good luck rookies and may the best win !",
 ];
 

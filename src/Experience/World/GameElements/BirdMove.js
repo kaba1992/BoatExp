@@ -110,6 +110,8 @@ class BirdMove {
                     setTimeout(() => {
                         video.video.load()
                         video.video.play();
+                        console.log('played');
+                        
                     }, randomDelay);
                     this.fadeBird()
                 }
