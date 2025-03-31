@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, VideoTexture, NormalBlending, AnimationMixer, LoopRepeat, DoubleSide, LinearFilter, NearestFilter ,Color} from 'three';
+import { MeshBasicMaterial, VideoTexture, AnimationMixer, LoopRepeat, DoubleSide, LinearFilter, NearestFilter } from 'three';
 import gsap from 'gsap';
 
 class BirdMove {
@@ -61,15 +61,12 @@ class BirdMove {
                 this.texture = new VideoTexture(this.video)
                 this.texture.minFilter = LinearFilter;
                 this.texture.magFilter = LinearFilter;
-
-                console.log(this.texture);
                 this.texture.needsUpdate = true;
                 this.texture.anisotropy = 0;
                 this.texture.magFilter = NearestFilter;
                 this.texture.minFilter = NearestFilter;
                 child.material = new MeshBasicMaterial({
                     map: this.texture,
-                    Color: new Color(0x000000),
                     alphaMap: this.texture,
                     side: DoubleSide,
                     transparent: true,
@@ -82,7 +79,7 @@ class BirdMove {
                 this.materials.push(child.material)
             }
         })
-        console.log(this.glb);
+    
         this.group.add(this.glb)
     }
     fadeBird() {
@@ -110,7 +107,7 @@ class BirdMove {
                     setTimeout(() => {
                         video.video.load()
                         video.video.play();
-                        console.log('played');
+                       
                         
                     }, randomDelay);
                     this.fadeBird()

@@ -119,7 +119,7 @@ export default class Sharks {
 
         }
         await Promise.all(sharkCreationPromises);
-        console.log("all sharks loaded");
+    
     }
 
     async checkDistance(shark) {

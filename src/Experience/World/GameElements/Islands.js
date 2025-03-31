@@ -101,7 +101,7 @@ export default class Island {
             promises.push(bigIslandPromise)
         }
         await Promise.all(promises)
-        console.log("all islands loaded");
+     
 
     }
 

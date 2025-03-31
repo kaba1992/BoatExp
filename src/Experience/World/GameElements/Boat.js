@@ -16,6 +16,7 @@ import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonSh
 import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
 import BirdMove from './BirdMove.js'
 import Kraken from './Kraken.js'
+import Boost from './Boost.js';
 
 
 export default class Boat {
@@ -55,7 +56,7 @@ export default class Boat {
     this.velocity = 0.004
     this.rotation = null
     this.boostMultiplier = 2;
-
+    this.boostElement = new Boost(this.scene)
     this.boostBar = document.querySelector('.boostBar')
     this.boostProgress = document.querySelector('.boostProgress')
     this.boostBar.style.width = `${this.boost}%`
@@ -408,6 +409,7 @@ export default class Boat {
     this.birdMove3.update(this.time.delta)
     this.birdMove4.update(this.time.delta)
     this.birdMove5.update(this.time.delta)
+    this.boostElement.update(this.time.delta)
     if (window.canUpdate) {
       this.Shark.update(this.time.delta)
       this.crate.update(this.time.delta)

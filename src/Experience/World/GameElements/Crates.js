@@ -25,9 +25,9 @@ export default class Crate {
         this.counter = 0;
         this.slotIndex = 0;
         this.crateSlot = this.crateSlotModel.scene;
-        this.pickAudio= new Audio('/Audios/Boat/PickCool1.wav');
+        this.pickAudio = new Audio('/Audios/Boat/PickCool1.wav');
         this.pickAudio.volume = 0.2;
-        this.onBoatAudio= new Audio('/Audios/Boat/Pick2.wav');
+        this.onBoatAudio = new Audio('/Audios/Boat/Pick2.wav');
         this.onBoatAudio.volume = 0.3;
         this.crate = this.crateModel.scene;
         this.crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
@@ -70,7 +70,7 @@ export default class Crate {
 
 
         // const crateNumb = 100;
-    
+
         /// wrap texture
         this.crateBase.wrapS = THREE.RepeatWrapping;
         this.crateBase.wrapT = THREE.RepeatWrapping;
@@ -107,8 +107,8 @@ export default class Crate {
             crateCreationPromises.push(promise);
         }
         await Promise.all(crateCreationPromises);
-        console.log("all crates loaded");
-     
+
+
     }
 
     animateCrateToBoat(crate, index) {
@@ -154,25 +154,25 @@ export default class Crate {
             self.onBoatAudio.play();
             if (index > crateSlots.length - 1) {
                 this.scene.remove(crate);
-              
+
             }
         })
     }
 
     createrCrateAfterRemove() {
-     // create new crate after remove and set it randomly on grid 
-    const crate = new THREE.Mesh(this.crateGeometry, this.crateMaterial);
-    crate.scale.set(0.05, 0.05, 0.05);
-    let distance = 5 + Math.random() * 200; // génère une distance entre 50 et 200
-    let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
-    // Convertit la distance et l'angle en coordonnées x et z
-    let x = Math.cos(angle) * distance;
-    let z = Math.sin(angle) * distance;
-    crate.position.set(x, -0.2, z);
-   
-    crate.userData.initFloating = Math.random() * Math.PI * 2;
-    this.crates.push(crate);
-    this.scene.add(crate);
+        // create new crate after remove and set it randomly on grid 
+        const crate = new THREE.Mesh(this.crateGeometry, this.crateMaterial);
+        crate.scale.set(0.05, 0.05, 0.05);
+        let distance = 5 + Math.random() * 200; // génère une distance entre 50 et 200
+        let angle = Math.random() * 2 * Math.PI; // génère un angle entre 0 et 2π
+        // Convertit la distance et l'angle en coordonnées x et z
+        let x = Math.cos(angle) * distance;
+        let z = Math.sin(angle) * distance;
+        crate.position.set(x, -0.2, z);
+
+        crate.userData.initFloating = Math.random() * Math.PI * 2;
+        this.crates.push(crate);
+        this.scene.add(crate);
 
     }
 
@@ -199,6 +199,26 @@ export default class Crate {
                 // remove in array
                 this.crates.splice(index, 1);
                 this.timer.incrementTimer(10000);
+                console.log("crate removed")
+                gsap.to(".aditional-time", {
+                    opacity: 1,
+                    scale: 1.8,
+                    display: "block",
+                    ease: "power2.out",
+                    duration: 0.3,
+                    onComplete: () => {
+                        gsap.to(".aditional-time", {
+                            opacity: 0,
+                            scale: 1,
+                            duration: 0.3,
+                            ease: "power2.out",
+                            onComplete: () => {
+                                gsap.set(".aditional-time", { display: "none" })
+                            }
+
+                        })
+                    }
+                })
 
                 this.counter = 0;
             }

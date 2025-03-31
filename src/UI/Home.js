@@ -30,6 +30,7 @@ export default class Home extends EventEmitter {
         this.uiManager.hide(".movement-hint");
         this.uiManager.hide(".score");
         this.uiManager.hide(".timer ");
+        this.uiManager.hide(".aditional-time");
         this.loopAudio = new Audio('Audios/Ambiance/AmbianceLoop.wav');
         this.loopAudio.loop = true;
         this.loopAudio.volume = 0.2;

@@ -18,7 +18,6 @@ export default class RendererWater {
         this.camera = this.experience.camera
         this.cameraOrtho = this.experience.camera.instanceOrtho
         this.clock = new THREE.Clock()
-        console.log(reveal);
         // this.revealComposer = this.experience.reveal.composer
 
 

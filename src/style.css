@@ -141,6 +141,12 @@ body {
 	height: 50px;
 }
 
+@keyframes boostAnimation {
+	0% { filter: brightness(1); }
+	50% { filter: brightness(1.5); }
+	100% { filter: brightness(1); }
+  }
+
 .boostBar {
 	position: absolute;
 	bottom: 5%;
@@ -148,7 +154,8 @@ body {
 	width: 100%;
 	height: 100%;
 	border-radius: 10px;
-	background: linear-gradient(to right, #f5af19, #f12711);
+	background: linear-gradient(90deg, #6600cc, #0099ff);
+	animation: boostAnimation 1s infinite alternate;
 }
 
 .boostProgress {

@@ -90,7 +90,7 @@ export default class Ranking {
             this.isUserNameStored = true;
             return username;
         } else {
-            console.log("Pas de username enregistré dans le localStorage");
+          
             this.isUserNameStored = false;
             return null;
         }
@@ -123,7 +123,7 @@ export default class Ranking {
             await setDoc(userBestScoreRef, { score: bestScore });
             
             this.isUserNameStored = true;
-            console.log("Score enregistré avec succès !");
+          
             
             // Mettre à jour le classement
             this.getRankingAndTop5();
@@ -158,7 +158,7 @@ export default class Ranking {
                
                 await setDoc(userBestScoreRef, { score: this.bestScore });
                 
-                console.log("Score mis à jour avec succès !");
+             
             
                 await this.getRankingAndTop5();
                 
@@ -182,7 +182,7 @@ export default class Ranking {
                     this.bestScore = 0;
                 }
                 
-                console.log(`Meilleur score pour ${this.username}: ${this.bestScore}`);
+               
                 
             } catch (e) {
                 console.error("Erreur lors de la récupération du meilleur score : ", e);
