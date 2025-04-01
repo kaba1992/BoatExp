@@ -16,11 +16,14 @@ class Boost {
             fragmentShader: boostFragment,
             uniforms: {
                 uTime: { value: 0.0 },
-                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-            }
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                uAlphaTexture: { value: new THREE.TextureLoader().load('/textures/Ui/AlphaBot.jpg') }
+            },
+            transparent: true,
+            // blending: THREE.AdditiveBlending,
             // wireframe: true,
         });
-        const boostPlane = new THREE.PlaneGeometry(0.6,0.1, 1, 1);
+        const boostPlane = new THREE.PlaneGeometry(0.4,0.12, 1, 1);
 
 
 
@@ -30,7 +33,7 @@ class Boost {
     }
 
     update(delta) {
-        this.material.uniforms.uTime.value = delta * 0.5;
+        this.material.uniforms.uTime.value +=  0.01;
         
     }
 }
