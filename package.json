@@ -29,7 +29,6 @@
     "style-loader": "^3.3.1",
     "three": "^0.158.0",
     "three-nebula": "^10.0.3",
-    "three-radial-blur": "github:ycw/three-radial-blur",
     "util": "^0.12.5",
     "vercel": "^33.6.1",
     "webpack": "^5.72.0",

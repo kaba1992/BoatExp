@@ -11,7 +11,6 @@ import Crate from './Crates.js';
 import Trail from './Trail.js';
 import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { RadialBlurPassGen } from 'three-radial-blur';
 import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonShader.glsl';
 import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
 import BirdMove from './BirdMove.js'
@@ -81,7 +80,7 @@ export default class Boat {
     this.setModel()
     this.setKeyUp()
     this.getListener()
-    // this.activeBlur()
+
   }
 
 
@@ -115,23 +114,7 @@ export default class Boat {
     })
   }
 
-  activeBlur() {
 
-
-    const RadialBlurPass = RadialBlurPassGen({ THREE, Pass, FullScreenQuad })
-
-    this.radialBlur = new RadialBlurPass({
-      intensity: 0.0, // normalize blur distance; 0. to 1.
-      iterations: 7, // total steps along blur distance
-      maxIterations: 100, // max. iterations ( immutable after creation ) 
-      radialCenter: new THREE.Vector2() // radial center; -1. to 1.
-    })
-
-    this.composer.addPass(this.radialBlur);
-    this.radialBlur.renderToScreen = true;
-
-
-  }
 
 
 
@@ -260,7 +243,7 @@ export default class Boat {
 
       if (event.key === 'Shift') {
         this.voileAudioPlayed = false;
-        // gsap.to(this.radialBlur, { intensity: 0, duration: 1, ease: "easeOut" })
+    
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
 
@@ -414,7 +397,7 @@ export default class Boat {
       this.Shark.update(this.time.delta)
       this.crate.update(this.time.delta)
       this.trail.update(this.time.delta)
-      
+
     }
   }
 
@@ -441,7 +424,7 @@ export default class Boat {
     this.trail.particleGroup.visible = false;
     this.isKeyUp = true;
     this.isMoving = false;
-    // this.radialBlur.intensity = 0
+
 
     //Camera
 
