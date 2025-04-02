@@ -90,7 +90,7 @@ class Boost {
 
     update(delta) {
         let boosRemap = this.remap(this.boost, 0, 100, 0, 1)
-        console.log(boosRemap)
+  
         this.material.uniforms.uRevealRatio.value = boosRemap;
         this.material.uniforms.uTime.value += 0.01;
 
