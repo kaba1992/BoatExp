@@ -414,6 +414,7 @@ export default class Boat {
       this.Shark.update(this.time.delta)
       this.crate.update(this.time.delta)
       this.trail.update(this.time.delta)
+      
     }
   }
 
