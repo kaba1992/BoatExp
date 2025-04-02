@@ -48,10 +48,11 @@ body {
 	height: 100%;
 }
 
+
 .dialogue-captain {
 	position: absolute;
 	width: 52vw;
-	height: 100vh;
+	height: auto;
 	bottom: 0;
 	left: 0;
 }

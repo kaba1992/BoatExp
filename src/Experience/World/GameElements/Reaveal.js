@@ -54,12 +54,13 @@ export default class Reveal {
 
 
         const mesh = new THREE.Mesh(revealPlane, this.material);
+        mesh.frustumCulled = false;
         // change mesh render order to render after the boat
         // mesh.renderOrder = -10
         // mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
-
+        const self = this
 
         gsapTimeline.to(this.material.uniforms.uTime, {
             duration: 3,
@@ -69,7 +70,9 @@ export default class Reveal {
         })
         const revealEndEvent = new Event('revealEnd')
         gsapTimeline.eventCallback("onComplete", function () {
-            mesh.visible = false
+             self.material.dispose()
+             self.material = null
+             self.scene.remove(mesh)
             window.dispatchEvent(revealEndEvent)
         })
 

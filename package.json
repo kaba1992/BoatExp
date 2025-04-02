@@ -10,6 +10,7 @@
     "@babel/core": "^7.17.10",
     "@babel/preset-env": "^7.17.10",
     "@brakebein/threeoctree": "^2.0.1",
+    "@vercel/analytics": "^1.5.0",
     "babel-loader": "^8.2.5",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.4",

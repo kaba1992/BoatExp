@@ -57,10 +57,10 @@ export default class Boat {
     this.rotation = null
     this.boostMultiplier = 2;
     this.boostElement = new Boost(this.scene)
-    this.boostBar = document.querySelector('.boostBar')
-    this.boostProgress = document.querySelector('.boostProgress')
-    this.boostBar.style.width = `${this.boost}%`
-    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
+    // this.boostBar = document.querySelector('.boostBar')
+    // this.boostProgress = document.querySelector('.boostProgress')
+    // this.boostBar.style.width = `${this.boost}%`
+    // this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
     window.canUpdate = false
     this.isMoving = false
@@ -97,7 +97,7 @@ export default class Boat {
     })
 
     window.addEventListener('gameOver', () => {
-      if(this.canPlayGameOVer){
+      if (this.canPlayGameOVer) {
         this.gameOverAudio.play();
         this.canPlayGameOVer = false
       }
@@ -225,15 +225,15 @@ export default class Boat {
     this.kraken = new Kraken({ boat: this.model, canUpdate: window.canUpdate })
     this.trail = new Trail({ boat: this.model })
     this.trail.particleGroup.visible = false;
-    this.birdMove1 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove1 = new BirdMove(this.scene, this.birdsPlane);
     this.birdMove1.setPosition(0, 0, 0)
-    this.birdMove2 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove2 = new BirdMove(this.scene, this.birdsPlane);
     this.birdMove2.setPosition(50, 0, 0)
-    this.birdMove3 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove3 = new BirdMove(this.scene, this.birdsPlane);
     this.birdMove3.setPosition(-50, 0, 0)
-    this.birdMove4 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove4 = new BirdMove(this.scene, this.birdsPlane);
     this.birdMove4.setPosition(0, 0, 50)
-    this.birdMove5 = new BirdMove(this.scene,this.birdsPlane);
+    this.birdMove5 = new BirdMove(this.scene, this.birdsPlane);
     this.birdMove5.setPosition(0, 0, -50)
 
   }
@@ -283,16 +283,16 @@ export default class Boat {
     if (this.boost >= 100) return
     this.boost += 0.085
 
-    this.boostBar.style.width = `${this.boost}%`
-    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
+    // this.boostBar.style.width = `${this.boost}%`
+    // this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
     // console.log(this.boost + "can fill");
   }
 
   unfillBoost() {
     if (this.boost > 0) {
       this.boost -= 0.15
-      this.boostBar.style.width = `${this.boost}%`
-      this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
+      // this.boostBar.style.width = `${this.boost}%`
+      // this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
 
     }
   }
@@ -365,7 +365,7 @@ export default class Boat {
       gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
       gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
     } else {
-      ;
+
       this.boostMultiplier = 1;
       this.fillBoost();
     }
@@ -420,8 +420,8 @@ export default class Boat {
   reset() {
 
     this.boost = 100
-    this.boostBar.style.width = `${this.boost}%`
-    this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
+    // this.boostBar.style.width = `${this.boost}%`
+    // this.boostProgress.innerHTML = `${Math.round(this.boost)}%`
     this.canPlayGameOVer = true
 
     window.canUpdate = false

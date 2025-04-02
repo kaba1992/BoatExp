@@ -13,8 +13,7 @@ export default class Trail {
         this.particleGroup = new THREE.Group()
 
         this.setParticle()
-        this.disk = this.model.getObjectByName("Circle")
-        this.disk.visible = false
+    
 
 
     }

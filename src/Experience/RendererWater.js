@@ -142,9 +142,7 @@ export default class RendererWater {
 
         this.water.material = this.waterMaterial
         this.water.receiveShadow = true
-        // this.waterFloor=  this.water.clone()
-        // this.waterFloor.position.y = - 10
-        // this.scene.add(this.waterGround)
+     
         this.scene.add(this.water)
 
     }
