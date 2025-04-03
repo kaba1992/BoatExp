@@ -52,7 +52,7 @@ body {
 .dialogue-captain {
 	position: absolute;
 	width: 52vw;
-	height: auto;
+	height: 100vh;
 	bottom: 0;
 	left: 0;
 }

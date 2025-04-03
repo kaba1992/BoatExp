@@ -9,13 +9,24 @@ import Shark from './Sharks.js';
 import Island from './Islands.js';
 import Crate from './Crates.js';
 import Trail from './Trail.js';
-import { Pass, FullScreenQuad } from 'three/addons/postprocessing/Pass.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import fragmentToonShader from './../../../../static/shaders/Boat/fragmentToonShader.glsl';
 import vertexToonShader from './../../../../static/shaders/Boat/vertexToonShader.glsl';
 import BirdMove from './BirdMove.js'
 import Kraken from './Kraken.js'
 import Boost from './Boost.js';
+
+const BOAT_PHYSICS = {
+  rotationSpeed: 0.001,
+  maxRotationSpeed: 0.001,
+  rotationAcceleration: 0.001,
+  rotationDamping: 0.95,
+  maxSpeed: null, // sera défini en fonction de this.velocity
+  acceleration: 0.008,
+  reverseAcceleration: 0.003,
+  waterResistance: 0.98,
+  minMovementThreshold: 0.01,
+  maxTiltAngle: 0.1
+};
 
 
 export default class Boat {
@@ -40,9 +51,6 @@ export default class Boat {
 
     this.resource = this.resources.items.boatModel
     this.birdsPlane = this.resources.items.birdsPlane
-
-    this.clock = new THREE.Clock()
-
     this.voileAudio = new Audio('/Audios/Boat/OucertureVoile.mp3');
     this.sailingTraceAudio = new Audio('/Audios/Ambiance/navigationEau.mp3');
     this.gameOverAudio = new Audio('/Audios/Ambiance/gameOver.mp3');
@@ -54,17 +62,21 @@ export default class Boat {
     this.boost = 100
     this.rotVelocity = 0.0006
     this.velocity = 0.004
-    this.rotation = null
+    this.rotation = 0
     this.boostMultiplier = 1;
     this.boostElement = new Boost(this.scene)
     window.canUpdate = false
     this.isMoving = false
     this.voileAudioPlayed = false;
     this.isBoostDown = false
+    this.canFillBoost = false
     this.canBoost = true
-    this.distance = null
+    this.distance = 0
     this.rotation = null
     this.canPlayGameOVer = true
+    this.rotationVelocity = 0;
+    this.currentSpeed = 0;
+
 
     this.rotateAngle = new THREE.Vector3(0, 1, 0)
     this.rotateQuarternion = new THREE.Quaternion()
@@ -175,6 +187,7 @@ export default class Boat {
     this.setupAdditionalComponents()
   }
 
+
   setupAdditionalComponents() {
 
     this.ThirdPersonCamera = new ThirdPersonCamera({ camera: this.camera, target: this.model, canUpdate: window.canUpdate })
@@ -184,22 +197,24 @@ export default class Boat {
     this.kraken = new Kraken({ boat: this.model, canUpdate: window.canUpdate })
     this.trail = new Trail({ boat: this.model })
     this.trail.particleGroup.visible = false;
-    this.birdMove1 = new BirdMove(this.scene, this.birdsPlane);
-    this.birdMove1.setPosition(0, 0, 0)
-    this.birdMove2 = new BirdMove(this.scene, this.birdsPlane);
-    this.birdMove2.setPosition(50, 0, 0)
-    this.birdMove3 = new BirdMove(this.scene, this.birdsPlane);
-    this.birdMove3.setPosition(-50, 0, 0)
-    this.birdMove4 = new BirdMove(this.scene, this.birdsPlane);
-    this.birdMove4.setPosition(0, 0, 50)
-    this.birdMove5 = new BirdMove(this.scene, this.birdsPlane);
-    this.birdMove5.setPosition(0, 0, -50)
+
+    this.birds = [
+      new BirdMove(this.scene, this.birdsPlane),
+      new BirdMove(this.scene, this.birdsPlane),
+      new BirdMove(this.scene, this.birdsPlane),
+      new BirdMove(this.scene, this.birdsPlane),
+      new BirdMove(this.scene, this.birdsPlane),
+    ]
+    this.birds.forEach((bird, index) => {
+      bird.position = new THREE.Vector3(Math.random() * 100 - 50, Math.random() * 10 + 5, Math.random() * 100 - 50)
+      bird.rotation = new THREE.Vector3(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI)
+    })
 
   }
 
   stop() {
     if (this.model) {
-      this.distance = 0
+      // this.distance = 0
       this.rotation = 0
     }
   }
@@ -224,6 +239,10 @@ export default class Boat {
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
 
         this.trail.particleGroup.visible = false;
+        this.isBoostDown = false
+        this.canFillBoost = true
+
+
       }
       else if (event.key === 'ArrowLeft' || event.key === 'q') {
 
@@ -253,79 +272,268 @@ export default class Boat {
   updateSpeed() {
     if (this.model && window.canUpdate) {
       this.model.rotation.y += this.rotation
-      this.model.translateZ(this.distance)
+      const angle = this.model.rotation.y
+      const moveX = Math.sin(angle) * this.distance
+      const moveZ = Math.cos(angle) * this.distance
+      this.model.position.x += moveX
+      this.model.position.z += moveZ
+
+
+
 
 
     }
   }
 
-
   boatControls() {
-    let rotationSpeed = 0.05;
-    // Rotation du bateau
-    if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
-      this.rotation = this.rotVelocity * this.time.delta;
-      this.boatWheel.rotation.z += this.time.delta * rotationSpeed * 0.05;
-    } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
-      this.rotation = -this.rotVelocity * this.time.delta;
-      this.boatWheel.rotation.z -= this.time.delta * rotationSpeed * 0.05;
-    }
-
-    // Mouvement avant et arrière
-    if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
-      this.distance = this.velocity * this.boostMultiplier * this.time.delta;
-      this.isMoving = true;
-      if (!this.sailingTraceAudio.playing) {
-        this.sailingTraceAudio.play();
-      }
-      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
-    } else if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
-      this.distance = (-this.velocity / 2) * this.time.delta;
-      this.isMoving = true;
-      if (!this.sailingTraceAudio.playing) {
-        this.sailingTraceAudio.play();
-      }
-      this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0.2, 0.1);
-    }
-
+    // Définir maxSpeed basé sur la propriété de l'instance
+    BOAT_PHYSICS.maxSpeed = this.velocity;
+    
+    // Gestion de la rotation
+    this.handleRotation();
+    
+    // Gestion du mouvement avant/arrière
+    this.handleMovement();
+    
+    // Calcul final de la distance
+    this.distance = this.currentSpeed * this.time.delta;
+    
     // Gestion du boost
-    if (this.keyboard.pressed('shift') && this.boost > 0) {
-      // calculate distance with boost multiplier
-      // this.distance = this.velocity * this.boostMultiplier * this.time.delta;
-      this.boostMultiplier = 1.8
-      this.unfillBoost();
-      // Effets visuels et sonores pour le boost
-      if (!this.voileAudioPlayed) {
-        this.voileAudio.play();
-        this.voileAudioPlayed = true;
-        this.trail.particleGroup.visible = true;
-      }
-      if (this.canBoost) {
-        this.canBoost = false
-        gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
-        gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
-      }
-
+    this.handleBoost();
+  }
+  
+  // Gestion de la rotation du bateau
+  handleRotation() {
+    if (this.keyboard.pressed('left') || this.keyboard.pressed('q')) {
+      this.rotateLeft();
+    } else if (this.keyboard.pressed('right') || this.keyboard.pressed('d')) {
+      this.rotateRight();
     } else {
-      this.canBoost = true
-      // this.isBoostDown = false
-      this.boostMultiplier = 1;
+      this.resetRotation();
+    }
+    
+    // Appliquer la rotation calculée
+    this.rotation = this.rotationVelocity * this.time.delta;
+    
+    // Appliquer l'inclinaison du bateau en virage
+    this.applyTilt();
+  }
+  
+  // Rotation vers la gauche
+  rotateLeft() {
+    this.rotationVelocity = THREE.MathUtils.clamp(
+      this.rotationVelocity + BOAT_PHYSICS.rotationAcceleration * this.time.delta,
+      -BOAT_PHYSICS.maxRotationSpeed,
+      BOAT_PHYSICS.maxRotationSpeed
+    );
+    
+    // Animation du gouvernail
+    const targetWheelRotation = 0.8;
+    this.boatWheel.rotation.z = THREE.MathUtils.lerp(
+      this.boatWheel.rotation.z,
+      targetWheelRotation,
+      BOAT_PHYSICS.rotationSpeed * this.time.delta
+    );
+  }
+  
+  // Rotation vers la droite
+  rotateRight() {
+    this.rotationVelocity = THREE.MathUtils.clamp(
+      this.rotationVelocity - BOAT_PHYSICS.rotationAcceleration * this.time.delta,
+      -BOAT_PHYSICS.maxRotationSpeed,
+      BOAT_PHYSICS.maxRotationSpeed
+    );
+    
+    // Animation du gouvernail
+    const targetWheelRotation = -0.8;
+    this.boatWheel.rotation.z = THREE.MathUtils.lerp(
+      this.boatWheel.rotation.z,
+      targetWheelRotation,
+      BOAT_PHYSICS.rotationSpeed * this.time.delta
+    );
+  }
+  
+  // Remise à zéro progressive de la rotation
+  resetRotation() {
+    // Retour progressif du gouvernail à sa position neutre
+    this.boatWheel.rotation.z = THREE.MathUtils.lerp(
+      this.boatWheel.rotation.z,
+      0,
+      BOAT_PHYSICS.rotationSpeed * this.time.delta
+    );
+    
+    // Diminution progressive de la vitesse de rotation
+    this.rotationVelocity *= BOAT_PHYSICS.rotationDamping;
+  }
+  
+  // Appliquer l'inclinaison du bateau dans les virages
+  applyTilt() {
+    const targetTilt = -this.rotationVelocity * 2;
+    this.model.rotation.z = THREE.MathUtils.lerp(
+      this.model.rotation.z,
+      THREE.MathUtils.clamp(targetTilt, -BOAT_PHYSICS.maxTiltAngle, BOAT_PHYSICS.maxTiltAngle),
+      0.05
+    );
+  }
+  
+  // Gestion du mouvement avant/arrière
+  handleMovement() {
+    if (this.keyboard.pressed('up') || this.keyboard.pressed('z')) {
+      this.moveForward();
+    } else if (this.keyboard.pressed('down') || this.keyboard.pressed('s')) {
+      this.moveBackward();
+    } else {
+      this.slowDown();
+    }
+  }
+  
+  // Mouvement vers l'avant
+  moveForward() {
+    this.currentSpeed = THREE.MathUtils.lerp(
+      this.currentSpeed,
+      BOAT_PHYSICS.maxSpeed * this.boostMultiplier,
+      BOAT_PHYSICS.acceleration * this.time.delta
+    );
+    
+    this.isMoving = true;
+    this.playSailingSound(0.2);
+  }
+  
+  // Mouvement vers l'arrière
+  moveBackward() {
+    this.currentSpeed = THREE.MathUtils.lerp(
+      this.currentSpeed,
+      -BOAT_PHYSICS.maxSpeed / 2,
+      BOAT_PHYSICS.reverseAcceleration * this.time.delta
+    );
+    
+    this.isMoving = true;
+    this.playSailingSound(0.2);
+  }
+  
+  // Ralentissement naturel
+  slowDown() {
+    this.currentSpeed *= BOAT_PHYSICS.waterResistance;
+    
+
+  }
+  
+  // Gestion des sons du bateau
+  playSailingSound(targetVolume) {
+    if (!this.sailingTraceAudio.playing) {
+      this.sailingTraceAudio.play();
+    }
+    this.sailingTraceAudio.volume = THREE.MathUtils.lerp(
+      this.sailingTraceAudio.volume, 
+      targetVolume, 
+      0.1
+    );
+  }
+  
+  stopSailingSound() {
+    if (this.sailingTraceAudio.playing && this.sailingTraceAudio.volume < 0.05) {
+      this.sailingTraceAudio.pause();
+    } else if (this.sailingTraceAudio.playing) {
+      this.sailingTraceAudio.volume *= 0.95;
+    }
+  }
+  
+  // Gestion du boost
+  handleBoost() {
+    if (this.keyboard.pressed('shift') && this.boost > 0) {
+      this.onShiftPressed();
+    } else {
+      this.resetBoost();
+    }
+    
+    this.handleEmptyBoost();
+  }
+  
+  // Méthode pour gérer le reset du boost
+  resetBoost() {
+    this.boostMultiplier = 1;
+    this.canBoost = true;
+    if (this.canFillBoost) {
       this.fillBoost();
     }
-
-    if (this.boost <= 0) {
-      if (!this.isBoostDown) {
-        this.isBoostDown = true
-        this.boostMultiplier = 1
-        gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
-        gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, easing: "easeOut" })
-        console.log("my attempt");
-      }
+  }
+  
+  // Méthode pour gérer le cas où le boost est vide
+  handleEmptyBoost() {
+    if (this.boost <= 0 && !this.isBoostDown) {
+      this.isBoostDown = true;
+      this.boostMultiplier = 1;
+      this.animateFlagsDown();
     }
+  }
+  
+  // Animation des drapeaux qui tombent
+  animateFlagsDown() {
+    gsap.to(this.boatFlag1.scale, { 
+      x: 1, 
+      y: -0.1, 
+      z: 1, 
+      duration: 1, 
+      easing: "easeOut" 
+    });
+    gsap.to(this.boatFlag3.scale, { 
+      x: 1, 
+      y: -0.1, 
+      z: 1, 
+      duration: 1, 
+      easing: "easeOut" 
+    });
+  }
 
-   
-    console.log(this.isBoostDown);
+  onShiftPressed() {
+    if (!this.isBoostDown) {
+      this.boostMultiplier = 1.8
+      this.unfillBoost();
+    }
+    // Effets visuels et sonores pour le boost
+    if (!this.voileAudioPlayed) {
+      this.voileAudio.play();
+      this.voileAudioPlayed = true;
+      this.trail.particleGroup.visible = true;
+    }
+    if (this.canBoost) {
+      this.canBoost = false
+      gsap.to(this.boatFlag1.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
+      gsap.to(this.boatFlag3.scale, { x: 1, y: 1, z: 1, duration: 1, ease: "easeOut" });
+      // this.applyBoatShake(0.05);
+    }
+  }
 
+  applyBoatShake(intensity) {
+    const originalPosition = {
+      x: this.model.position.x,
+      y: this.model.position.y,
+      z: this.model.position.z
+    };
+
+    // Séquence de secousses
+    const timeline = gsap.timeline();
+
+    timeline.to(this.model.position, {
+      y: originalPosition.y + intensity,
+      x: originalPosition.x + intensity * 0.5,
+      duration: 0.1,
+      ease: "power1.inOut"
+    });
+
+    timeline.to(this.model.position, {
+      y: originalPosition.y - intensity * 0.7,
+      x: originalPosition.x - intensity * 0.3,
+      duration: 0.1,
+      ease: "power1.inOut"
+    });
+
+    timeline.to(this.model.position, {
+      y: originalPosition.y,
+      x: originalPosition.x,
+      duration: 0.2,
+      ease: "elastic.out(1, 0.3)"
+    });
   }
 
 
@@ -334,22 +542,13 @@ export default class Boat {
     this.updateSpeed()
     this.boatControls()
     const elapsedTime = this.time.elapsed * 0.0008
-    const delta = this.clock.getDelta()
 
     if (this.model) {
-
-
       this.updateAdditionalComponents()
-
-
       this.model.rotation.z = Math.sin(this.model.userData.initFloating + elapsedTime) * 0.05;
-
       if (this.isKeyUp) {
         this.sailingTraceAudio.volume = THREE.MathUtils.lerp(this.sailingTraceAudio.volume, 0, 0.1);
-
       }
-
-
     }
   }
 
@@ -360,11 +559,7 @@ export default class Boat {
 
     this.kraken.update(this.time.delta)
     this.island.update(this.time.delta)
-    this.birdMove1.update(this.time.delta)
-    this.birdMove2.update(this.time.delta)
-    this.birdMove3.update(this.time.delta)
-    this.birdMove4.update(this.time.delta)
-    this.birdMove5.update(this.time.delta)
+    this.birds.forEach(bird => bird.update(this.time.delta));
     this.boostElement.update(this.time.delta)
     if (window.canUpdate) {
       // this.Shark.update(this.time.delta)
@@ -405,11 +600,11 @@ export default class Boat {
 
     gsap.set(this.boatFlag1.scale, { x: 1, y: 1, z: 1 })
     gsap.set(this.boatFlag3.scale, { x: 1, y: 1, z: 1 })
-    // boatPlane.visible = false
+
     this.model.scale.set(0.5, 0.5, 0.5)
     // this.model.position.set(0, 6, 0) :// check in ThrdPeson cam
     this.model.position.x = 0
-    // this.model.position.y = Math.random() * Math.PI * 2;:::
+    // this.model.position.y = Math.random() * Math.PI * 2;
     this.model.position.z = 0
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 

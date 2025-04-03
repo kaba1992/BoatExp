@@ -37,11 +37,9 @@ export default class Trail {
         const sprite = new THREE.Sprite(
             new THREE.SpriteMaterial({
                 map: texture,
-                // color: 0x0000ff,
                 transparent: true,
                 depthWrite: false,
                 depthTest: true,
-                // blending: THREE.AdditiveBlending,
                 fog: true,
             })
         )
