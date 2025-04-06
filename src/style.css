@@ -1,9 +1,17 @@
 /* Styles communs (pour toutes les tailles d'écran) */
 
 @font-face {
-	font-family: "eraserregular";
-	src: url("../static/Font/eraser-webfont.woff2") format("woff2"),
-		url("../static/Font/eraser-webfont.woff") format("woff");
+    font-family: 'sabalonregular';
+    src: url('../static/Font/sabalon-kvy3y-webfont.woff2') format('woff2'),
+         url('../static/Font/sabalon-kvy3y-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+	font-family: "game_bubbleregular";
+	src: url("../static/Font/game_bubble-webfont.woff2") format("woff2"),
+		url("../static/Font/game_bubble-webfont.woff") format("woff");
 	font-weight: normal;
 	font-style: normal;
 }
@@ -18,14 +26,22 @@ body {
 	overflow: hidden;
 	height: 100%;
 	width: 100%;
-	font-family: "eraserregular";
+	color: #000000;
 	-webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Old versions of Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently                            supported by Chrome, Edge, Opera and Firefox */
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: "sabalonregular";
 }
 
 .webgl {
@@ -149,10 +165,16 @@ body {
 }
 
 @keyframes boostAnimation {
-	0% { filter: brightness(1); }
-	50% { filter: brightness(1.5); }
-	100% { filter: brightness(1); }
-  }
+	0% {
+		filter: brightness(1);
+	}
+	50% {
+		filter: brightness(1.5);
+	}
+	100% {
+		filter: brightness(1);
+	}
+}
 
 .boostBar {
 	position: absolute;

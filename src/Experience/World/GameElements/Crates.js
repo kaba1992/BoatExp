@@ -10,6 +10,8 @@ export default class Crate {
     constructor(params) {
         this.experience = new Experience();
         this.scene = this.experience.scene;
+        this.renderer = this.experience.renderer.instance
+        this.outlinePass = this.experience.renderer.outlinePass;
         this.resources = this.experience.resources;
         this.timer = this.experience.timer;
         this.params = params;
@@ -30,7 +32,7 @@ export default class Crate {
         this.onBoatAudio = new Audio('/Audios/Boat/Pick2.wav');
         this.onBoatAudio.volume = 0.3;
         this.crate = this.crateModel.scene;
-        this.crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase.jpg');
+        this.crateBase = new THREE.TextureLoader().load('/textures/Crate/crateBase_toon.jpg');
         this.crateNormal = new THREE.TextureLoader().load('/textures/Crate/crateNormal.png');
         this.crateMaterialParams = new THREE.TextureLoader().load('/textures/Crate/crateMaterialParams.png');
         this.crateGeometry = this.crate.children[0].geometry;
@@ -92,6 +94,8 @@ export default class Crate {
             let promise = new Promise((resolve, reject) => {
                 const crate = new THREE.Mesh(this.crateGeometry, this.crateMaterial);
                 crate.scale.set(0.05, 0.05, 0.05);
+          
+                
 
                 const row = Math.floor(i / gridSize);
                 const col = i % gridSize;

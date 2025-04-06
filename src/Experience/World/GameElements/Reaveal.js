@@ -8,6 +8,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
+
 export default class Reveal {
     constructor(params) {
         this.experience = new Experience()
@@ -15,10 +16,11 @@ export default class Reveal {
         this.resources = this.experience.resources
         this.camera = this.experience.camera.instance
         this.renderer = this.experience.renderer.instance
+       
         this.material = null
         this.composer = new EffectComposer(this.renderer)
         this.composer.addPass(new RenderPass(this.scene, this.camera))
-        
+
         this.renderTexture = null;
 
 
@@ -45,9 +47,7 @@ export default class Reveal {
                 uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
                 renderTexture: { value: null },
                 revealNoise: { value: revealTexture }
-            }
-            // wireframe: true,
-
+            },
         });
         const revealPlane = new THREE.PlaneGeometry(2, 2, 1, 1);
 
@@ -56,7 +56,7 @@ export default class Reveal {
         const mesh = new THREE.Mesh(revealPlane, this.material);
         mesh.frustumCulled = false;
         // change mesh render order to render after the boat
-        // mesh.renderOrder = -10
+        mesh.renderOrder = 999
         // mesh.visible = false
         this.scene.add(mesh);
         const gsapTimeline = gsap.timeline()
@@ -70,9 +70,9 @@ export default class Reveal {
         })
         const revealEndEvent = new Event('revealEnd')
         gsapTimeline.eventCallback("onComplete", function () {
-             self.material.dispose()
-             self.material = null
-             self.scene.remove(mesh)
+            self.material.dispose()
+            self.material = null
+            self.scene.remove(mesh)
             window.dispatchEvent(revealEndEvent)
         })
 
@@ -85,7 +85,7 @@ export default class Reveal {
         })
 
         window.addEventListener('startExp', () => {
-          
+
 
         })
     }
@@ -94,6 +94,13 @@ export default class Reveal {
         this.renderTexture = this.experience.renderer.renderTexture
         if (this.material) {
             this.material.uniforms.renderTexture.value = this.renderTexture.texture
+            this.renderer.setRenderTarget(null)
+            this.renderer.render(this.scene, this.camera)
+        }
+
+
+        if (this.experience.renderer.outlineEffect) {
+            this.experience.renderer.outlineEffect.render(this.scene, this.camera);
         }
         // this.composer.render()
 

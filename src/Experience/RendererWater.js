@@ -3,13 +3,15 @@ import Experience from './Experience.js'
 import fragmentPiscine from './../../static/shaders/Boat/fragmentPiscine.glsl'
 import vertexPiscine from './../../static/shaders/Boat/vertexPiscine.glsl'
 import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 
 
 export default class RendererWater {
     constructor(reveal) {
         this.experience = new Experience()
         this.canvas = this.experience.canvas
-        this.composer = this.experience.composer
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
         this.time = this.experience.time
@@ -17,6 +19,7 @@ export default class RendererWater {
         this.orthoScene = this.experience.orthoScene
         this.camera = this.experience.camera
         this.cameraOrtho = this.experience.camera.instanceOrtho
+        
         this.clock = new THREE.Clock()
         // this.revealComposer = this.experience.reveal.composer
 
@@ -27,6 +30,30 @@ export default class RendererWater {
 
         this.setInstance()
         this.setWater()
+        this.setOutline()
+        
+    }
+
+    setOutline() {
+        this.composer = new EffectComposer(this.instance);
+        this.renderPass = new RenderPass(this.scene, this.camera.instance);
+        this.composer.addPass(this.renderPass);
+        this.outlinePass = new OutlinePass(new THREE.Vector2(this.sizes.width, this.sizes.height), this.scene, this.camera.instance);
+        this.composer.addPass(this.outlinePass);
+        const params = {
+            edgeStrength: 4,
+            edgeGlow: 1,
+            edgeThickness: 5.0,
+            pulsePeriod: 0,
+            usePatternTexture: false
+        };
+        
+        this.outlinePass.edgeStrength = params.edgeStrength;
+        this.outlinePass.edgeGlow = params.edgeGlow;
+        this.outlinePass.visibleEdgeColor.set(0x000000);
+        this.outlinePass.hiddenEdgeColor.set(0x000000);
+
+        
     }
 
     setInstance() {
@@ -41,12 +68,6 @@ export default class RendererWater {
         this.instance.setPixelRatio(this.pixelRatio)
         // this.instance.toneMapping = THREE.ACESFilmicToneMapping;
         // this.instance.toneMappingExposure = 1;
-        this.outlineEffect = new OutlineEffect(this.instance, {
-            defaultThickness: 0.002,
-            blur: true,	// Enable blurring
-            xRay: true
-
-        });
 
 
         const width = window.innerWidth * this.pixelRatio;
@@ -76,6 +97,20 @@ export default class RendererWater {
         this.depthMaterial = new THREE.MeshDepthMaterial();
         this.depthMaterial.depthPacking = THREE.RGBADepthPacking;
         this.depthMaterial.blending = THREE.NoBlending;
+        this.outlineEffect = new OutlineEffect(this.instance, {
+            defaultThickness: 0.002,
+            blur: true,	// Enable blurring
+            xRay: true,
+
+        });
+
+        // console.log(this.outlineEffect);
+    }
+
+    initialRender() { //render to renderTexture
+        this.instance.setRenderTarget(this.renderTexture);
+        this.instance.render(this.scene, this.camera.instance); // Render the scene
+        this.instance.setRenderTarget(null);
     }
 
     setWater(supportsDepthTextureExtension) {
@@ -142,10 +177,12 @@ export default class RendererWater {
 
         this.water.material = this.waterMaterial
         this.water.receiveShadow = true
-     
+
         this.scene.add(this.water)
 
     }
+
+
 
     resize() {
         this.instance.setSize(this.sizes.width, this.sizes.height)
@@ -158,7 +195,7 @@ export default class RendererWater {
     }
 
     update() {
-       this.water.visible = false
+        this.water.visible = false
         this.camera.instance.layers.set(0);
         this.camera.instance.layers.enable(0);
         this.camera.instance.layers.disable(1);
@@ -175,17 +212,17 @@ export default class RendererWater {
 
         if (this.renderTexture) {
             this.instance.setRenderTarget(this.renderTexture);
+            this.camera.instance.layers.enable(1);
             this.instance.render(this.scene, this.camera.instance, this.renderTexture, true);
+            this.outlineEffect.render(this.scene, this.camera.instance);
+            this.instance.setRenderTarget(null);
         }
-        // this.instance.render(this.scene, this.camera.instance);
-        this.instance.setRenderTarget(null);
+        this.instance.render(this.scene, this.camera.instance);
 
-
-
-        // this.instance.render(this.scene, this.camera.instance);
         this.camera.instance.layers.enable(1);
 
         this.instance.render(this.scene, this.camera.instance);
-        this.outlineEffect.render(this.scene, this.camera.instance);
+        // this.composer.render(this.scene, this.camera.instance);
+
     }
 }

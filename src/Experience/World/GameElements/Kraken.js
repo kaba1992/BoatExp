@@ -33,7 +33,6 @@ export default class Kraken {
         this.setFishs();
         this.isPlayerInRadar = false;
         this.setKraken();
-        // this.setBirds();
         window.addEventListener('reset', () => {
             this.reset()
         })
@@ -130,7 +129,9 @@ export default class Kraken {
             this.kraken.position.set(boatPosbeforeAttack.x, 1, boatPosbeforeAttack.z);
             gsap.to(this.krakenMaterial, { opacity: 1, duration: 1 });
             this.krakenMaterial.depthTest = true;
-
+            setTimeout(() => {
+                this.radar.position.set(this.kraken.position.x, 0.001, this.kraken.position.z);
+            }, 500);
 
             setTimeout(() => {
                 if (!this.isPlayerInRadar) {
@@ -160,63 +161,10 @@ export default class Kraken {
 
     }
 
-    setBirds() {
-        this.birdsResource.scene.traverse((child) => {
-            if (child.name === "birdParent") {
-                this.birdsParent = child;
-            }
-        });
-        this.birdsParent.position.set(0, 5,10);
-        this.birdsParent.rotation.y = -Math.PI *2;
-
-        this.birds = this.birdsResource.scene.children;
-        let randomAngle = Math.random() * 2 * Math.PI;
-      this.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-        for (let i = 0; i < this.birds.length; i++) {
-            const bird = this.birds[i];
-            this.scene.add(bird);
-
-            this.birdsArray.push(bird);
-            bird.clips = this.birdsResource.animations;
-            bird.mixer = new THREE.AnimationMixer(bird);
-            bird.clip = THREE.AnimationClip.findByName(bird.clips, "ArmatureAction.006");
-            bird.action = bird.mixer.clipAction(bird.clip);
-            bird.action.setLoop(THREE.LoopRepeat, Infinity);
-            bird.action.play();
-
-
-        }
-        const randomDelay = Math.random() * (15000 - 10000) + 10000;
-        setInterval(() => {
-            let randomAngle = Math.random() * 2 * Math.PI;
-          this.randomDirection = new THREE.Vector3(Math.cos(randomAngle), 0, Math.sin(randomAngle)).normalize();
-        }, randomDelay);
-    }
-    setBirdsAnim() {
-
-        for (let i = 0; i < this.birdsArray.length; i++) {
-            const bird = this.birdsArray[i];
-            bird.mixer.update(this.time.delta * 0.001);
-
-            const shift = new THREE.Vector3();
-            shift.copy(this.randomDirection).multiplyScalar(1.5 * this.time.delta * 0.003);
-            const targetDirection = bird.position.clone().add(this.randomDirection);
-            // console.log(targetDirection);
-            const targetQuaternion = new THREE.Quaternion().setFromRotationMatrix(
-                new THREE.Matrix4().lookAt(targetDirection, bird.position, bird.up)
-            );
-    
-           if(window.canUpdate){
-            bird.position.add(shift);
-            bird.quaternion.slerp(targetQuaternion, this.time.delta * 0.0002);
-    
-           }
-        }
-
-    }
+ 
 
     update(delta) {
-        this.setBirdsAnim();
+        
         if (this.fishMixer && this.krakenMixer) {
             this.fishMixer.update(delta * 0.001);
 
@@ -254,7 +202,6 @@ export default class Kraken {
             const event = new Event('gameOver');
             window.dispatchEvent(event);
         }
-
 
     }
 
