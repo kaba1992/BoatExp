@@ -82,7 +82,7 @@ void main() {
         edgeWidth * sin(edgeFreq * vUv.y * 3.14159 + uTime * 5.) +
         edgeWidth * 0.5 * sin(edgeFreq * 2.0 * vUv.y * 3.14159 - uTime * 5. * 0.7);
     float smoothEdge = smoothstep(sinEdge - 0.01, sinEdge + 0.01, vUv.x);
-    finalColor = mix(finalColor, vec4(0., 0., 0., 1.) * 1. - alpha, smoothEdge);
+    finalColor = mix(finalColor, vec4(0.086, 0.407, 1.0, 1.) * 1. - alpha, smoothEdge);
     vec4 outlineColor = texture2D(uOutlineTexture, vUv * 0.45 - 0.45);
 
     gl_FragColor = finalColor;
