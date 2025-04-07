@@ -32,7 +32,7 @@ export default class Island {
 
     async setMiniIslands() {
         const textureLoader = new THREE.TextureLoader()
-        const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew.jpg')
+        const miniIslandTexture = textureLoader.load('textures/Islands/bakedNew_toon.jpg')
         miniIslandTexture.colorSpace = THREE.SRGBColorSpace
         miniIslandTexture.flipY = false
         const miniIslandMaterial = new THREE.MeshBasicMaterial({ map: miniIslandTexture })

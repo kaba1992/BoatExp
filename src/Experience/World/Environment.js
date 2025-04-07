@@ -31,7 +31,7 @@ export default class Environment {
 
         const pointLight = new PointLight(0xffffff, 1.5, 2000, 0);
         pointLight.color.setHSL(0.08, 0.8, 0.5);
-        pointLight.position.set(0, 150, 1000);
+        pointLight.position.set(400, 300, 1000);
         this.scene.add(pointLight);
      
 
