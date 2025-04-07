@@ -38,9 +38,12 @@ class Boost {
             uniforms: {
                 uTime: { value: 0.0 },
                 uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-                uAlphaTexture: { value: new THREE.TextureLoader().load('/textures/Ui/AlphaBot.jpg') },
+                uAlphaTexture: { value: new THREE.TextureLoader().load('/textures/Ui/AlphaBot.jpg')} ,
+                uOutlineTexture: { value: new THREE.TextureLoader().load('/textures/Ui/bottleOutline.png') },
+
                 uRevealRatio: { value: 1. },
                 uOpacity: { value: 0. },
+            
             },
             transparent: true,
             side: THREE.DoubleSide,

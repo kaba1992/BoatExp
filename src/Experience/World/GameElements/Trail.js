@@ -1,7 +1,7 @@
 import Experience from "../../Experience"
 import * as THREE from "three"
 import System, { Body, Emitter, Life, Vector3D, Mass, RadialVelocity, Radius, Rate, Span, SpriteRenderer, Scale, RandomDrift, Alpha, Color, Force, log } from "three-nebula"
-
+import { gsap } from "gsap";
 
 export default class Trail {
     constructor(params) {
@@ -13,7 +13,7 @@ export default class Trail {
         this.particleGroup = new THREE.Group()
 
         this.setParticle()
-    
+
 
 
     }
@@ -49,7 +49,7 @@ export default class Trail {
         const speed = 10; // Vitesse des particules
 
         this.emitter
-            .setRate(new Rate(new Span(2, 2), 0.001))
+            .setRate(new Rate(new Span(8, 8), 0.001))
             .setInitializers([
                 new Mass(1),
                 new Radius(2, 2),
@@ -74,11 +74,35 @@ export default class Trail {
 
     }
 
-  
+    hideParticle() {
+        gsap.to(this.particleGroup.scale, {
+            duration: 0.5,
+            x: 0,
+            y: 0,
+            z: 0,
+            ease: "power2.inOut",
+            onComplete: () => {
+                this.particleGroup.visible = false
+            }
+        })
+    }
+
+    showParticle() {
+        this.particleGroup.visible = true
+        gsap.to(this.particleGroup.scale, {
+            duration: 0.5,
+            x: 1,
+            y: 1,
+            z: 1,
+            ease: "power2.inOut",
+        })
+    }
+
+
     update(delta) {
         const deltaTime = this.clock.getDelta()
         this.system.update(deltaTime)
-  
+
     }
 
 }

@@ -77,6 +77,7 @@ export default class RendererWater {
             format: THREE.RGBAFormat,
             magFilter: THREE.LinearFilter,
             minFilter: THREE.LinearFilter,
+            antialias: true,
             // stencilBuffer: true,
         });
 

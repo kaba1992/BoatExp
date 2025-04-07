@@ -124,6 +124,9 @@ export default class Boat {
 
     Boat.model = this.model
     // this.model.velocity = new Vector3(0, 0, 0)
+    this.model.position.z = 5
+    
+
 
     this.boatFlag1 = this.model.getObjectByName('StylShip_SailMid1_Mat_StylShip_SailsRope_0')
     this.boatFlag3 = this.model.getObjectByName('StylShip_SailMid2_Mat_StylShip_SailsRope_0')
@@ -202,7 +205,8 @@ export default class Boat {
     this.crate = new Crate({ boat: this.model })
     this.kraken = new Kraken({ boat: this.model, canUpdate: window.canUpdate })
     this.trail = new Trail({ boat: this.model })
-    this.trail.particleGroup.visible = false;
+    // this.trail.particleGroup.visible = false;
+    this.trail.particleGroup.scale.set(0, 0, 0)
 
     this.birds = [
       new BirdMove(this.scene, this.birdsPlane),
@@ -244,7 +248,7 @@ export default class Boat {
         gsap.to(this.boatFlag1.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
         gsap.to(this.boatFlag3.scale, { x: 1, y: -0.1, z: 1, duration: 1, easing: "easeOut" })
 
-        this.trail.particleGroup.visible = false;
+        this.trail.hideParticle()
         this.isBoostDown = false
         this.canFillBoost = true
 
@@ -518,7 +522,7 @@ export default class Boat {
     if (!this.voileAudioPlayed) {
       this.voileAudio.play();
       this.voileAudioPlayed = true;
-      this.trail.particleGroup.visible = true;
+      this.trail.showParticle()
     }
     if (this.canBoost) {
       this.canBoost = false
@@ -583,7 +587,8 @@ export default class Boat {
     this.boost = 100
     this.rotVelocity = 0.0006
     this.voileAudioPlayed = false;
-    this.trail.particleGroup.visible = false;
+    // this.trail.particleGroup.visible = false;
+    this.trail.hideParticle()
     this.isBoostDown = false
     this.isKeyUp = true;
     this.isMoving = false;
@@ -602,7 +607,7 @@ export default class Boat {
     // this.model.position.set(0, 6, 0) :// check in ThrdPeson cam
     this.model.position.x = 0
     // this.model.position.y = Math.random() * Math.PI * 2;
-    this.model.position.z = 0
+    this.model.position.z = 5
     this.model.userData.initFloating = Math.random() * Math.PI * 2;
 
     this.model.rotation.y = Math.PI;
